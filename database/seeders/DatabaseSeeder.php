@@ -24,5 +24,15 @@ class DatabaseSeeder extends Seeder
             'name' => 'inetjuhhh',
             'email' => 'ine@inetjuhhh.nl',
         ]);
+
+        $this->call([
+            BlogSeeder::class,
+            CategorySeeder::class,
+            SubcategorySeeder::class,
+            TagSeeder::class,
+            BlogCategorySeeder::class,
+            ResponseSeeder::class,
+
+        ]);
     }
 }
