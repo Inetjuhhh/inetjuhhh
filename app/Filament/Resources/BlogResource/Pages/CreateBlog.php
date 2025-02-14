@@ -15,10 +15,4 @@ class CreateBlog extends CreateRecord
         $data['placed_by'] = auth()->id();
         return $data;
     }
-
-    // protected function afterCreate(): void
-    // {
-    //     $blog = $this->record;
-    //     dd($blog);
-    // }
 }
