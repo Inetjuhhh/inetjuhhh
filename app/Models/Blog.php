@@ -8,6 +8,9 @@ class Blog extends Model
 {
     protected $table = 'blogs';
     protected $guarded = [];
+    protected $casts = [
+        'tags' => 'array',
+    ];
 
     public function placed_by()
     {
@@ -21,7 +24,7 @@ class Blog extends Model
 
     public function tags()
     {
-        return $this->belongsToMany(Tag::class);
+        return $this->belongsToMany(Tag::class, 'blog_tag');
     }
 
     public function categories()
