@@ -3,13 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\HasMedia;
 
-class Blog extends Model
+class Blog extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+
     protected $table = 'blogs';
     protected $guarded = [];
     protected $casts = [
         'tags' => 'array',
+        'attachments' => 'array',
     ];
 
     public function placed_by()

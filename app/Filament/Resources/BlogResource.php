@@ -5,11 +5,16 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BlogResource\Pages;
 use App\Filament\Resources\BlogResource\RelationManagers;
 use App\Models\Blog;
+use App\Models\Tag;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -63,9 +68,21 @@ class BlogResource extends Resource
                 //         $category_id = $get('category_id');
                 //         return \App\Models\Subcategory::where('category_id', $get('category_id'))->get()->pluck('name', 'id');
                 //     }),
-                Textarea::make('content')
+                // TagsInput::make('tags')
+                //     ->label('Tags'),
+                // Textarea::make('content')
+                //     ->label('Content')
+                //     ->required(),
+                RichEditor::make('content')
                     ->label('Content')
+                    ->columnSpanFull()
                     ->required(),
+                SpatieMediaLibraryFileUpload::make('attachments')
+                    ->label('Images')
+                    ->preserveFilenames()
+                    ->collection('blog_attachments')
+                    ->columnSpanFull()
+                    ->multiple(),
                 TextInput::make('status')
                     ->label('Status')
                     ->default('draft')
