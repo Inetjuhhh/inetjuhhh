@@ -37,4 +37,9 @@ class Blog extends Model implements HasMedia
         return $this->belongsToMany(Category::class, 'blog_subcategory');
     }
 
+    public function countries()
+    {
+        return $this->belongsToMany(Country::class, 'blog_country');
+    }
+
 }
