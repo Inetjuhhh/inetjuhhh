@@ -29,5 +29,10 @@ class CategorySeeder extends Seeder
         $category->name = 'Family';
         $category->save();
 
+        $blogs = \App\Models\Blog::all();
+        foreach ($blogs as $blog) {
+            $blog->categories()->attach(rand(1, 4));
+        }
+
     }
 }

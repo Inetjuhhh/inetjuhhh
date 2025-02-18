@@ -18,5 +18,10 @@ class TagSeeder extends Seeder
             $tag->name = $faker->word;
             $tag->save();
         }
+
+        $blogs = \App\Models\Blog::all();
+        foreach ($blogs as $blog) {
+            $blog->tags()->attach(rand(1, 10));
+        }
     }
 }
