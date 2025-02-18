@@ -46,12 +46,31 @@ class BlogResource extends Resource
                 TextInput::make('slug')
                     ->label('Slug')
                     ->required(),
+                Select::make('country_id')
+                    ->label('Country')
+                    ->relationship('countries', 'name')
+                    ->multiple()
+                    ->live(onBlur: true)
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label('Land')
+                            ->required(),
+                    ])
+                    ->options(
+                        \App\Models\Country::all()->pluck('name', 'id')
+                    )
+                    ->required(),
                 Select::make('categories')
                     ->label('Category')
                     ->multiple()
                     ->preload()
                     ->relationship('categories', 'name')
                     ->live(onBlur: true)
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label('Categorie')
+                            ->required(),
+                    ])
                     ->options(
                         \App\Models\Category::all()->pluck('name', 'id')
                     )
