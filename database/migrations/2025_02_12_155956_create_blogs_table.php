@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('slug');
-            $table->text('content');
+            $table->text('excerpt');
+            $table->longText('content');
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
             $table->foreignId('placed_by_id')->references('id')->on('users')->constrained();
             $table->timestamps();

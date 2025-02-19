@@ -16,6 +16,7 @@ class BlogSeeder extends Seeder
         $blog = new \App\Models\Blog();
         $blog->title = 'Hoe maak ik een blog in Laravel?';
         $blog->slug = 'hoe-maak-ik-een-blog-in-laravel';
+        $blog->excerpt = $faker->sentences(3, true);
         $blog->content = $faker->paragraphs(5, true);
         $blog->placed_by_id = 1;
         $blog->save();
@@ -23,9 +24,20 @@ class BlogSeeder extends Seeder
         $blog = new \App\Models\Blog();
         $blog->title = 'Hoe maak ik een blog in PHP?';
         $blog->slug = 'hoe-maak-ik-een-blog-in-php';
+        $blog->excerpt = $faker->sentences(3, true);
         $blog->content = $faker->paragraphs(5, true);
         $blog->placed_by_id = 1;
         $blog->save();
+
+        for($i = 0; $i < 20; $i++) {
+            $blog = new \App\Models\Blog();
+            $blog->title = $faker->sentence(6, true);
+            $blog->slug = $faker->slug();
+            $blog->excerpt = $faker->sentences(3, true);
+            $blog->content = $faker->paragraphs(5, true);
+            $blog->placed_by_id = 1;
+            $blog->save();
+        }
 
 
     }
