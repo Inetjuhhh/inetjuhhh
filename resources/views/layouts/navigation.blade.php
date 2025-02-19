@@ -1,7 +1,7 @@
 <header class="">
     <nav class="bg-white border-gray-200 dark:bg-gray-900">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-            <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
+            <a href="{{route('blogs.index')}}" class="flex items-center space-x-3 rtl:space-x-reverse">
                 <img src="{{ asset('storage/img/avatar.ico') }}" class="h-8" alt="Ine avatar" />
                 <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Inetjuhhh</span>
                 <span class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent text-sm md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 italic">Life is short, so enjoy it!</span>

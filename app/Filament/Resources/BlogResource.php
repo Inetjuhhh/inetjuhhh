@@ -46,6 +46,9 @@ class BlogResource extends Resource
                 TextInput::make('slug')
                     ->label('Slug')
                     ->required(),
+                TextInput::make('excerpt')
+                    ->label('Excerpt')
+                    ->default('No excerpt')	,
                 Select::make('country_id')
                     ->label('Country')
                     ->relationship('countries', 'name')

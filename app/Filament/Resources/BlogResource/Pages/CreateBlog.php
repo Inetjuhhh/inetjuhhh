@@ -12,7 +12,7 @@ class CreateBlog extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['placed_by'] = auth()->id();
+        $data['placed_by_id'] = auth()->id();
         return $data;
     }
 }
