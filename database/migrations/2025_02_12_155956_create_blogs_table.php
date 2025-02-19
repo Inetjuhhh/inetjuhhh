@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('excerpt');
             $table->longText('content');
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
+            $table->dateTime('published_at')->nullable();
             $table->foreignId('placed_by_id')->references('id')->on('users')->constrained();
             $table->timestamps();
         });

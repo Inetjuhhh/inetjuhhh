@@ -18,6 +18,7 @@ class BlogSeeder extends Seeder
         $blog->slug = 'hoe-maak-ik-een-blog-in-laravel';
         $blog->excerpt = $faker->sentences(3, true);
         $blog->content = $faker->paragraphs(20, true);
+        $blog->published_at = $faker->dateTimeBetween('-1 year', 'now');
         $blog->placed_by_id = 1;
         $blog->save();
 
@@ -26,6 +27,7 @@ class BlogSeeder extends Seeder
         $blog->slug = 'hoe-maak-ik-een-blog-in-php';
         $blog->excerpt = $faker->sentences(3, true);
         $blog->content = $faker->paragraphs(20, true);
+        $blog->published_at = $faker->dateTimeBetween('-1 year', 'now');
         $blog->placed_by_id = 1;
         $blog->save();
 
@@ -35,6 +37,7 @@ class BlogSeeder extends Seeder
             $blog->slug = $faker->slug();
             $blog->excerpt = $faker->sentences(3, true);
             $blog->content = $faker->paragraphs(20, true);
+            $blog->published_at = $faker->dateTimeBetween('-1 year', 'now');
             $blog->placed_by_id = 1;
             $blog->save();
         }

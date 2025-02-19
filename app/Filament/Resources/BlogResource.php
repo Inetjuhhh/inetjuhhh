@@ -6,7 +6,9 @@ use App\Filament\Resources\BlogResource\Pages;
 use App\Filament\Resources\BlogResource\RelationManagers;
 use App\Models\Blog;
 use App\Models\Tag;
+use DateTime;
 use Filament\Forms;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
@@ -105,9 +107,16 @@ class BlogResource extends Resource
                     ->collection('blog_attachments')
                     ->columnSpanFull()
                     ->multiple(),
-                TextInput::make('status')
+                Select::make('status')
                     ->label('Status')
-                    ->default('draft')
+                    ->options([
+                        'draft' => 'Draft',
+                        'published' => 'Published',
+                        'archived' => 'Archived',
+                    ])
+                    ->required(),
+                DateTimePicker::make('published_at')
+                    ->label('Published at')
                     ->required(),
             ]);
     }
