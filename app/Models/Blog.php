@@ -19,7 +19,7 @@ class Blog extends Model implements HasMedia
 
     public function placed_by()
     {
-        return $this->belongsTo(User::class, 'placed_by');
+        return $this->belongsTo(User::class, 'placed_by_id', 'id');
     }
 
     public function responses()

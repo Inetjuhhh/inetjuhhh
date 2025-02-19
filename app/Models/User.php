@@ -46,7 +46,7 @@ class User extends Authenticatable
         ];
     }
 
-    protected function blog(){
-        return $this->hasMany(Blog::class);
+    protected function blogs(){
+        return $this->hasMany(Blog::class, 'placed_by');
     }
 }
