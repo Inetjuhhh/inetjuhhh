@@ -21,6 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::share('countries', Country::all());
+        View::share('countries', Country::orderBy('name', 'asc')->get());
     }
 }
