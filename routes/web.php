@@ -14,7 +14,7 @@ Route::get('/dashboard', function () {
 
 Route::get('/', [BlogController::class, 'index'])->name('blogs.index');
 Route::get('/blogs/{id}', [BlogController::class, 'show'])->name('blogs.show');
-Route::get('/blogs/{country_id}', [BlogController::class, 'showByCountry'])->name('blogs.showByCountry');
+Route::get('/blogs/country/{country_id}', [BlogController::class, 'blogCountry'])->name('blogs.blogCountry');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

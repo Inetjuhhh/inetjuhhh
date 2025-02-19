@@ -52,7 +52,7 @@
                             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownHoverButton">
                                 @foreach($countries as $country)
                                     <li class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                                        <a href="">{{$country->name}}</a>
+                                        <a href="{{route('blogs.blogCountry', $country->id)}}">{{$country->name}}</a>
                                         {{-- <a href="{{route('blogs.showByCountry', $country->id)}}" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{$country->name}}</a> --}}
                                     </li>
                                 @endforeach
