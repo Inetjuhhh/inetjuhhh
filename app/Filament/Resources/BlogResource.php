@@ -23,9 +23,11 @@ use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use FilamentTiptapEditor\TiptapEditor;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use FilamentTiptapEditor\Enums\TiptapOutput;
 
 class BlogResource extends Resource
 {
@@ -97,10 +99,11 @@ class BlogResource extends Resource
                 // Textarea::make('content')
                 //     ->label('Content')
                 //     ->required(),
-                RichEditor::make('content')
-                    ->label('Content')
+                TiptapEditor::make('content')
                     ->columnSpanFull()
-                    ->required(),
+                    ->required()
+                    ->label('Content')
+                    ->profile('default'), 
                 SpatieMediaLibraryFileUpload::make('attachments')
                     ->label('Images')
                     ->preserveFilenames()
@@ -109,6 +112,7 @@ class BlogResource extends Resource
                     ->multiple(),
                 Select::make('status')
                     ->label('Status')
+                    ->default('draft')
                     ->options([
                         'draft' => 'Draft',
                         'published' => 'Published',
@@ -117,7 +121,6 @@ class BlogResource extends Resource
                     ->required(),
                 DateTimePicker::make('published_at')
                     ->label('Published at')
-                    ->required(),
             ]);
     }
 
@@ -132,12 +135,14 @@ class BlogResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->badge()
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->searchable()
                     ->sortable(),
             ])
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 //
             ])
