@@ -100,10 +100,9 @@ class BlogResource extends Resource
                 //     ->label('Content')
                 //     ->required(),
                 TiptapEditor::make('content')
-                    ->columnSpanFull()
-                    ->required()
-                    ->label('Content')
-                    ->profile('default'), 
+                    ->output(TiptapOutput::Json)
+                    ->profile('default')
+                    ->columnSpanFull(),
                 SpatieMediaLibraryFileUpload::make('attachments')
                     ->label('Images')
                     ->preserveFilenames()
