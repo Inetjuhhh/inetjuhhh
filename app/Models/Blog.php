@@ -15,6 +15,7 @@ class Blog extends Model implements HasMedia
     protected $casts = [
         'tags' => 'array',
         'attachments' => 'array',
+        'content' => 'json',
     ];
 
     public function placed_by()

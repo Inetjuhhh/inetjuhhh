@@ -10,10 +10,12 @@ class BlogController extends Controller
 {
     public function index()
     {
-        $blogs = Blog::all();
+        $blogs = Blog::orderBy('created_at', 'desc')->paginate(10);
         $countries = Country::all();
 
-        return view('blogs.index')->with('blogs', $blogs)->with('countries', $countries);
+        return view('blogs.index')
+            ->with('blogs', $blogs)
+            ->with('countries', $countries);
     }
 
     public function show(string $id)

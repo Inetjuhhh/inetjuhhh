@@ -34,5 +34,6 @@
                 </div>
             @endforeach
         </div>
+        {{ $blogs->links() }}
     </x-slot>
 </x-app-layout>

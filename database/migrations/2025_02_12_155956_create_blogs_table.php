@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug');
             $table->text('excerpt');
-            $table->longText('content');
+            $table->json('content');
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
             $table->dateTime('published_at')->nullable();
             $table->foreignId('placed_by_id')->references('id')->on('users')->constrained();
