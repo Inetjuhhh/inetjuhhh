@@ -4,6 +4,7 @@ namespace App\Blocks;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use FilamentTiptapEditor\Extensions\Nodes\Grid;
 use FilamentTiptapEditor\TiptapBlock;
 
@@ -35,7 +36,10 @@ class GalleryBlock extends TiptapBlock
             ->image()
             ->directory('galleries')
             ->preserveFilenames()
-            ->reorderable()
+            ->reorderable(),
+            Toggle::make('slideshow')
+                ->label('Slideshow')
+                ->default(false),
         ];
     }
 }
