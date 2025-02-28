@@ -29,6 +29,9 @@ class GalleryBlock extends TiptapBlock
                 ->label('Titel')
                 ->placeholder('Titel van de galerij')
                 ->required(),
+            Toggle::make('slideshow')
+                ->label('Slideshow')
+                ->default(false),
             FileUpload::make('gallery_images')
             ->label('Gallery afbeeldingen')
             ->multiple()
@@ -37,9 +40,7 @@ class GalleryBlock extends TiptapBlock
             ->directory('galleries')
             ->preserveFilenames()
             ->reorderable(),
-            Toggle::make('slideshow')
-                ->label('Slideshow')
-                ->default(false),
+
         ];
     }
 }
