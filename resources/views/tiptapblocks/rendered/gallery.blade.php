@@ -23,9 +23,16 @@
 
     @if($count > 0)
         <div class="grid grid-cols-{{ $columns }} gap-4 mt-4">
-            @foreach($images as $image)
-                <div class="overflow-hidden rounded-md shadow-md border-2">
-                    <img src="{{ asset('storage/' . $image) }}" class="@if($count == 1) w-2/5 @else w-full @endif h-auto object-cover rounded-md">
+            @foreach($images as $k => $image)
+            @php
+                $imageIsLandscape = false;
+                $imageSize = getimagesize(storage_path('app/public/' . $image));
+                if ($imageSize[0] > $imageSize[1]) {
+                    $imageIsLandscape = true;
+                }
+            @endphp
+                <div class="w-full overflow-hidden rounded-md shadow-md {{ $imageIsLandscape ? 'col-span-2' : '' }}">
+                    <img src="{{ asset('storage/' . $image) }}" class="h-full object-cover w-full rounded-md">
                 </div>
             @endforeach
         </div>
