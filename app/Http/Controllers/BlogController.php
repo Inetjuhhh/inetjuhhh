@@ -26,10 +26,9 @@ class BlogController extends Controller
 
     public function blogCountry(string $id)
     {
-        //get the blogs that belong to the country ($id) with the pivot table blog_country (country_id)
         $blogs = Blog::whereHas('countries', function ($query) use ($id) {
             $query->where('country_id', $id);
-        })->get();
+        })->paginate(10);
 
         return view('blogs.index')->with('blogs', $blogs);
     }

@@ -31,8 +31,8 @@
                     $imageIsLandscape = true;
                 }
             @endphp
-                <div class="w-full overflow-hidden rounded-md shadow-md {{ $imageIsLandscape ? 'col-span-2' : '' }}">
-                    <img src="{{ asset('storage/' . $image) }}" class="h-full object-cover w-full rounded-md">
+                <div class="@if($count < 3 ) w-2/5 @else w-full @endif overflow-hidden border-2 rounded-md shadow-md {{ $imageIsLandscape ? 'col-span-2' : '' }}">
+                    <img src="{{ asset('storage/' . $image) }}" class=" h-full object-cover w-full rounded-md">
                 </div>
             @endforeach
         </div>
