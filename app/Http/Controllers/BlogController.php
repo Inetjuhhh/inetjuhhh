@@ -18,10 +18,18 @@ class BlogController extends Controller
             ->with('countries', $countries);
     }
 
+
     public function show(string $id)
     {
+        $shareComponent = \Jorenvh\Share\ShareFacade::page(
+            'https://pranabkalita.com/posts/mastering-laravel-macros-a-comprehensive-guide',
+            'Your share text comes here',
+            )
+            ->facebook()
+            ->linkedin()
+            ->reddit();
         $blog = Blog::findOrFail($id);
-        return view('blogs.show')->with('blog', $blog);
+        return view('blogs.show')->with('blog', $blog)->with('shareComponent', $shareComponent);
     }
 
     public function blogCountry(string $id)
