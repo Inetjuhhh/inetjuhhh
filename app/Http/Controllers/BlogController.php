@@ -21,15 +21,8 @@ class BlogController extends Controller
 
     public function show(string $id)
     {
-        $shareComponent = \Jorenvh\Share\ShareFacade::page(
-            'https://pranabkalita.com/posts/mastering-laravel-macros-a-comprehensive-guide',
-            'Your share text comes here',
-            )
-            ->facebook()
-            ->linkedin()
-            ->reddit();
         $blog = Blog::findOrFail($id);
-        return view('blogs.show')->with('blog', $blog)->with('shareComponent', $shareComponent);
+        return view('blogs.show')->with('blog', $blog);
     }
 
     public function blogCountry(string $id)

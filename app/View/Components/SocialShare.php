@@ -21,14 +21,23 @@ class SocialShare extends Component
 
     public function render()
     {
-        $shareFB = ShareFacade::page($this->url, $this->text)->facebook();
-        $shareLI = ShareFacade::page($this->url, $this->text)->linkedin();
-        $shareRD = ShareFacade::page($this->url, $this->text)->reddit();
+        $shareComponent = ShareFacade::page($this->url, $this->text)
+            ->facebook()
+            ->twitter()
+            ->linkedin()
+            ->telegram()
+            ->whatsapp()
+            ->reddit();
+        // $shareFB = ShareFacade::page($this->url, $this->text)->facebook();
+        // $shareLI = ShareFacade::page($this->url, $this->text)->linkedin();
+        // $shareRD = ShareFacade::page($this->url, $this->text)->reddit();
 
+        // dd($shareComponent);
         return view('components.social-share', [
-            'shareFB' => $shareFB,
-            'shareLI' => $shareLI,
-            'shareRD' => $shareRD,
+            // 'shareFB' => $shareFB,
+            // 'shareLI' => $shareLI,
+            // 'shareRD' => $shareRD,
+            'shareComponent' => $shareComponent,
         ]);
     }
 }
