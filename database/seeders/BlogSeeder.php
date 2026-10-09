@@ -68,7 +68,7 @@ class BlogSeeder extends Seeder
     }
 
     /**
-     * Converts simple Markdown (## headings, paragraphs, - lists, 1. lists, > quotes, **bold**, *italic*)
+     * Converts simple Markdown (## headings, paragraphs, - lists, 1. lists, > quotes, **bold**, *italic*, @block lines)
      * into the TipTap JSON document the Filament editor stores.
      */
     private function toTiptap(string $markdown): array
@@ -79,7 +79,11 @@ class BlogSeeder extends Seeder
         foreach ($blocks as $block) {
             $lines = array_map('trim', explode("\n", trim($block)));
 
-            if (preg_match('/^(#{2,3}) (.+)$/', $lines[0], $m)) {
+            if (str_starts_with($lines[0], '@block ')) {
+                // Editor block, e.g. @block {"id": "tip", "config": {"type": "tip", "text": "..."}}
+                $block = json_decode(substr(implode(' ', $lines), 7), true, flags: JSON_THROW_ON_ERROR);
+                $content[] = ['type' => 'customBlock', 'attrs' => ['id' => $block['id'], 'config' => $block['config']]];
+            } elseif (preg_match('/^(#{2,3}) (.+)$/', $lines[0], $m)) {
                 $content[] = [
                     'type' => 'heading',
                     'attrs' => ['textAlign' => 'start', 'level' => strlen($m[1])],

@@ -1,5 +1,5 @@
 <article x-data x-intersect.once="$el.classList.add('is-visible')" class="reveal h-full">
-    <a href="{{ route('blogs.show', $blog->id) }}"
+    <a href="{{ route('blogs.show', $blog) }}"
        class="group flex flex-col h-full rounded-2xl overflow-hidden bg-night-700 shadow-soft ring-1 ring-white/5
               hover:shadow-lift hover:-translate-y-1 transition duration-300">
         <div class="relative aspect-[4/3] overflow-hidden">
@@ -24,7 +24,7 @@
             <h2 class="mt-2 font-display text-2xl leading-snug text-cream group-hover:text-brand transition">{{ $blog->title }}</h2>
             @if($blog->excerpt !== 'No excerpt')<p class="mt-3 text-cream-muted line-clamp-3">{{ $blog->excerpt }}</p>@endif
             <div class="mt-auto pt-5 flex items-center justify-between text-sm text-cream-muted">
-                <span>{{ $blog->created_at->translatedFormat('d F Y') }}</span>
+                <span>{{ $blog->publishedDate()->translatedFormat('d F Y') }}</span>
                 <span class="inline-flex items-center gap-1.5 font-medium text-brand">
                     Lees meer
                     <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">

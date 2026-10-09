@@ -49,6 +49,8 @@ Naast de bekende plekken aten we vooral bij de kraampjes in de straten rond ons 
 - **Som tam**: papajasalade met limoen, vissaus en pinda's. Fris en vurig tegelijk.
 - **Jok**: rijstepap met gember en een zacht ei, perfect na een lange avond.
 
+@block {"id": "tip", "config": {"type": "tip", "title": "Bestel het een beetje pittig", "text": "Zeg \"phet nit noi\" als je wat pit wilt, maar geen tranen. \"Mai phet\" betekent helemaal niet pittig."}}
+
 ## Praktische tips voor streetfood in Bangkok
 
 Veel mensen zijn bang om ziek te worden van streetfood. Wij zijn in vijf dagen geen moment ziek geweest, en dat komt volgens mij door een paar simpele regels:

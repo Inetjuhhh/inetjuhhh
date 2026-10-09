@@ -17,7 +17,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         @if($featured)
             <article x-data x-intersect.once="$el.classList.add('is-visible')" class="reveal mb-14">
-                <a href="{{ route('blogs.show', $featured->id) }}"
+                <a href="{{ route('blogs.show', $featured) }}"
                    class="group grid lg:grid-cols-5 rounded-3xl overflow-hidden bg-night-700 shadow-soft ring-1 ring-white/5 hover:shadow-lift transition duration-300">
                     <div class="relative lg:col-span-3 aspect-[16/10] lg:aspect-auto lg:min-h-[26rem] overflow-hidden">
                         <img src="{{ $featured->coverUrl(1400, 900) }}" alt="{{ $featured->title }}"
@@ -38,7 +38,7 @@
                         <h2 class="mt-2 font-display text-3xl lg:text-4xl leading-tight text-cream group-hover:text-brand transition">{{ $featured->title }}</h2>
                         @if($featured->excerpt !== 'No excerpt')<p class="mt-4 text-lg text-cream-muted line-clamp-4">{{ $featured->excerpt }}</p>@endif
                         <p class="mt-6 text-sm text-cream-muted">
-                            {{ $featured->placed_by->name }} · {{ $featured->created_at->translatedFormat('d F Y') }}
+                            {{ $featured->placed_by->name }} · {{ $featured->publishedDate()->translatedFormat('d F Y') }}
                         </p>
                         <span class="mt-6 inline-flex items-center gap-2 self-start px-5 py-2.5 rounded-full bg-brand text-night-900 font-semibold group-hover:bg-cream transition">
                             Lees het verhaal

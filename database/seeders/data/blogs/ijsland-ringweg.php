@@ -36,9 +36,13 @@ Dit was voor mij het hoogtepunt van de reis. Binnen een paar uur rijden kom je l
 
 Bij Vík ligt het zwarte strand **Reynisfjara**, met basaltzuilen en rotspunten die uit zee steken. Het is prachtig, maar ook gevaarlijk. De zogenaamde sneaker waves komen veel verder het strand op dan je verwacht en er zijn al meerdere toeristen meegesleurd. Blijf dus echt een flink stuk van de waterlijn af, ook al staat er iemand vlak naast je die dat niet doet.
 
+@block {"id": "tip", "config": {"type": "warning", "title": "Pas op voor sneaker waves", "text": "Draai de zee bij Reynisfjara nooit je rug toe en blijf minstens dertig meter van de waterlijn. Bij de ingang van het strand staat een verkeerslicht: bij oranje of rood ga je het zwarte zand helemaal niet op."}}
+
 > Het zwarte zand, de mist boven zee en het geluid van de branding: het voelde alsof we op een andere planeet waren beland.
 
 ## Dag 6: Jökulsárlón en Diamond Beach
+
+@block {"id": "map", "config": {"place": "Jökulsárlón, IJsland", "zoom": "12", "caption": "De gletsjerlagune ligt direct aan de Ringweg, zo'n vijf uur rijden van Reykjavík"}}
 
 Over deze dag twijfel ik nog steeds of het echt is gebeurd. In de gletsjerlagune van **Jökulsárlón** drijven ijsbergen die van de gletsjer afbreken langzaam richting zee. Sommige zijn helderblauw, andere hebben zwarte strepen van vulkanische as. We zagen zeehonden tussen de ijsschotsen zwemmen en bleven er twee uur zitten zonder ons te vervelen.
 
@@ -59,6 +63,8 @@ In het noorden ligt het meer **Mývatn**, met lavavelden, kraters en dampende aa
 Via Akureyri reden we naar het schiereiland **Snæfellsnes**, dat ook wel IJsland in het klein wordt genoemd. Hier staat de bekendste berg van het land, **Kirkjufell**, met een watervalletje ervoor dat je ongetwijfeld al eens op Instagram hebt gezien. Verder vind je er lavavelden, zwarte kerkjes en kliffen vol zeevogels. De laatste avond reden we terug naar Reykjavík voor een afscheidsdiner met lamssoep en een veel te dure, maar heerlijke, IJslandse cheesecake.
 
 ## Wat het ons kostte
+
+@block {"id": "practical-info", "config": {"title": "IJsland in het kort", "items": [{"label": "Beste reistijd", "value": "Eind mei tot half september"}, {"label": "Hoe lang", "value": "12 dagen, ruim 1.900 km"}, {"label": "Budget", "value": "Ca. € 4.200 voor twee, incl. vluchten"}, {"label": "Vervoer", "value": "Huurauto met grindverzekering"}, {"label": "Overnachten", "value": "Guesthouses en cottages, maanden vooraf boeken"}]}}
 
 IJsland is duur, dat is geen geheim. Voor twaalf dagen met z'n tweeën waren we ongeveer 4.200 euro kwijt, inclusief vluchten. De grootste posten waren de huurauto, de overnachtingen en brandstof. We bespaarden vooral door zelf te koken, een thermosfles mee te nemen en gratis natuur boven betaalde excursies te kiezen. De walvissafari was onze enige grote uitspatting.
 

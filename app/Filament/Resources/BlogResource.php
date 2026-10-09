@@ -2,124 +2,201 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\BlogResource\Pages;
-use App\Filament\Resources\BlogResource\RelationManagers;
+use App\Filament\Blocks\BlogBlock;
+use App\Filament\Resources\BlogResource\Pages\CreateBlog;
+use App\Filament\Resources\BlogResource\Pages\EditBlog;
+use App\Filament\Resources\BlogResource\Pages\ListBlogs;
 use App\Models\Blog;
-use App\Models\Tag;
-use DateTime;
-use Filament\Forms;
+use Awcodes\Curator\Components\Forms\CuratorPicker;
+use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use FilamentTiptapEditor\TiptapEditor;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use FilamentTiptapEditor\Enums\TiptapOutput;
 
 class BlogResource extends Resource
 {
     protected static ?string $model = Blog::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedPencilSquare;
 
-    public static function form(Form $form): Form
+    protected static ?string $modelLabel = 'blog';
+
+    protected static ?string $pluralModelLabel = 'blogs';
+
+    protected static ?int $navigationSort = -1;
+
+    // Admin URLs use the id: the slug can change while editing
+    protected static ?string $recordRouteKeyName = 'id';
+
+    public const STATUSES = [
+        'draft' => 'Concept',
+        'published' => 'Gepubliceerd',
+        'archived' => 'Gearchiveerd',
+    ];
+
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                TextInput::make('title')
-                    ->label('Title')
-                    ->required()
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function (Get $get, Set $set, $state) {
-                        $set('slug', Str::slug($state));
+        // Drafts may be incomplete; only a title is needed to save (and autosave) one
+        $requiredWhenPublished = fn (Get $get): bool => $get('status') === 'published';
 
-                    }),
-                TextInput::make('slug')
-                    ->label('Slug')
-                    ->required(),
-                TextInput::make('excerpt')
-                    ->label('Excerpt')
-                    ->default('No excerpt')	,
-                Select::make('country_id')
-                    ->label('Country')
-                    ->relationship('countries', 'name')
-                    ->multiple()
-                    ->live(onBlur: true)
-                    ->createOptionForm([
-                        TextInput::make('name')
-                            ->label('Land')
-                            ->required(),
-                    ])
-                    ->options(
-                        \App\Models\Country::all()->pluck('name', 'id')
-                    )
-                    ->required(),
-                Select::make('categories')
-                    ->label('Category')
-                    ->multiple()
-                    ->preload()
-                    ->relationship('categories', 'name')
-                    ->live(onBlur: true)
-                    ->createOptionForm([
-                        TextInput::make('name')
-                            ->label('Categorie')
-                            ->required(),
-                    ])
-                    ->options(
-                        \App\Models\Category::all()->pluck('name', 'id')
-                    )
-                    ->afterStateUpdated(function(Get $get, Set $set, $state) {
-                        $set('category_id', $state);
-
-                    })
-                    ->required(),
-                // Select::make('subcategory_id')
-                //     ->label('Subcategory')
-                //     ->relationship('subcategory', 'name')
-                //     ->live(onBlur: true)
-                //     ->options(function(Get $get) {
-                //         $category_id = $get('category_id');
-                //         return \App\Models\Subcategory::where('category_id', $get('category_id'))->get()->pluck('name', 'id');
-                //     }),
-                // TagsInput::make('tags')
-                //     ->label('Tags'),
-                // Textarea::make('content')
-                //     ->label('Content')
-                //     ->required(),
-                TiptapEditor::make('content')
-                    ->output(TiptapOutput::Json)
-                    ->profile('default')
-                    ->columnSpanFull(),
-                SpatieMediaLibraryFileUpload::make('attachments')
-                    ->label('Images')
-                    ->preserveFilenames()
-                    ->collection('blog_attachments')
+        return $schema
+            ->components([
+                Grid::make(['default' => 1, 'lg' => 3])
                     ->columnSpanFull()
-                    ->multiple(),
-                Select::make('status')
-                    ->label('Status')
-                    ->default('draft')
-                    ->options([
-                        'draft' => 'Draft',
-                        'published' => 'Published',
-                        'archived' => 'Archived',
-                    ])
-                    ->required(),
-                DateTimePicker::make('published_at')
-                    ->label('Published at')
+                    ->schema([
+                        Group::make([
+                            Section::make()
+                                ->schema([
+                                    TextInput::make('title')
+                                        ->label('Titel')
+                                        ->placeholder('Waar gaat je verhaal over?')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(function (Get $get, Set $set, ?string $state, string $operation) {
+                                            // Keep the link stable once a blog has been published
+                                            if ($operation === 'create' || $get('status') !== 'published') {
+                                                $set('slug', Str::slug($state));
+                                            }
+                                        }),
+                                    TextInput::make('slug')
+                                        ->label('Link')
+                                        ->prefix('/blogs/')
+                                        ->required()
+                                        // While creating, the draft made by autosave owns this link already
+                                        ->unique(ignorable: fn ($livewire, ?Blog $record) => $record
+                                            ?? ($livewire instanceof CreateBlog ? $livewire->autosavedRecord() : null))
+                                        ->maxLength(255),
+                                    Textarea::make('excerpt')
+                                        ->label('Intro')
+                                        ->helperText('Een of twee zinnen. Staat op de overzichtspagina en bovenaan je verhaal.')
+                                        ->rows(2)
+                                        ->dehydrateStateUsing(fn (?string $state) => $state ?? '')
+                                        ->required($requiredWhenPublished)
+                                        ->maxLength(500),
+                                ]),
+                            RichEditor::make('content')
+                                ->label('Verhaal')
+                                ->json()
+                                ->toolbarButtons([
+                                    ['bold', 'italic', 'link'],
+                                    ['h2', 'h3'],
+                                    ['blockquote', 'bulletList', 'orderedList', 'horizontalRule'],
+                                    ['attachCuratorMedia', 'customBlocks', 'grid', 'table'],
+                                    ['undo', 'redo'],
+                                ])
+                                ->floatingToolbars([
+                                    'paragraph' => ['bold', 'italic', 'link', 'h2', 'h3'],
+                                    'heading' => ['h2', 'h3'],
+                                    'grid' => ['gridAddColumnBefore', 'gridAddColumnAfter', 'gridDeleteColumn', 'gridDelete'],
+                                    'table' => ['tableAddColumnAfter', 'tableDeleteColumn', 'tableAddRowAfter', 'tableDeleteRow', 'tableDelete'],
+                                ])
+                                ->plugins([AttachCuratorMediaPlugin::make()])
+                                ->customBlocks(BlogBlock::all())
+                                ->searchableCustomBlocks(false)
+                                ->stickyToolbar()
+                                ->resizableImages()
+                                ->extraInputAttributes(['style' => 'min-height: 28rem'])
+                                ->required($requiredWhenPublished),
+                        ])->columnSpan(['lg' => 2]),
+
+                        Group::make([
+                            Section::make('Publiceren')
+                                ->icon(Heroicon::OutlinedPaperAirplane)
+                                ->schema([
+                                    ToggleButtons::make('status')
+                                        ->label('Status')
+                                        ->options(self::STATUSES)
+                                        ->colors(['draft' => 'gray', 'published' => 'success', 'archived' => 'warning'])
+                                        ->icons([
+                                            'draft' => Heroicon::OutlinedPencil,
+                                            'published' => Heroicon::OutlinedGlobeAlt,
+                                            'archived' => Heroicon::OutlinedArchiveBox,
+                                        ])
+                                        ->default('draft')
+                                        ->live()
+                                        ->required(),
+                                    DateTimePicker::make('published_at')
+                                        ->label('Publicatiedatum')
+                                        ->helperText('Leeg laten = meteen. Kies een datum in de toekomst om je blog in te plannen.')
+                                        ->seconds(false)
+                                        ->native(false)
+                                        ->displayFormat('d-m-Y H:i'),
+                                ]),
+                            Section::make('Uitgelichte foto')
+                                ->icon(Heroicon::OutlinedPhoto)
+                                ->schema([
+                                    CuratorPicker::make('featured_image_id')
+                                        ->hiddenLabel()
+                                        ->buttonLabel('Foto kiezen of uploaden')
+                                        ->relationship('featuredImage', 'id')
+                                ]),
+                            Section::make('Waar gaat het over?')
+                                ->icon(Heroicon::OutlinedMapPin)
+                                ->schema([
+                                    Select::make('countries')
+                                        ->label('Land(en)')
+                                        ->relationship('countries', 'name')
+                                        ->multiple()
+                                        ->preload()
+                                        ->searchable()
+                                        ->createOptionForm([
+                                            TextInput::make('name')->label('Land')->required(),
+                                        ])
+                                        ->required($requiredWhenPublished),
+                                    Select::make('categories')
+                                        ->label('Categorie')
+                                        ->relationship('categories', 'name')
+                                        ->multiple()
+                                        ->preload()
+                                        ->createOptionForm([
+                                            TextInput::make('name')->label('Categorie')->required(),
+                                        ])
+                                        ->required($requiredWhenPublished),
+                                    Select::make('tags')
+                                        ->label('Tags')
+                                        ->relationship('tags', 'name')
+                                        ->multiple()
+                                        ->preload()
+                                        ->searchable()
+                                        ->createOptionForm([
+                                            TextInput::make('name')->label('Tag')->required(),
+                                        ]),
+                                ]),
+                            Section::make('Oude afbeeldingen')
+                                ->description('Geüpload met de vorige editor. De eerste wordt als omslagfoto gebruikt zolang er geen uitgelichte foto is.')
+                                ->collapsed()
+                                ->visible(fn (?Blog $record) => $record?->hasMedia('blog_attachments'))
+                                ->schema([
+                                    SpatieMediaLibraryFileUpload::make('attachments')
+                                        ->hiddenLabel()
+                                        ->collection('blog_attachments')
+                                        ->multiple()
+                                        ->reorderable(),
+                                ]),
+                        ])->columnSpan(['lg' => 1]),
+                    ]),
             ]);
     }
 
@@ -127,30 +204,66 @@ class BlogResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')
+                ImageColumn::make('cover')
+                    ->label('')
+                    ->state(fn (Blog $record) => $record->coverUrl(160, 120))
+                    ->imageWidth(64)
+                    ->imageHeight(48),
+                TextColumn::make('title')
+                    ->label('Titel')
                     ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('slug')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('status')
+                    ->sortable()
+                    ->wrap()
+                    ->description(fn (Blog $record) => $record->countries->pluck('name')->join(', ')),
+                TextColumn::make('status')
+                    ->label('Status')
                     ->badge()
-                    ->searchable()
+                    ->formatStateUsing(fn (Blog $record, string $state) => $state === 'published' && ! $record->isPublished()
+                        ? 'Ingepland'
+                        : (self::STATUSES[$state] ?? $state))
+                    ->color(fn (Blog $record, string $state) => match (true) {
+                        $state === 'published' && ! $record->isPublished() => 'info',
+                        $state === 'published' => 'success',
+                        $state === 'archived' => 'warning',
+                        default => 'gray',
+                    })
                     ->sortable(),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->searchable()
-                    ->sortable(),
+                TextColumn::make('published_at')
+                    ->label('Publicatiedatum')
+                    ->dateTime('d-m-Y H:i')
+                    ->placeholder('—')
+                    ->sortable()
+                    ->visibleFrom('md'),
+                TextColumn::make('updated_at')
+                    ->label('Laatst bewerkt')
+                    ->since()
+                    ->sortable()
+                    ->visibleFrom('lg'),
             ])
+            ->modifyQueryUsing(fn ($query) => $query->with(['countries', 'featuredImage', 'media']))
             ->defaultSort('updated_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->options(self::STATUSES),
+                SelectFilter::make('countries')
+                    ->label('Land')
+                    ->relationship('countries', 'name')
+                    ->preload(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                Action::make('view')
+                    ->label('Bekijk')
+                    ->icon(Heroicon::OutlinedEye)
+                    ->color('gray')
+                    ->url(fn (Blog $record) => $record->isPublished()
+                        ? route('blogs.show', $record)
+                        : $record->previewUrl())
+                    ->openUrlInNewTab(),
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -165,9 +278,9 @@ class BlogResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBlogs::route('/'),
-            'create' => Pages\CreateBlog::route('/create'),
-            'edit' => Pages\EditBlog::route('/{record}/edit'),
+            'index' => ListBlogs::route('/'),
+            'create' => CreateBlog::route('/create'),
+            'edit' => EditBlog::route('/{record}/edit'),
         ];
     }
 }
