@@ -27,10 +27,13 @@ class BlogController extends Controller
 
     public function blogCountry(string $id)
     {
+        $country = Country::findOrFail($id);
         $blogs = Blog::whereHas('countries', function ($query) use ($id) {
             $query->where('country_id', $id);
-        })->paginate(10);
+        })->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('blogs.index')->with('blogs', $blogs);
+        return view('blogs.index')
+            ->with('blogs', $blogs)
+            ->with('country', $country);
     }
 }

@@ -43,4 +43,14 @@ class Blog extends Model implements HasMedia
         return $this->belongsToMany(Country::class, 'blog_country');
     }
 
+    // First uploaded image is the cover; placeholder (stable per blog) until one is uploaded
+    public function coverUrl(int $width = 1200, int $height = 800): string
+    {
+        $cover = $this->getMedia('blog_attachments')
+            ->first(fn ($media) => str_starts_with($media->mime_type, 'image/'));
+
+        return $cover?->getUrl()
+            ?? "https://picsum.photos/seed/blog-{$this->id}/{$width}/{$height}";
+    }
+
 }
