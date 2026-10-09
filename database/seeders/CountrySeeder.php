@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Blog;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Country;
+use Illuminate\Database\Seeder;
 
 class CountrySeeder extends Seeder
 {
@@ -17,18 +15,9 @@ class CountrySeeder extends Seeder
         $countries = [
             'Thailand', 'Cambodja', 'Vietnam', 'Ijsland', 'Nederland', 'Peru', 'Indonesië', 'India', 'Nepal'
         ];
-        $blogs = Blog::all();
 
-        foreach ($countries as $country) {
-            \App\Models\Country::create([
-                'name' => $country
-            ]);
+        foreach ($countries as $name) {
+            Country::firstOrCreate(['name' => $name]);
         }
-
-        foreach ($blogs as $blog) {
-            $blog->countries()->attach(rand(1, 9));
-        }
-
-
     }
 }

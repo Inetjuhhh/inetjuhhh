@@ -15,25 +15,26 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        if (! User::where('email', 'test@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+            ]);
+        }
 
-        User::factory()->create([
-            'name' => 'inetjuhhh',
-            'email' => 'ine@inetjuhhh.nl',
-        ]);
+        if (! User::where('email', 'ine@inetjuhhh.nl')->exists()) {
+            User::factory()->create([
+                'name' => 'inetjuhhh',
+                'email' => 'ine@inetjuhhh.nl',
+            ]);
+        }
 
         $this->call([
-            BlogSeeder::class,
             CategorySeeder::class,
             SubcategorySeeder::class,
-            TagSeeder::class,
-            BlogCategorySeeder::class,
-            ResponseSeeder::class,
             CountrySeeder::class,
-
+            TagSeeder::class,
+            BlogSeeder::class, // also seeds the countries, categories, tags and responses per blog
         ]);
     }
 }

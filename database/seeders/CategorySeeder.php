@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Category;
 use Illuminate\Database\Seeder;
 
 class CategorySeeder extends Seeder
@@ -12,27 +12,8 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        $faker = Fake('nl_NL');
-        $category = new \App\Models\Category();
-        $category->name = 'Travel';
-        $category->save();
-
-        $category = new \App\Models\Category();
-        $category->name = 'Food';
-        $category->save();
-
-        $category = new \App\Models\Category();
-        $category->name = 'Lifestyle';
-        $category->save();
-
-        $category = new \App\Models\Category();
-        $category->name = 'Family';
-        $category->save();
-
-        $blogs = \App\Models\Blog::all();
-        foreach ($blogs as $blog) {
-            $blog->categories()->attach(rand(1, 4));
+        foreach (['Travel', 'Food', 'Lifestyle', 'Family'] as $name) {
+            Category::firstOrCreate(['name' => $name]);
         }
-
     }
 }

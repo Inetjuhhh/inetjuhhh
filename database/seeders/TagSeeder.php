@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Tag;
 use Illuminate\Database\Seeder;
 
 class TagSeeder extends Seeder
@@ -12,16 +12,14 @@ class TagSeeder extends Seeder
      */
     public function run(): void
     {
-        for($i = 0; $i < 10; $i++) {
-            $faker = Fake('nl_NL');
-            $tag = new \App\Models\Tag();
-            $tag->name = $faker->word;
-            $tag->save();
-        }
+        $tags = [
+            'Backpacken', 'Roadtrip', 'Treinreizen', 'Hiken', 'Strand', 'Natuur', 'Cultuur', 'Stedentrip',
+            'Streetfood', 'Recepten', 'Reizen met kinderen', 'Weekendje weg', 'Budget', 'Paklijst',
+            'Fotografie', 'Duurzaam reizen', 'Persoonlijk',
+        ];
 
-        $blogs = \App\Models\Blog::all();
-        foreach ($blogs as $blog) {
-            $blog->tags()->attach(rand(1, 10));
+        foreach ($tags as $name) {
+            Tag::firstOrCreate(['name' => $name]);
         }
     }
 }
