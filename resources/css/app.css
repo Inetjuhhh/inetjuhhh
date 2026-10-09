@@ -8,6 +8,7 @@
 
 @source "../../node_modules/flowbite";
 @source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+@source "../../app/Filament/Blocks";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -70,6 +71,24 @@
 }
 
 @layer components {
+
+    /* Grid layout from the rich editor (photos side by side) */
+    .prose .grid-layout {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    @media (min-width: 768px) {
+        .prose .grid-layout {
+            grid-template-columns: var(--cols);
+        }
+        .prose .grid-layout-col {
+            grid-column: var(--col-span);
+        }
+    }
+    .prose .grid-layout-col > :first-child {
+        margin-top: 0;
+    }
 
     /* Fade-in on scroll, used together with Alpine's x-intersect */
     .reveal {

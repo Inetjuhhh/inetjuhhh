@@ -36,7 +36,7 @@
         @endif
 
         <article class="mt-10 max-w-none prose prose-lg prose-night prose-headings:font-display prose-a:underline-offset-4 prose-img:rounded-xl">
-            {!! tiptap_converter()->asHTML($blog->content) !!}
+            {!! $blog->renderContent() !!}
         </article>
 
         <div class="mt-16 pt-8 border-t border-night-600 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
