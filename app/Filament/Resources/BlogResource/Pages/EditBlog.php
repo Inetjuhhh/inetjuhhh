@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\BlogResource\Pages;
 
 use App\Filament\Resources\BlogResource;
+use App\Filament\Resources\BlogResource\Pages\Concerns\AutosavesDrafts;
 use App\Filament\Resources\BlogResource\Pages\Concerns\SetsPublishDate;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -11,6 +12,7 @@ use Filament\Support\Icons\Heroicon;
 
 class EditBlog extends EditRecord
 {
+    use AutosavesDrafts;
     use SetsPublishDate;
 
     protected static string $resource = BlogResource::class;
@@ -34,5 +36,15 @@ class EditBlog extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         return $this->setPublishDate($data);
+    }
+
+    protected function isDraft(): bool
+    {
+        return $this->getRecord()->status === 'draft';
+    }
+
+    protected function persistAutosave(): void
+    {
+        $this->save(shouldRedirect: false, shouldSendSavedNotification: false);
     }
 }

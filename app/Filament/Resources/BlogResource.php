@@ -84,7 +84,9 @@ class BlogResource extends Resource
                                         ->label('Link')
                                         ->prefix('/blogs/')
                                         ->required()
-                                        ->unique(ignoreRecord: true)
+                                        // While creating, the draft made by autosave owns this link already
+                                        ->unique(ignorable: fn ($livewire, ?Blog $record) => $record
+                                            ?? ($livewire instanceof CreateBlog ? $livewire->autosavedRecord() : null))
                                         ->maxLength(255),
                                     Textarea::make('excerpt')
                                         ->label('Intro')
