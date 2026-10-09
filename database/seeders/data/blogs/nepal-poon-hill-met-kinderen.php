@@ -26,6 +26,8 @@ De route die wij liepen:
 
 Veel volwassenen doen deze route in drie dagen, maar met kinderen raad ik vier of zelfs vijf dagen aan. Dan loop je zo'n vijf uur per dag, met genoeg tijd voor pauzes, spelletjes en het aaien van iedere geit die je tegenkomt.
 
+@block {"id": "map", "config": {"place": "Ghorepani, Nepal", "zoom": "12", "caption": "Ghorepani, het dorp aan de voet van Poon Hill"}}
+
 ## Een gids en een drager
 
 We namen een gids en een drager via een agentschap in Pokhara. Dat kostte bij elkaar ongeveer 60 dollar per dag, plus eten en slapen voor henzelf (dat is vaak bij de prijs inbegrepen). Voor ons was dat de beste beslissing van de reis.
@@ -55,6 +57,8 @@ Maar boven was alles vergeten. Voor ons lag een complete rij reuzen: de **Dhaula
 > Soms vraag je je af waarom je jezelf en je kinderen zoiets aandoet. En dan sta je daar, en weet je het weer.
 
 ## Tips voor trekken met kinderen
+
+@block {"id": "practical-info", "config": {"title": "Poon Hill in het kort", "items": [{"label": "Beste reistijd", "value": "Oktober–november en maart–april"}, {"label": "Hoe lang", "value": "4 dagen lopen, 5 met kleine kinderen"}, {"label": "Hoogste punt", "value": "3.210 meter"}, {"label": "Budget", "value": "Gids en drager samen ca. $ 60 per dag"}, {"label": "Vergunning", "value": "ACAP-permit, te regelen via je agentschap"}]}}
 
 - **Kies een korte route op lage hoogte.** Poon Hill is ideaal. Ga met jonge kinderen niet hoger dan zo'n 3.500 meter.
 - **Neem een gids**, liefst een die ervaring heeft met kinderen.

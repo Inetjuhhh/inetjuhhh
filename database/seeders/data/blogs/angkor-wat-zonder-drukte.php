@@ -62,6 +62,8 @@ Siem Reap zelf is een gezellige stad met een levendige avondmarkt en de beruchte
 
 Wat ik wel aanraad: ga een avond naar de voorstelling van **Phare, the Cambodian Circus**. Dit is een sociaal project waarbij jongeren uit kansarme gezinnen worden opgeleid tot artiesten. De show is energiek, ontroerend en heel knap gedaan.
 
+@block {"id": "practical-info", "config": {"title": "Angkor in het kort", "items": [{"label": "Beste reistijd", "value": "November tot februari"}, {"label": "Hoe lang", "value": "3 dagen"}, {"label": "Toegang", "value": "Driedaagse Angkor Pass, $ 62"}, {"label": "Vervoer", "value": "Tuktuk met chauffeur, ca. $ 18 per dag"}, {"label": "Uitvalsbasis", "value": "Siem Reap"}]}}
+
 ## Kort samengevat
 
 1. Neem de driedaagse pas.
