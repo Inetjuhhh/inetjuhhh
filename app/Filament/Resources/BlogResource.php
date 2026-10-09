@@ -9,6 +9,7 @@ use App\Filament\Resources\BlogResource\Pages\ListBlogs;
 use App\Models\Blog;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -44,6 +45,9 @@ class BlogResource extends Resource
     protected static ?string $pluralModelLabel = 'blogs';
 
     protected static ?int $navigationSort = -1;
+
+    // Admin URLs use the id: the slug can change while editing
+    protected static ?string $recordRouteKeyName = 'id';
 
     public const STATUSES = [
         'draft' => 'Concept',
@@ -212,10 +216,13 @@ class BlogResource extends Resource
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state) => self::STATUSES[$state] ?? $state)
-                    ->color(fn (string $state) => match ($state) {
-                        'published' => 'success',
-                        'archived' => 'warning',
+                    ->formatStateUsing(fn (Blog $record, string $state) => $state === 'published' && ! $record->isPublished()
+                        ? 'Ingepland'
+                        : (self::STATUSES[$state] ?? $state))
+                    ->color(fn (Blog $record, string $state) => match (true) {
+                        $state === 'published' && ! $record->isPublished() => 'info',
+                        $state === 'published' => 'success',
+                        $state === 'archived' => 'warning',
                         default => 'gray',
                     })
                     ->sortable(),
@@ -242,6 +249,14 @@ class BlogResource extends Resource
                     ->preload(),
             ])
             ->recordActions([
+                Action::make('view')
+                    ->label('Bekijk')
+                    ->icon(Heroicon::OutlinedEye)
+                    ->color('gray')
+                    ->url(fn (Blog $record) => $record->isPublished()
+                        ? route('blogs.show', $record)
+                        : $record->previewUrl())
+                    ->openUrlInNewTab(),
                 EditAction::make(),
             ])
             ->toolbarActions([

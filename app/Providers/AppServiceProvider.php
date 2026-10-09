@@ -23,7 +23,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::share('countries', Country::orderBy('name', 'asc')->get());
+        View::composer(['layouts.navigation', 'layouts.app'], function ($view) {
+            $view->with('countries', Country::orderBy('name', 'asc')->get());
+        });
 
         // Phone photos are resized in the browser before uploading (max 2400px, never enlarged),
         // which keeps uploads fast on holiday wifi and the storage small.

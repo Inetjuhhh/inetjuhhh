@@ -1,4 +1,9 @@
 <x-app-layout :title="$blog->title">
+    @if($isPreview ?? false)
+        <div class="sticky top-[73px] z-30 bg-accent text-night-900 text-sm font-semibold text-center px-4 py-2">
+            Voorbeeld — {{ $blog->isPublished() ? 'deze blog is gepubliceerd' : ($blog->status === 'published' ? 'ingepland voor ' . $blog->published_at->translatedFormat('d F Y H:i') : 'dit concept is nog niet zichtbaar voor bezoekers') }}
+        </div>
+    @endif
     {{-- Reading progress bar --}}
     <div x-data="{ progress: 0 }"
          x-on:scroll.window="progress = Math.min(100, window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100)"
@@ -24,7 +29,7 @@
             </span>
             <h1 class="mt-2 font-display text-4xl sm:text-5xl lg:text-6xl leading-tight text-cream drop-shadow-lg">{{ $blog->title }}</h1>
             <p class="mt-4 text-cream-muted">
-                Door {{ $blog->placed_by->name }} · {{ $blog->created_at->translatedFormat('d F Y') }}
+                Door {{ $blog->placed_by->name }} · {{ $blog->publishedDate()->translatedFormat('d F Y') }}
             </p>
         </div>
     </section>
@@ -42,7 +47,7 @@
         <div class="mt-16 pt-8 border-t border-night-600 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div>
                 <p class="text-xs uppercase tracking-widest font-semibold text-accent">Deel dit verhaal</p>
-                <x-social-share :url="route('blogs.show', $blog->id)" :text="$blog->title" />
+                <x-social-share :url="route('blogs.show', $blog)" :text="$blog->title" />
             </div>
             <a href="{{ route('blogs.index') }}" class="inline-flex items-center gap-2 self-start px-5 py-2.5 rounded-full bg-night-700 text-cream hover:bg-brand hover:text-night-900 transition">
                 <svg class="w-3.5 h-3.5 rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">

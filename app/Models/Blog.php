@@ -7,7 +7,10 @@ use App\Support\BlogImages;
 use App\Support\RenderedBlocks;
 use Awcodes\Curator\Models\Media as CuratorMedia;
 use Filament\Forms\Components\RichEditor\RichContentRenderer;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\URL;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -19,6 +22,7 @@ class Blog extends Model implements HasMedia
     protected $guarded = [];
     protected $casts = [
         'content' => 'json',
+        'published_at' => 'datetime',
     ];
 
     public function placed_by()
@@ -49,6 +53,45 @@ class Blog extends Model implements HasMedia
     public function featuredImage()
     {
         return $this->belongsTo(CuratorMedia::class, 'featured_image_id');
+    }
+
+    /**
+     * Only blogs visitors may see: status published and publish date reached (or not set).
+     */
+    public function scopePublished(Builder $query): void
+    {
+        $query->where('status', 'published')
+            ->where(fn (Builder $query) => $query
+                ->whereNull('published_at')
+                ->orWhere('published_at', '<=', now()));
+    }
+
+    public function scopeNewestFirst(Builder $query): void
+    {
+        $query->orderByRaw('COALESCE(published_at, created_at) DESC');
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->status === 'published' && ($this->published_at === null || $this->published_at->isPast());
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /**
+     * A secret link to view a draft or scheduled blog, valid for two hours.
+     */
+    public function previewUrl(): string
+    {
+        return URL::temporarySignedRoute('blogs.preview', now()->addHours(2), ['blog' => $this->getKey()]);
+    }
+
+    public function publishedDate(): Carbon
+    {
+        return $this->published_at ?? $this->created_at;
     }
 
     // Featured image from the media library, else the first old upload, else a placeholder (stable per blog)
