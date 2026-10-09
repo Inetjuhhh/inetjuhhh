@@ -2,6 +2,18 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use App\Models\Country;
+use App\Models\Category;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\BlogResource\Pages\ListBlogs;
+use App\Filament\Resources\BlogResource\Pages\CreateBlog;
+use App\Filament\Resources\BlogResource\Pages\EditBlog;
 use App\Filament\Resources\BlogResource\Pages;
 use App\Filament\Resources\BlogResource\RelationManagers;
 use App\Models\Blog;
@@ -17,9 +29,6 @@ use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -33,12 +42,12 @@ class BlogResource extends Resource
 {
     protected static ?string $model = Blog::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 TextInput::make('title')
                     ->label('Title')
                     ->required()
@@ -64,7 +73,7 @@ class BlogResource extends Resource
                             ->required(),
                     ])
                     ->options(
-                        \App\Models\Country::all()->pluck('name', 'id')
+                        Country::all()->pluck('name', 'id')
                     )
                     ->required(),
                 Select::make('categories')
@@ -79,7 +88,7 @@ class BlogResource extends Resource
                             ->required(),
                     ])
                     ->options(
-                        \App\Models\Category::all()->pluck('name', 'id')
+                        Category::all()->pluck('name', 'id')
                     )
                     ->afterStateUpdated(function(Get $get, Set $set, $state) {
                         $set('category_id', $state);
@@ -127,17 +136,17 @@ class BlogResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')
+                TextColumn::make('title')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('slug')
+                TextColumn::make('slug')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->badge()
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->searchable()
                     ->sortable(),
             ])
@@ -145,12 +154,12 @@ class BlogResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -165,9 +174,9 @@ class BlogResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBlogs::route('/'),
-            'create' => Pages\CreateBlog::route('/create'),
-            'edit' => Pages\EditBlog::route('/{record}/edit'),
+            'index' => ListBlogs::route('/'),
+            'create' => CreateBlog::route('/create'),
+            'edit' => EditBlog::route('/{record}/edit'),
         ];
     }
 }
