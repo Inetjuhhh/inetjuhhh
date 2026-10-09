@@ -23,3 +23,9 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Upload limits for hosts running PHP as an Apache module. Photos up to 30 MB.
+<IfModule mod_php.c>
+    php_value upload_max_filesize 32M
+    php_value post_max_size 40M
+</IfModule>
