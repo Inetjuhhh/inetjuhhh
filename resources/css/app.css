@@ -1,18 +1,76 @@
-@import "flowbite/src/themes/default";
 @import '@fortawesome/fontawesome-free/css/all.min.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "flowbite/src/themes/default";
+
 @plugin "flowbite/plugin";
-@source "../node_modules/flowbite";
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
+@source "../../node_modules/flowbite";
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    /* Anthracite surfaces, from page background up to raised elements */
+    --color-night-900: #16191C;
+    --color-night-800: #1E2226;
+    --color-night-700: #272C31;
+    --color-night-600: #323840;
+    --color-night-500: #434A53;
+
+    /* Warm off-white text, easier on the eyes than pure white */
+    --color-cream: #ECE6DC;
+    --color-cream-muted: #A9A398;
+
+    /* Teal, lightened to stay readable on dark backgrounds */
+    --color-brand: #5BB5AA;
+    --color-brand-dark: #3E8F86;
+
+    /* Terracotta for highlights and categories */
+    --color-accent: #E58B63;
+
+    --font-sans: Figtree, ui-sans-serif, system-ui, sans-serif;
+    --font-display: Fraunces, ui-serif, Georgia, serif;
+
+    --shadow-soft: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+    --shadow-lift: 0 24px 48px -16px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(91, 181, 170, 0.25);
+}
 
 @layer base {
     ::selection {
         @apply bg-accent/40 text-white;
     }
+
+    button:not(:disabled),
+    [role="button"]:not(:disabled) {
+        cursor: pointer;
+    }
+}
+
+/* Dark colour scheme for the typography plugin, used as `prose prose-night`.
+   Outside the layers on purpose, so it wins from the plugin's default colours. */
+.prose.prose-night {
+    --tw-prose-body: var(--color-cream);
+    --tw-prose-headings: var(--color-cream);
+    --tw-prose-lead: var(--color-cream-muted);
+    --tw-prose-links: var(--color-brand);
+    --tw-prose-bold: #FFFFFF;
+    --tw-prose-counters: var(--color-accent);
+    --tw-prose-bullets: var(--color-accent);
+    --tw-prose-hr: var(--color-night-500);
+    --tw-prose-quotes: var(--color-cream);
+    --tw-prose-quote-borders: var(--color-accent);
+    --tw-prose-captions: var(--color-cream-muted);
+    --tw-prose-code: var(--color-cream);
+    --tw-prose-pre-code: var(--color-cream);
+    --tw-prose-pre-bg: var(--color-night-900);
+    --tw-prose-th-borders: var(--color-night-500);
+    --tw-prose-td-borders: var(--color-night-600);
 }
 
 @layer components {
+
     /* Fade-in on scroll, used together with Alpine's x-intersect */
     .reveal {
         @apply motion-safe:opacity-0 motion-safe:translate-y-4 transition duration-700 ease-out;
