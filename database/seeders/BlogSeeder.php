@@ -34,6 +34,10 @@ class BlogSeeder extends Seeder
                     'status' => 'published',
                     'published_at' => $date,
                     'placed_by_id' => $author->id,
+                    // Coordinates are given, so seeding never needs the online place lookup
+                    'location_name' => $data['location']['name'] ?? null,
+                    'latitude' => $data['location']['lat'] ?? null,
+                    'longitude' => $data['location']['lng'] ?? null,
                 ]
             );
             // The frontend sorts and shows dates by created_at

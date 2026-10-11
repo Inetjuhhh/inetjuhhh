@@ -7,6 +7,7 @@ return [
     'published_at' => '2025-06-14 09:30',
     'categories' => ['Travel'],
     'countries' => ['Ijsland'],
+    'location' => ['name' => 'Jökulsárlón, IJsland', 'lat' => 64.0784, 'lng' => -16.2306],
     'tags' => ['Roadtrip', 'Natuur', 'Fotografie'],
     'body' => <<<'MD'
 Er zijn van die reizen waar je jaren over droomt en die daarna nóg mooier blijken dan je had gedacht. IJsland was er zo een. Voor het eerst sinds jaren gingen we met z'n tweeën op reis, terwijl Siem en Noor bij opa en oma werden verwend. Twaalf dagen, ruim 1.900 kilometer, een huurauto vol chips en wollen sokken, en een camerageheugen dat na dag drie al bijna vol zat. In deze blog neem ik je mee langs onze complete route, met de plekken die we niet hadden willen missen en de tips die ik zelf graag van tevoren had gehad.

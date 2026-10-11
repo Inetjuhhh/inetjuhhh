@@ -46,6 +46,11 @@
                         <a href="{{ route('blogs.index') }}" class="{{ request()->routeIs('blogs.index') ? $navActive : $navLink }}" @if(request()->routeIs('blogs.index')) aria-current="page" @endif>Home</a>
                     </li>
                     <li>
+                        <a href="{{ route('blogs.map') }}" class="{{ request()->routeIs('blogs.map') ? $navActive : $navLink }}" @if(request()->routeIs('blogs.map')) aria-current="page" @endif>
+                            <i class="fas fa-map-marked-alt me-1 text-accent"></i>Kaart
+                        </a>
+                    </li>
+                    <li>
                         <button id="dropdownHoverButton" data-dropdown-toggle="dropdownHover" data-dropdown-trigger="hover" type="button"
                                 class="{{ request()->routeIs('blogs.blogCountry') ? $navActive : $navLink }} inline-flex items-center w-full md:w-auto">
                             Reisblogs

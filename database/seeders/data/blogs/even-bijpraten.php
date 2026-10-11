@@ -6,7 +6,7 @@ return [
     'excerpt' => 'Een verhuizing, een nieuwe baan en een eigen website die ik zelf bouwde. Een korte update over de afgelopen maanden en wat er aan blogs aan zit te komen.',
     'published_at' => '2026-09-14 21:00',
     'categories' => ['Lifestyle'],
-    'countries' => ['Nederland'],
+    'countries' => [],
     'tags' => ['Persoonlijk'],
     'body' => <<<'MD'
 Het was een tijdje stil hier. Te stil, vond ik zelf ook. Dus tijd voor een korte update.

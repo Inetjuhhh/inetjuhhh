@@ -7,6 +7,7 @@ return [
     'published_at' => '2026-04-18 10:00',
     'categories' => ['Travel', 'Family'],
     'countries' => ['Nepal'],
+    'location' => ['name' => 'Poon Hill, Nepal', 'lat' => 28.4003, 'lng' => 83.6878],
     'tags' => ['Hiken', 'Reizen met kinderen', 'Natuur'],
     'body' => <<<'MD'
 "Mama, hoeveel trappen nog?" Ik denk dat ik die vraag een keer of honderd heb gehoord tijdens onze trektocht naar Poon Hill. En toch, toen we op de laatste ochtend in het donker naar boven liepen en de zon langzaam de toppen van de Himalaya oranje kleurde, was het Noor van zes die als eerste riep: "Dit is het allermooiste wat ik ooit heb gezien."

@@ -32,6 +32,26 @@ Alpine.store('lightbox', {
     },
 });
 
+// Interactive travel map. Leaflet is only downloaded on pages that show a map.
+Alpine.data('travelMap', ({ markers = [], mode = 'full' } = {}) => ({
+    markers,
+    visibleIds: markers.map((marker) => marker.id),
+    map: null,
+
+    async init() {
+        const { createTravelMap } = await import('./travel-map');
+
+        this.map = createTravelMap(this.$refs.map, markers, {
+            mode,
+            onVisibleChange: (ids) => (this.visibleIds = ids),
+        });
+    },
+
+    get visible() {
+        return this.markers.filter((marker) => this.visibleIds.includes(marker.id));
+    },
+}));
+
 window.Alpine = Alpine;
 
 Alpine.start();

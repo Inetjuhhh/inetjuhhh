@@ -112,3 +112,109 @@
                hover:bg-brand hover:text-night-900 hover:-translate-y-0.5 transition duration-200;
     }
 }
+
+/* Travel map (Leaflet) */
+.travel-pin span {
+    display: block;
+    width: 26px;
+    height: 26px;
+    border-radius: 9999px;
+    background: var(--color-accent);
+    border: 3px solid var(--color-night-900);
+    box-shadow: 0 0 0 2px rgba(229, 139, 99, 0.45), 0 6px 14px rgba(0, 0, 0, 0.5);
+    transition: transform 150ms ease, background-color 150ms ease;
+}
+.travel-pin:hover span,
+.travel-pin.is-active span {
+    transform: scale(1.3);
+    background: var(--color-brand);
+    box-shadow: 0 0 0 4px rgba(91, 181, 170, 0.4), 0 6px 14px rgba(0, 0, 0, 0.5);
+}
+
+.travel-cluster span {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: rgba(229, 139, 99, 0.9);
+    color: var(--color-night-900);
+    font-weight: 700;
+    font-size: 0.875rem;
+    box-shadow: 0 0 0 6px rgba(229, 139, 99, 0.25), 0 6px 14px rgba(0, 0, 0, 0.5);
+}
+
+.travel-popup .leaflet-popup-content-wrapper {
+    padding: 0;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: var(--color-night-700);
+    color: var(--color-cream);
+    box-shadow: var(--shadow-lift);
+}
+.travel-popup .leaflet-popup-content {
+    margin: 0;
+    width: 260px !important;
+    font-family: var(--font-sans);
+}
+.travel-popup .leaflet-popup-tip {
+    background: var(--color-night-700);
+}
+.travel-popup-card {
+    display: block;
+    color: inherit !important;
+    text-decoration: none;
+}
+.travel-popup-card img {
+    display: block;
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+}
+.travel-popup-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.875rem 1rem 1rem;
+}
+.travel-popup-place {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+}
+.travel-popup-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    line-height: 1.3;
+}
+.travel-popup-card:hover .travel-popup-title {
+    color: var(--color-brand);
+}
+.travel-popup-meta {
+    font-size: 0.8rem;
+    color: var(--color-cream-muted);
+}
+
+/* Doubled class: Leaflet's own CSS loads later, together with the map */
+.leaflet-container.leaflet-container {
+    background: var(--color-night-900);
+    font-family: var(--font-sans);
+}
+.leaflet-control-attribution {
+    background: rgba(22, 25, 28, 0.75) !important;
+    color: var(--color-cream-muted) !important;
+}
+.leaflet-control-attribution a {
+    color: var(--color-cream-muted) !important;
+}
+.leaflet-bar a {
+    background: var(--color-night-700) !important;
+    color: var(--color-cream) !important;
+    border-color: var(--color-night-600) !important;
+}
+.leaflet-bar a:hover {
+    background: var(--color-night-600) !important;
+}

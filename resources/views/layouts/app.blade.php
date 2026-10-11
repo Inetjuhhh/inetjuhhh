@@ -48,6 +48,9 @@
                                 </li>
                             @endforeach
                         </ul>
+                        <a href="{{ route('blogs.map') }}" class="mt-4 inline-flex items-center gap-2 text-sm text-brand hover:underline underline-offset-4">
+                            <i class="fas fa-map-marked-alt"></i>Bekijk alles op de reiskaart
+                        </a>
                     </div>
                 </div>
                 <div class="border-t border-night-700 py-5 text-center text-xs text-cream-muted">

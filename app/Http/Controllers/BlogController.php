@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Blog;
 use App\Models\Country;
+use App\Support\TravelMap;
 
 class BlogController extends Controller
 {
@@ -11,7 +12,15 @@ class BlogController extends Controller
     {
         $blogs = Blog::published()->newestFirst()->paginate(10);
 
-        return view('blogs.index')->with('blogs', $blogs);
+        return view('blogs.index')
+            ->with('blogs', $blogs)
+            // The travel map teaser is only shown on the first page of the homepage
+            ->with('mapMarkers', $blogs->onFirstPage() ? TravelMap::markers() : null);
+    }
+
+    public function map()
+    {
+        return view('blogs.map')->with('markers', TravelMap::markers());
     }
 
     public function show(string $slug)

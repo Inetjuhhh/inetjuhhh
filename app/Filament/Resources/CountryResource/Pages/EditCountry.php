@@ -17,4 +17,10 @@ class EditCountry extends EditRecord
             DeleteAction::make(),
         ];
     }
+
+    protected function afterSave(): void
+    {
+        // Show the coordinates that were looked up while saving
+        $this->refreshFormData(['latitude', 'longitude']);
+    }
 }

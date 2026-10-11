@@ -7,6 +7,7 @@ return [
     'published_at' => '2026-05-24 16:20',
     'categories' => ['Family'],
     'countries' => ['Nederland'],
+    'location' => ['name' => 'Texel, Nederland', 'lat' => 53.0550, 'lng' => 4.7975],
     'tags' => ['Reizen met kinderen', 'Weekendje weg', 'Natuur'],
     'body' => <<<'MD'
 Soms heb je geen verre reis nodig. Soms is twintig minuten met de boot genoeg. Met Hemelvaart pakten we de auto in, reden naar Den Helder en zaten we binnen het uur op het terras van een strandpaviljoen op Texel. Vier dagen, geen schermen, veel wind in ons haar en zand in werkelijk alles. Heerlijk.

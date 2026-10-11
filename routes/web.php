@@ -9,6 +9,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/', [BlogController::class, 'index'])->name('blogs.index');
+Route::get('/kaart', [BlogController::class, 'map'])->name('blogs.map');
 Route::get('/blogs/country/{country_id}', [BlogController::class, 'blogCountry'])->name('blogs.blogCountry');
 Route::get('/blogs/preview/{blog:id}', [BlogController::class, 'preview'])->middleware('signed')->name('blogs.preview');
 Route::get('/blogs/{slug}', [BlogController::class, 'show'])->name('blogs.show');

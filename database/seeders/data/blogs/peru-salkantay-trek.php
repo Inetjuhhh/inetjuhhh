@@ -7,6 +7,7 @@ return [
     'published_at' => '2025-04-11 20:00',
     'categories' => ['Travel'],
     'countries' => ['Peru'],
+    'location' => ['name' => 'Machu Picchu, Peru', 'lat' => -13.1631, 'lng' => -72.5450],
     'tags' => ['Hiken', 'Backpacken', 'Natuur'],
     'body' => <<<'MD'
 Lang voordat er kinderen waren, voordat we een huis met een tuin hadden en voordat mijn ideale vakantie bestond uit een zwembad en een goed boek, liepen mijn vriend en ik in vijf dagen naar Machu Picchu. Het is inmiddels jaren geleden, maar ik denk er nog steeds bijna elke week aan. Toen ik laatst de foto's terugvond op een oude harde schijf, wist ik: hier moet een blog over komen.

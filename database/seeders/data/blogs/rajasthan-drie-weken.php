@@ -7,6 +7,7 @@ return [
     'published_at' => '2025-05-08 21:10',
     'categories' => ['Travel'],
     'countries' => ['India'],
+    'location' => ['name' => 'Jaipur, India', 'lat' => 26.9124, 'lng' => 75.7873],
     'tags' => ['Backpacken', 'Cultuur', 'Treinreizen'],
     'body' => <<<'MD'
 India is geen land dat je bezoekt. India is een land dat je overkomt. Dat zei een Engelse backpacker tegen ons op onze eerste avond in Delhi en ik heb er drie weken lang aan moeten denken. Het is druk, luid, chaotisch, soms frustrerend en vaak overweldigend. Maar het is ook het meest kleurrijke, gastvrije en verrassende land waar ik ooit ben geweest.

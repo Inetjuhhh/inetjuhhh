@@ -51,6 +51,10 @@
             </article>
         @endif
 
+        @if(! isset($country) && filled($mapMarkers ?? null))
+            @include('blogs.partials.map-teaser', ['markers' => $mapMarkers])
+        @endif
+
         @if($blogs->isEmpty())
             <p class="text-center text-cream-muted py-20">Hier zijn nog geen verhalen te lezen.</p>
         @else

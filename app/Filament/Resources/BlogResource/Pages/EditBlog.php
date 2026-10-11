@@ -38,6 +38,12 @@ class EditBlog extends EditRecord
         return $this->setPublishDate($data);
     }
 
+    protected function afterSave(): void
+    {
+        // The coordinates are looked up while saving; show them, so the next save doesn't clear them
+        $this->refreshFormData(['latitude', 'longitude']);
+    }
+
     protected function isDraft(): bool
     {
         return $this->getRecord()->status === 'draft';

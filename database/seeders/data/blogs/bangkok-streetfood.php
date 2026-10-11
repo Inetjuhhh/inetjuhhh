@@ -7,6 +7,7 @@ return [
     'published_at' => '2025-08-22 19:45',
     'categories' => ['Food'],
     'countries' => ['Thailand'],
+    'location' => ['name' => 'Bangkok, Thailand', 'lat' => 13.7563, 'lng' => 100.5018],
     'tags' => ['Streetfood', 'Stedentrip', 'Budget'],
     'body' => <<<'MD'
 Als je mij vraagt waarom ik zo van Thailand houd, dan is het antwoord simpel: het eten. Nergens ter wereld heb ik zo vaak achter elkaar zo lekker gegeten voor zo weinig geld. En nergens is dat zo duidelijk als in Bangkok, waar je op elke straathoek wel iets vindt dat sist, dampt of geurt naar knoflook en citroengras.

@@ -7,6 +7,7 @@ return [
     'published_at' => '2025-11-27 07:30',
     'categories' => ['Travel'],
     'countries' => ['Cambodja'],
+    'location' => ['name' => 'Angkor Wat, Cambodja', 'lat' => 13.4125, 'lng' => 103.8670],
     'tags' => ['Cultuur', 'Fotografie', 'Backpacken'],
     'body' => <<<'MD'
 Angkor Wat stond al jaren op mijn lijstje. En toen ik er eindelijk stond, om half zes 's ochtends, samen met een paar duizend andere mensen die allemaal hun telefoon omhoog hielden, dacht ik heel even: was dit het nou? Gelukkig bleek dat moment het enige drukke van onze drie dagen in Angkor. Met een beetje planning kun je deze enorme tempelstad namelijk prima op een rustige manier beleven.

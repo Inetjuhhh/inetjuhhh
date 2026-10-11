@@ -6,7 +6,9 @@ use App\Filament\Blocks\BlogBlock;
 use App\Filament\Resources\BlogResource\Pages\CreateBlog;
 use App\Filament\Resources\BlogResource\Pages\EditBlog;
 use App\Filament\Resources\BlogResource\Pages\ListBlogs;
+use App\Filament\Forms\LocationPicker;
 use App\Models\Blog;
+use App\Support\Geocoder;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Filament\Actions\Action;
@@ -20,6 +22,7 @@ use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
@@ -184,6 +187,43 @@ class BlogResource extends Resource
                                             TextInput::make('name')->label('Tag')->required(),
                                         ]),
                                 ]),
+                            Section::make('Op de reiskaart')
+                                ->icon(Heroicon::OutlinedMap)
+                                ->schema([
+                                    TextInput::make('location_name')
+                                        ->label('Plek')
+                                        ->placeholder('Bijv. Ghorepani, Nepal')
+                                        ->helperText('Na het typen zet de app een pin op die plek, als er nog geen pin staat.')
+                                        ->maxLength(255)
+                                        ->live(onBlur: true)
+                                        // A suggestion only: a pin that is already there (maybe placed by hand) stays put
+                                        ->afterStateUpdated(fn (Get $get, Set $set) => blank($get('latitude'))
+                                            ? self::suggestPin($get, $set)
+                                            : null)
+                                        ->suffixAction(
+                                            Action::make('suggestPin')
+                                                ->icon(Heroicon::OutlinedMagnifyingGlass)
+                                                ->tooltip('Zet de pin op deze plek')
+                                                ->action(fn (Get $get, Set $set) => self::suggestPin($get, $set)),
+                                        ),
+                                    LocationPicker::make('pin')
+                                        ->label('Pin op de kaart'),
+                                    Grid::make(2)
+                                        ->schema([
+                                            TextInput::make('latitude')
+                                                ->label('Breedtegraad')
+                                                ->numeric()
+                                                ->minValue(-90)
+                                                ->maxValue(90),
+                                            TextInput::make('longitude')
+                                                ->label('Lengtegraad')
+                                                ->numeric()
+                                                ->minValue(-180)
+                                                ->maxValue(180),
+                                        ]),
+                                ])
+                                ->description('De app doet een voorstel op basis van de plek; je kunt de pin altijd zelf verzetten.')
+                                ->collapsible(),
                             Section::make('Oude afbeeldingen')
                                 ->description('Geüpload met de vorige editor. De eerste wordt als omslagfoto gebruikt zolang er geen uitgelichte foto is.')
                                 ->collapsed()
@@ -198,6 +238,31 @@ class BlogResource extends Resource
                         ])->columnSpan(['lg' => 1]),
                     ]),
             ]);
+    }
+
+    /**
+     * Places the pin on the place typed in the form, as a suggestion the writer can still move.
+     */
+    public static function suggestPin(Get $get, Set $set): void
+    {
+        $place = trim((string) $get('location_name'));
+
+        if ($place === '') {
+            return;
+        }
+
+        if (! $found = Geocoder::find($place)) {
+            Notification::make()
+                ->title('Plek niet gevonden')
+                ->body("\"{$place}\" staat niet op de kaart. Klik zelf op de kaart om de pin te zetten.")
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $set('latitude', round($found[0], 6));
+        $set('longitude', round($found[1], 6));
     }
 
     public static function table(Table $table): Table

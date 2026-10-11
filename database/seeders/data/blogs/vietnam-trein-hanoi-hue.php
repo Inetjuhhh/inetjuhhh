@@ -7,6 +7,7 @@ return [
     'published_at' => '2025-10-03 08:15',
     'categories' => ['Travel'],
     'countries' => ['Vietnam'],
+    'location' => ['name' => 'Hué, Vietnam', 'lat' => 16.4637, 'lng' => 107.5909],
     'tags' => ['Treinreizen', 'Backpacken', 'Cultuur'],
     'body' => <<<'MD'
 Je kunt in een uur van Hanoi naar Hué vliegen. Wij deden er veertien uur over. En ik zou het zo weer doen.

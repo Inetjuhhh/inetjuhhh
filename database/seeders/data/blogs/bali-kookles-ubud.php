@@ -7,6 +7,7 @@ return [
     'published_at' => '2025-09-12 12:00',
     'categories' => ['Food'],
     'countries' => ['Indonesië'],
+    'location' => ['name' => 'Ubud, Bali', 'lat' => -8.5069, 'lng' => 115.2625],
     'tags' => ['Cultuur', 'Recepten', 'Reizen met kinderen'],
     'body' => <<<'MD'
 Als er één ding is dat ik van elke reis mee naar huis wil nemen, dan zijn het smaken. Een souvenirtje staat na een paar maanden toch stof te verzamelen op een plank, maar een gerecht kun je blijven maken. Daarom boek ik op bijna elke reis een kookles. Op Bali deed ik dat in Ubud, terwijl de rest van het gezin bij het zwembad lag.

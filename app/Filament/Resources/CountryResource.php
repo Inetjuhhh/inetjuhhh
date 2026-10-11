@@ -34,6 +34,17 @@ class CountryResource extends Resource
                 TextInput::make('name')
                     ->label('Name')
                     ->required(),
+                TextInput::make('latitude')
+                    ->label('Breedtegraad')
+                    ->helperText('Wordt automatisch opgezocht. Blogs zonder eigen plek komen hier op de reiskaart.')
+                    ->numeric()
+                    ->minValue(-90)
+                    ->maxValue(90),
+                TextInput::make('longitude')
+                    ->label('Lengtegraad')
+                    ->numeric()
+                    ->minValue(-180)
+                    ->maxValue(180),
             ]);
     }
 
