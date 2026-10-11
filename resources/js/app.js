@@ -33,9 +33,10 @@ Alpine.store('lightbox', {
 });
 
 // Interactive travel map. Leaflet is only downloaded on pages that show a map.
-Alpine.data('travelMap', ({ markers = [], mode = 'full' } = {}) => ({
+Alpine.data('travelMap', ({ markers = [], mode = 'full', trip = null } = {}) => ({
     markers,
     visibleIds: markers.map((marker) => marker.id),
+    activeTrip: trip,
     map: null,
 
     async init() {
@@ -43,12 +44,26 @@ Alpine.data('travelMap', ({ markers = [], mode = 'full' } = {}) => ({
 
         this.map = createTravelMap(this.$refs.map, markers, {
             mode,
+            trip,
             onVisibleChange: (ids) => (this.visibleIds = ids),
         });
     },
 
+    // Filter the map on one trip (or null for all stories) and keep it in the address bar
+    selectTrip(slug) {
+        this.activeTrip = this.activeTrip === slug ? null : slug;
+        this.map?.showTrip(this.activeTrip);
+
+        const url = new URL(window.location.href);
+        this.activeTrip ? url.searchParams.set('reis', this.activeTrip) : url.searchParams.delete('reis');
+        window.history.replaceState({}, '', url);
+    },
+
+    // Newest first, or in reading order when one trip is shown
     get visible() {
-        return this.markers.filter((marker) => this.visibleIds.includes(marker.id));
+        const visible = this.markers.filter((marker) => this.visibleIds.includes(marker.id));
+
+        return this.activeTrip ? visible.sort((a, b) => a.time - b.time) : visible;
     },
 }));
 

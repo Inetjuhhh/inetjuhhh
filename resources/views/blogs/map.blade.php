@@ -7,8 +7,34 @@
         </p>
     </x-slot>
 
-    <div x-data="travelMap({ markers: @js($markers), mode: 'full' })"
+    <div x-data="travelMap({ markers: @js($markers), mode: 'full', trip: @js($activeTrip) })"
          class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid gap-6 lg:grid-cols-3">
+
+        {{-- Filter the map on one trip --}}
+        @if($trips->isNotEmpty())
+            <div class="lg:col-span-3 flex flex-wrap items-center gap-2">
+                <span class="me-1 text-xs font-semibold uppercase tracking-widest text-cream-muted">Reizen</span>
+                <button type="button" x-on:click="activeTrip && selectTrip(activeTrip)"
+                        class="pill px-3.5 py-1.5 text-sm transition"
+                        x-bind:class="activeTrip ? 'bg-night-700 text-cream-muted hover:text-cream' : 'bg-brand text-night-900'">
+                    Alle verhalen
+                </button>
+                @foreach($trips as $mapTrip)
+                    <button type="button" x-on:click="selectTrip(@js($mapTrip->slug))"
+                            class="pill px-3.5 py-1.5 text-sm transition"
+                            x-bind:class="activeTrip === @js($mapTrip->slug) ? 'bg-brand text-night-900' : 'bg-night-700 text-cream-muted hover:text-cream'">
+                        🧭 {{ $mapTrip->name }}
+                    </button>
+                @endforeach
+
+                @foreach($trips as $mapTrip)
+                    <a href="{{ $mapTrip->filterUrl() }}" x-show="activeTrip === @js($mapTrip->slug)" x-cloak
+                       class="ms-auto text-sm text-brand hover:underline underline-offset-4">
+                        Lees alle delen op volgorde →
+                    </a>
+                @endforeach
+            </div>
+        @endif
 
         {{-- Map --}}
         <div class="relative isolate lg:col-span-2 h-[60vh] min-h-[22rem] lg:h-[calc(100vh-12rem)] lg:sticky lg:top-24 overflow-hidden rounded-3xl shadow-soft ring-1 ring-white/5">

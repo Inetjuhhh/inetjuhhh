@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Country;
+use App\Models\Trip;
 use Awcodes\Curator\Facades\Curator;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Facades\View;
@@ -25,6 +26,13 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer(['layouts.navigation', 'layouts.app'], function ($view) {
             $view->with('countries', Country::orderBy('name', 'asc')->get());
+        });
+
+        // Trips in the menu: only those with at least one story visitors can read
+        View::composer('layouts.navigation', function ($view) {
+            $view->with('navTrips', Trip::whereHas('blogs', fn ($query) => $query->published())
+                ->orderByDesc('starts_on')
+                ->get());
         });
 
         // Phone photos are resized in the browser before uploading (max 2400px, never enlarged),

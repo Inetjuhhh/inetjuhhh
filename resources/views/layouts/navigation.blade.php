@@ -59,8 +59,21 @@
                             </svg>
                         </button>
 
-                        <div id="dropdownHover" class="z-50 hidden w-48 rounded-xl bg-night-700 border border-night-600 shadow-soft overflow-hidden">
+                        <div id="dropdownHover" class="z-50 hidden w-60 rounded-xl bg-night-700 border border-night-600 shadow-soft overflow-hidden">
                             <ul class="py-2 text-sm" aria-labelledby="dropdownHoverButton">
+                                @if($navTrips->isNotEmpty())
+                                    <li class="px-4 pt-1 pb-1 text-[0.7rem] font-semibold uppercase tracking-widest text-accent">Reizen</li>
+                                    @foreach($navTrips as $navTrip)
+                                        <li>
+                                            <a href="{{ $navTrip->filterUrl() }}"
+                                               class="flex items-center gap-2 px-4 py-2 text-cream-muted hover:bg-night-600 hover:text-cream transition">
+                                                <span class="text-xs">🧭</span>{{ $navTrip->name }}
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                    <li class="mx-4 my-2 border-t border-night-600"></li>
+                                    <li class="px-4 pt-1 pb-1 text-[0.7rem] font-semibold uppercase tracking-widest text-accent">Landen</li>
+                                @endif
                                 @foreach($countries as $navCountry)
                                     <li>
                                         <a href="{{ route('blogs.blogCountry', $navCountry->id) }}"

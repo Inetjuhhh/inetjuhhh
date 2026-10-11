@@ -66,7 +66,7 @@ function popupCard(marker) {
  * mode "full": the travel map page, with clustering and a list of stories in view.
  * mode "teaser": the small map on the homepage, without scroll zoom so the page keeps scrolling.
  */
-export function createTravelMap(element, markers, { mode = 'full', onVisibleChange = () => {} } = {}) {
+export function createTravelMap(element, markers, { mode = 'full', trip = null, onVisibleChange = () => {} } = {}) {
     const teaser = mode === 'teaser';
     const canHover = window.matchMedia('(hover: hover)').matches;
 
@@ -145,32 +145,55 @@ export function createTravelMap(element, markers, { mode = 'full', onVisibleChan
         });
 
         layers.set(marker.id, { layer, openCard });
-        cluster.addLayer(layer);
     });
 
     map.addLayer(cluster);
 
+    // The pins currently on the map: all stories, or the stories of one trip
+    let shown = markers;
+    let route = null;
+
     const showAll = () => {
-        if (markers.length === 0) {
+        if (shown.length === 0) {
             map.setView([20, 10], 2);
-        } else if (markers.length === 1) {
-            map.setView([markers[0].lat, markers[0].lng], 6);
+        } else if (shown.length === 1) {
+            map.setView([shown[0].lat, shown[0].lng], 6);
         } else {
-            map.fitBounds(cluster.getBounds(), { padding: [40, 40], maxZoom: 6 });
+            map.fitBounds(cluster.getBounds(), { padding: [40, 40], maxZoom: 7 });
         }
     };
 
     const reportVisible = () => {
         const bounds = map.getBounds();
-        onVisibleChange(markers.filter((marker) => bounds.contains([marker.lat, marker.lng])).map((marker) => marker.id));
+        onVisibleChange(shown.filter((marker) => bounds.contains([marker.lat, marker.lng])).map((marker) => marker.id));
+    };
+
+    // Show only one trip (or all stories with null), with a dotted line along its stops
+    const showTrip = (slug) => {
+        shown = slug ? markers.filter((marker) => marker.trip?.slug === slug) : markers;
+
+        cluster.clearLayers();
+        cluster.addLayers(shown.map((marker) => layers.get(marker.id).layer));
+
+        route?.remove();
+        route = null;
+
+        if (slug && shown.length > 1) {
+            const stops = [...shown].sort((a, b) => a.time - b.time).map((marker) => [marker.lat, marker.lng]);
+            route = L.polyline(stops, { className: 'travel-route', interactive: false }).addTo(map);
+        }
+
+        map.closePopup();
+        showAll();
+        reportVisible();
     };
 
     map.on('moveend', reportVisible);
-    showAll();
-    reportVisible();
+    showTrip(trip);
 
     return {
         showAll,
+        showTrip,
         // Zoom to a pin (opening its cluster if needed) and show its card
         focus(id) {
             const pin = layers.get(id);

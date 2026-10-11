@@ -17,7 +17,7 @@ class TravelMap
     {
         return Blog::published()
             ->newestFirst()
-            ->with(['countries', 'categories', 'featuredImage', 'media'])
+            ->with(['countries', 'categories', 'trip', 'featuredImage', 'media'])
             ->get()
             ->map(function (Blog $blog) {
                 $position = $blog->mapPosition();
@@ -38,6 +38,9 @@ class TravelMap
                     'date' => $blog->publishedDate()->translatedFormat('d F Y'),
                     'excerpt' => $blog->excerpt !== 'No excerpt' ? str($blog->excerpt)->limit(120)->toString() : '',
                     'cover' => $blog->coverUrl(400, 260),
+                    'trip' => $blog->trip ? ['slug' => $blog->trip->slug, 'name' => $blog->trip->name] : null,
+                    // For drawing a trip's route in the order it was written
+                    'time' => $blog->publishedDate()->getTimestamp(),
                 ];
             })
             ->filter()

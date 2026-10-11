@@ -15,6 +15,12 @@
                     @endforeach
                 </div>
             @endif
+
+            @if($part ?? null)
+                <span class="absolute top-3 right-3 pill bg-accent text-night-900">Deel {{ $part }}</span>
+            @elseif($blog->trip)
+                <span class="absolute bottom-3 left-3 pill bg-night-900/70 backdrop-blur text-cream">🧭 {{ $blog->trip->name }}</span>
+            @endif
         </div>
 
         <div class="flex flex-col flex-1 p-6">

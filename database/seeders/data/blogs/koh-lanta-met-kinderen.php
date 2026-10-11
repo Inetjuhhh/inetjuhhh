@@ -8,6 +8,7 @@ return [
     'categories' => ['Travel', 'Family'],
     'countries' => ['Thailand'],
     'location' => ['name' => 'Koh Lanta, Thailand', 'lat' => 7.5840, 'lng' => 99.0400],
+    'trip' => 'Thailand met de kids 2026',
     'tags' => ['Strand', 'Reizen met kinderen', 'Natuur'],
     'body' => <<<'MD'
 Ons plan was simpel: vijf nachten Koh Lanta, daarna door naar Koh Lipe en Koh Phi Phi. Maar toen we na een paar dagen in een hangmat lagen, met de kinderen spelend in het zand voor ons en een kokosnoot met een rietje in onze hand, keken we elkaar aan en wisten we het allebei. We gaan nergens heen. Het werden er twaalf.

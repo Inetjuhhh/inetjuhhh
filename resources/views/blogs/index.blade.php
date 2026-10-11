@@ -1,17 +1,40 @@
 @php
+    $trip ??= null;
     // Show the newest blog large on the first page of the main overview
-    $featured = (! isset($country) && $blogs->onFirstPage()) ? $blogs->first() : null;
+    $featured = (! isset($country) && ! $trip && $blogs->onFirstPage()) ? $blogs->first() : null;
     $gridBlogs = $featured ? $blogs->slice(1) : $blogs;
 @endphp
 
-<x-app-layout :title="isset($country) ? $country->name : null">
+<x-app-layout :title="$trip?->name ?? (isset($country) ? $country->name : null)">
     <x-slot name="header">
-        <p class="text-xs uppercase tracking-widest font-semibold text-accent">
-            {{ isset($country) ? 'Reisblogs' : 'Welkom' }}
-        </p>
-        <h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">
-            {{ isset($country) ? $country->name : 'Verhalen van onderweg' }}
-        </h1>
+        @if($trip)
+            {{-- One trip, all parts in reading order --}}
+            <p class="text-xs uppercase tracking-widest font-semibold text-accent">🧭 Reis</p>
+            <h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">{{ $trip->name }}</h1>
+            <p class="mt-3 text-cream-muted">
+                {{ collect([$trip->period(), $blogs->total() . ' ' . ($blogs->total() === 1 ? 'deel' : 'delen')])->filter()->join(' · ') }}
+            </p>
+            @if(filled($trip->description))
+                <p class="mt-4 max-w-2xl text-lg leading-relaxed text-cream/90">{{ $trip->description }}</p>
+            @endif
+            <div class="mt-6 flex flex-wrap gap-3">
+                <a href="{{ $trip->mapUrl() }}"
+                   class="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 font-semibold text-night-900 transition hover:bg-cream">
+                    <i class="fas fa-route"></i> Bekijk de route op de kaart
+                </a>
+                <a href="{{ route('blogs.index') }}"
+                   class="inline-flex items-center gap-2 rounded-full bg-night-700 px-5 py-2.5 text-cream transition hover:bg-night-600">
+                    <i class="fas fa-times text-cream-muted"></i> Alle verhalen tonen
+                </a>
+            </div>
+        @else
+            <p class="text-xs uppercase tracking-widest font-semibold text-accent">
+                {{ isset($country) ? 'Reisblogs' : 'Welkom' }}
+            </p>
+            <h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">
+                {{ isset($country) ? $country->name : 'Verhalen van onderweg' }}
+            </h1>
+        @endif
     </x-slot>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -51,7 +74,7 @@
             </article>
         @endif
 
-        @if(! isset($country) && filled($mapMarkers ?? null))
+        @if(! isset($country) && ! $trip && filled($mapMarkers ?? null))
             @include('blogs.partials.map-teaser', ['markers' => $mapMarkers])
         @endif
 
@@ -60,7 +83,11 @@
         @else
             <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach($gridBlogs as $blog)
-                    @include('blogs.partials.card', ['blog' => $blog])
+                    @include('blogs.partials.card', [
+                        'blog' => $blog,
+                        // Within a trip, number the parts in reading order
+                        'part' => $trip ? $blogs->firstItem() + $loop->index : null,
+                    ])
                 @endforeach
             </div>
         @endif

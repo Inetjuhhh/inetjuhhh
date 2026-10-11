@@ -70,6 +70,11 @@ class Blog extends Model implements HasMedia
         return $this->belongsToMany(Country::class, 'blog_country');
     }
 
+    public function trip()
+    {
+        return $this->belongsTo(Trip::class);
+    }
+
     public function featuredImage()
     {
         return $this->belongsTo(CuratorMedia::class, 'featured_image_id');
@@ -89,6 +94,12 @@ class Blog extends Model implements HasMedia
     public function scopeNewestFirst(Builder $query): void
     {
         $query->orderByRaw('COALESCE(published_at, created_at) DESC');
+    }
+
+    // Reading order of a trip
+    public function scopeOldestFirst(Builder $query): void
+    {
+        $query->orderByRaw('COALESCE(published_at, created_at) ASC');
     }
 
     public function isPublished(): bool

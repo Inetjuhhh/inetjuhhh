@@ -36,6 +36,10 @@
 
     {{-- Content --}}
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        @if($blog->trip)
+            @include('blogs.partials.trip-strip', ['trip' => $blog->trip, 'blog' => $blog])
+        @endif
+
         @if($blog->excerpt && $blog->excerpt !== 'No excerpt')
             <p class="mt-10 text-xl leading-relaxed text-cream-muted border-l-2 border-accent pl-5">{{ $blog->excerpt }}</p>
         @endif
@@ -57,4 +61,8 @@
             </a>
         </div>
     </div>
+
+    @isset($related)
+        @include('blogs.partials.related', ['related' => $related])
+    @endisset
 </x-app-layout>

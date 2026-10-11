@@ -15,6 +15,7 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -158,6 +159,17 @@ class BlogResource extends Resource
                             Section::make('Waar gaat het over?')
                                 ->icon(Heroicon::OutlinedMapPin)
                                 ->schema([
+                                    Select::make('trip_id')
+                                        ->label('Reis')
+                                        ->helperText('Hoort deze blog bij een reis? Lezers kunnen dan alle delen achter elkaar lezen.')
+                                        ->relationship('trip', 'name', fn ($query) => $query->latest('starts_on'))
+                                        ->searchable()
+                                        ->preload()
+                                        ->placeholder('Geen reis')
+                                        ->createOptionForm(self::tripSchema())
+                                        ->editOptionForm(self::tripSchema())
+                                        ->createOptionModalHeading('Nieuwe reis')
+                                        ->editOptionModalHeading('Reis bewerken'),
                                     Select::make('countries')
                                         ->label('Land(en)')
                                         ->relationship('countries', 'name')
@@ -241,6 +253,36 @@ class BlogResource extends Resource
     }
 
     /**
+     * Fields for creating or editing a trip from within the blog form.
+     */
+    public static function tripSchema(): array
+    {
+        return [
+            TextInput::make('name')
+                ->label('Naam van de reis')
+                ->placeholder('Bijv. Vietnam & Cambodja 2025')
+                ->required()
+                ->maxLength(255),
+            Grid::make(2)->schema([
+                DatePicker::make('starts_on')
+                    ->label('Van')
+                    ->native(false)
+                    ->displayFormat('d-m-Y'),
+                DatePicker::make('ends_on')
+                    ->label('Tot')
+                    ->native(false)
+                    ->displayFormat('d-m-Y')
+                    ->afterOrEqual('starts_on'),
+            ]),
+            Textarea::make('description')
+                ->label('Korte beschrijving')
+                ->helperText('Staat bovenaan als lezers alle verhalen van deze reis bekijken.')
+                ->rows(3)
+                ->maxLength(500),
+        ];
+    }
+
+    /**
      * Places the pin on the place typed in the form, as a suggestion the writer can still move.
      */
     public static function suggestPin(Get $get, Set $set): void
@@ -279,7 +321,10 @@ class BlogResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->wrap()
-                    ->description(fn (Blog $record) => $record->countries->pluck('name')->join(', ')),
+                    ->description(fn (Blog $record) => collect([
+                        $record->countries->pluck('name')->join(', '),
+                        $record->trip ? '🧭 ' . $record->trip->name : null,
+                    ])->filter()->join(' · ')),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -305,7 +350,7 @@ class BlogResource extends Resource
                     ->sortable()
                     ->visibleFrom('lg'),
             ])
-            ->modifyQueryUsing(fn ($query) => $query->with(['countries', 'featuredImage', 'media']))
+            ->modifyQueryUsing(fn ($query) => $query->with(['countries', 'trip', 'featuredImage', 'media']))
             ->defaultSort('updated_at', 'desc')
             ->filters([
                 SelectFilter::make('status')
@@ -313,6 +358,10 @@ class BlogResource extends Resource
                 SelectFilter::make('countries')
                     ->label('Land')
                     ->relationship('countries', 'name')
+                    ->preload(),
+                SelectFilter::make('trip')
+                    ->label('Reis')
+                    ->relationship('trip', 'name')
                     ->preload(),
             ])
             ->recordActions([

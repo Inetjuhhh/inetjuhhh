@@ -4,13 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Models\Blog;
 use App\Models\Country;
+use App\Models\Trip;
+use Illuminate\Http\Request;
+use App\Support\RelatedBlogs;
 use App\Support\TravelMap;
 
 class BlogController extends Controller
 {
-    public function index()
+    // Everything a blog card shows, loaded in one go instead of per card
+    private const CARD_RELATIONS = ['countries', 'categories', 'trip', 'featuredImage', 'media', 'placed_by'];
+
+    public function index(Request $request)
     {
-        $blogs = Blog::published()->newestFirst()->paginate(10);
+        // ?reis=vietnam-cambodja-2025 shows one trip, in reading order (oldest first)
+        if ($request->filled('reis')) {
+            $trip = Trip::where('slug', $request->query('reis'))->firstOrFail();
+
+            return view('blogs.index')
+                ->with('trip', $trip)
+                ->with('blogs', $trip->blogs()->published()->oldestFirst()->with(self::CARD_RELATIONS)->paginate(12)->withQueryString());
+        }
+
+        $blogs = Blog::published()->newestFirst()->with(self::CARD_RELATIONS)->paginate(10);
 
         return view('blogs.index')
             ->with('blogs', $blogs)
@@ -18,9 +33,16 @@ class BlogController extends Controller
             ->with('mapMarkers', $blogs->onFirstPage() ? TravelMap::markers() : null);
     }
 
-    public function map()
+    public function map(Request $request)
     {
-        return view('blogs.map')->with('markers', TravelMap::markers());
+        $markers = TravelMap::markers();
+        $tripSlugs = $markers->pluck('trip.slug')->filter()->unique();
+
+        return view('blogs.map')
+            ->with('markers', $markers)
+            // Only trips that have stories on the map can be chosen
+            ->with('trips', Trip::whereIn('slug', $tripSlugs)->orderByDesc('starts_on')->get())
+            ->with('activeTrip', $tripSlugs->contains($request->query('reis')) ? $request->query('reis') : null);
     }
 
     public function show(string $slug)
@@ -34,13 +56,16 @@ class BlogController extends Controller
 
         abort_unless($blog, 404);
 
-        return view('blogs.show')->with('blog', $blog);
+        return view('blogs.show')
+            ->with('blog', $blog)
+            ->with('related', RelatedBlogs::for($blog));
     }
 
     public function preview(Blog $blog)
     {
         return view('blogs.show')
             ->with('blog', $blog)
+            ->with('related', RelatedBlogs::for($blog))
             ->with('isPreview', true);
     }
 
@@ -49,7 +74,7 @@ class BlogController extends Controller
         $country = Country::findOrFail($id);
         $blogs = Blog::published()->whereHas('countries', function ($query) use ($id) {
             $query->where('country_id', $id);
-        })->newestFirst()->paginate(10);
+        })->newestFirst()->with(self::CARD_RELATIONS)->paginate(10);
 
         return view('blogs.index')
             ->with('blogs', $blogs)

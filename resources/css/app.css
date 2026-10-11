@@ -39,6 +39,11 @@
 }
 
 @layer base {
+    /* Hidden until Alpine has started */
+    [x-cloak] {
+        display: none !important;
+    }
+
     ::selection {
         @apply bg-accent/40 text-white;
     }
@@ -217,4 +222,14 @@
 }
 .leaflet-bar a:hover {
     background: var(--color-night-600) !important;
+}
+
+/* Route of a trip on the travel map */
+.travel-route {
+    fill: none;
+    stroke: var(--color-brand);
+    stroke-width: 3;
+    stroke-dasharray: 2 10;
+    stroke-linecap: round;
+    opacity: 0.9;
 }

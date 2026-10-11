@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Country;
 use App\Models\Response;
 use App\Models\Tag;
+use App\Models\Trip;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
@@ -14,12 +15,30 @@ use Illuminate\Support\Carbon;
 class BlogSeeder extends Seeder
 {
     /**
+     * Trips the seeded blogs can belong to (by name, with 'trip' => '...' in a blog's data file).
+     */
+    private const TRIPS = [
+        'Vietnam & Cambodja 2025' => [
+            'starts_on' => '2025-09-13',
+            'ends_on' => '2025-10-05',
+            'description' => 'Drie weken met de trein van het noorden van Vietnam naar het zuiden, en via de Mekong naar de tempels van Angkor.',
+        ],
+        'Thailand met de kids 2026' => [
+            'starts_on' => '2026-01-10',
+            'ends_on' => '2026-01-31',
+            'description' => 'Drie weken Thailand met Siem en Noor: eilanden, snorkelen en vooral heel veel tijd in een hangmat.',
+        ],
+    ];
+
+    /**
      * Seeds realistic travel blogs from database/seeders/data/blogs.
      * Keyed on slug, so running it again updates the posts instead of duplicating them.
      */
     public function run(): void
     {
         $author = User::where('email', 'ine@inetjuhhh.nl')->first() ?? User::first();
+
+        $trips = collect(self::TRIPS)->map(fn (array $trip, string $name) => Trip::updateOrCreate(['name' => $name], $trip));
 
         foreach (glob(__DIR__ . '/data/blogs/*.php') as $file) {
             $data = require $file;
@@ -38,6 +57,7 @@ class BlogSeeder extends Seeder
                     'location_name' => $data['location']['name'] ?? null,
                     'latitude' => $data['location']['lat'] ?? null,
                     'longitude' => $data['location']['lng'] ?? null,
+                    'trip_id' => isset($data['trip']) ? $trips[$data['trip']]->id : null,
                 ]
             );
             // The frontend sorts and shows dates by created_at
