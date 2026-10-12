@@ -9,6 +9,7 @@ use App\Filament\Resources\BlogResource\Pages\ListBlogs;
 use App\Filament\Forms\LocationPicker;
 use App\Models\Blog;
 use App\Support\Geocoder;
+use App\Support\ImageOptimizer;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Filament\Actions\Action;
@@ -154,6 +155,8 @@ class BlogResource extends Resource
                                     CuratorPicker::make('featured_image_id')
                                         ->hiddenLabel()
                                         ->buttonLabel('Foto kiezen of uploaden')
+                                        // Its own folder, so uploads here may be bigger than photos in the story
+                                        ->directory(ImageOptimizer::FEATURED_DIRECTORY)
                                         ->relationship('featuredImage', 'id')
                                 ]),
                             Section::make('Waar gaat het over?')

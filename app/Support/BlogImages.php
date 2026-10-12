@@ -52,7 +52,7 @@ class BlogImages
         $fromLibrary = static::media($config['media'] ?? [])->map(fn (Media $media) => [
             'src' => static::url($media->path),
             'thumb' => static::url($media->path, static::WIDTH_THUMB),
-            'full' => static::url($media->path, 2400),
+            'full' => static::url($media->path, ImageOptimizer::MAX_EDGE),
             'alt' => $media->alt ?: ($media->title ?: ''),
             'landscape' => ($media->width ?? 0) >= ($media->height ?? 0),
         ]);

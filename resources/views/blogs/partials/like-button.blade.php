@@ -17,8 +17,10 @@
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
+                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
                     },
+                    body: JSON.stringify({ liked: this.liked }),
                 });
                 if (! response.ok) throw new Error(response.status);
                 const data = await response.json();

@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Models\Country;
 use App\Models\Trip;
+use App\Support\ImageOptimizer;
 use Awcodes\Curator\Facades\Curator;
+use Awcodes\Curator\Models\Media;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -48,6 +50,13 @@ class AppServiceProvider extends ServiceProvider
             ->imageResizeTargetHeight('2400')
             ->maxSize(30 * 1024)
             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
+        // ...and shrunk to a file size budget on the server when they are stored (see ImageOptimizer)
+        config('curator.model')::saving(function (Media $media) {
+            if ($media->isDirty('path')) {
+                ImageOptimizer::optimizeMedia($media);
+            }
+        });
 
         // Hearts: enough for a real reader clicking around, too few to push a counter up
         RateLimiter::for('likes', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));

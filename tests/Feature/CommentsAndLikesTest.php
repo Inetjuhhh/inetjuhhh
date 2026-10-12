@@ -40,19 +40,32 @@ function sendComment(array $fields = []): \Illuminate\Testing\TestResponse
 
 it('gives a heart once per browser, without an account', function () {
     // A first heart gives the browser its random id
-    $this->postJson('/blogs/poon-hill/hartje')
+    $this->postJson('/blogs/poon-hill/hartje', ['liked' => true])
         ->assertOk()
         ->assertJson(['liked' => true, 'count' => 1])
         ->assertCookie('visitor_id');
 
-    // Another browser counts separately; clicking again takes its heart back
+    // Another browser counts separately, and can take its heart back
     $browser = (string) str()->uuid();
-    $this->withCredentials()->withCookie('visitor_id', $browser)->postJson('/blogs/poon-hill/hartje')->assertJson(['liked' => true, 'count' => 2]);
-    $this->withCredentials()->withCookie('visitor_id', $browser)->postJson('/blogs/poon-hill/hartje')->assertJson(['liked' => false, 'count' => 1]);
+    $this->withCredentials()->withCookie('visitor_id', $browser)->postJson('/blogs/poon-hill/hartje', ['liked' => true])->assertJson(['liked' => true, 'count' => 2]);
+    $this->withCredentials()->withCookie('visitor_id', $browser)->postJson('/blogs/poon-hill/hartje', ['liked' => false])->assertJson(['liked' => false, 'count' => 1]);
 
     // The page remembers the heart of a returning browser
-    $this->withCredentials()->withCookie('visitor_id', $browser)->postJson('/blogs/poon-hill/hartje');
+    $this->withCredentials()->withCookie('visitor_id', $browser)->postJson('/blogs/poon-hill/hartje', ['liked' => true]);
     $this->withCookie('visitor_id', $browser)->get('/blogs/poon-hill')->assertSee('liked: true', false);
+});
+
+it('keeps the heart when an older tab sends it again', function () {
+    $browser = (string) str()->uuid();
+    $like = fn () => $this->withCredentials()->withCookie('visitor_id', $browser)->postJson('/blogs/poon-hill/hartje', ['liked' => true]);
+
+    $like()->assertJson(['liked' => true, 'count' => 1]);
+    // A tab opened before the first heart still shows an empty one; clicking it must not undo it
+    $like()->assertJson(['liked' => true, 'count' => 1]);
+});
+
+it('needs to know whether the heart is given or taken back', function () {
+    $this->postJson('/blogs/poon-hill/hartje')->assertUnprocessable();
 });
 
 it('does not place a cookie just for reading a blog', function () {
@@ -61,10 +74,10 @@ it('does not place a cookie just for reading a blog', function () {
 
 it('limits how fast hearts can be clicked', function () {
     foreach (range(1, 30) as $i) {
-        $this->postJson('/blogs/poon-hill/hartje');
+        $this->postJson('/blogs/poon-hill/hartje', ['liked' => true]);
     }
 
-    $this->postJson('/blogs/poon-hill/hartje')->assertTooManyRequests();
+    $this->postJson('/blogs/poon-hill/hartje', ['liked' => true])->assertTooManyRequests();
 });
 
 it('holds a first comment for approval and tells the owner', function () {
