@@ -26,6 +26,8 @@ return new class extends Migration
             $table->foreignId('placed_by_id')->references('id')->on('users')->constrained();
             // A blog belongs to at most one trip; deleting a trip keeps its blogs
             $table->foreignId('trip_id')->nullable()->constrained('trips')->nullOnDelete();
+            // When subscribers were mailed about this blog; set once, so they never get it twice
+            $table->timestamp('subscribers_notified_at')->nullable();
             $table->timestamps();
         });
     }

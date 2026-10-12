@@ -71,7 +71,9 @@
             </a>
         </div>
 
-        @include('blogs.partials.comments', ['blog' => $blog, 'comments' => $comments ?? collect(), 'disabled' => ! $interactive])
+        @include('blogs.partials.subscribe', ['variant' => 'blog'])
+
+        @include('blogs.partials.comments',['blog' => $blog, 'comments' => $comments ?? collect(), 'disabled' => ! $interactive])
     </div>
 
     @isset($related)

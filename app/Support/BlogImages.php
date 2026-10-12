@@ -16,9 +16,9 @@ class BlogImages
 
     public const WIDTH_THUMB = 600;
 
-    public static function url(string $path, int $width = self::WIDTH_CONTENT): string
+    public static function url(string $path, int $width = self::WIDTH_CONTENT, string $format = 'webp'): string
     {
-        return Glide::getUrl(ltrim($path, '/'), ['w' => $width, 'fm' => 'webp', 'q' => 80]);
+        return Glide::getUrl(ltrim($path, '/'), ['w' => $width, 'fm' => $format, 'q' => 80]);
     }
 
     /**

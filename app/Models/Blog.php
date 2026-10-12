@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Filament\Blocks\BlogBlock;
 use App\Support\BlogImages;
 use App\Support\Geocoder;
+use App\Support\NewBlogNotifier;
 use App\Support\RenderedBlocks;
 use Awcodes\Curator\Models\Media as CuratorMedia;
 use Filament\Forms\Components\RichEditor\RichContentRenderer;
@@ -24,6 +25,7 @@ class Blog extends Model implements HasMedia
     protected $casts = [
         'content' => 'json',
         'published_at' => 'datetime',
+        'subscribers_notified_at' => 'datetime',
         'latitude' => 'float',
         'longitude' => 'float',
     ];
@@ -42,6 +44,14 @@ class Blog extends Model implements HasMedia
                 [$blog->latitude, $blog->longitude] = $found;
             }
             // Not found: keep the pin that was there, rather than dropping the blog off the map
+        });
+
+        // Mail the subscribers the first time a blog goes online. Blogs planned for later are
+        // picked up by the blogs:notify-subscribers command once their date has come.
+        static::saved(function (Blog $blog) {
+            if ($blog->isPublished() && $blog->subscribers_notified_at === null) {
+                NewBlogNotifier::send($blog);
+            }
         });
     }
 
@@ -159,10 +169,10 @@ class Blog extends Model implements HasMedia
     }
 
     // Featured image from the media library, else the first old upload, else a placeholder (stable per blog)
-    public function coverUrl(int $width = 1200, int $height = 800): string
+    public function coverUrl(int $width = 1200, int $height = 800, string $format = 'webp'): string
     {
         if ($this->featuredImage) {
-            return BlogImages::url($this->featuredImage->path, $width);
+            return BlogImages::url($this->featuredImage->path, $width, $format);
         }
 
         $legacy = $this->getMedia('blog_attachments')

@@ -32,7 +32,7 @@
 
             <footer class="mt-24 border-t border-night-600 bg-night-900">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid gap-10 md:grid-cols-3">
-                    <div class="flex items-start gap-4 md:col-span-2">
+                    <div class="flex items-start gap-4">
                         <img src="{{ asset('storage/img/avatar.ico') }}" class="w-14 h-14 rounded-full ring-2 ring-brand/60" alt="Ine" />
                         <div>
                             <p class="font-display text-xl text-cream">Inetjuhhh</p>
@@ -52,6 +52,7 @@
                             <i class="fas fa-map-marked-alt"></i>Bekijk alles op de reiskaart
                         </a>
                     </div>
+                    @include('blogs.partials.subscribe', ['variant' => 'footer'])
                 </div>
                 <div class="border-t border-night-700 py-5 text-center text-xs text-cream-muted">
                     &copy; {{ date('Y') }} Inetjuhhh

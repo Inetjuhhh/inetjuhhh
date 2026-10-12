@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Response;
+use App\Models\Subscriber;
+use App\Support\NewBlogNotifier;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schedule;
@@ -92,3 +94,13 @@ Artisan::command('block:make', function () {
 // Delete comments marked as spam after 30 days (see Response::prunable). Needs the scheduler:
 // a cron entry running `php artisan schedule:run` every minute on the server.
 Schedule::command('model:prune', ['--model' => [Response::class]])->daily();
+
+// Blogs planned for a later date: mail the subscribers once the date has come (see NewBlogNotifier)
+Artisan::command('blogs:notify-subscribers', function () {
+    $this->info(NewBlogNotifier::sendDue() . ' mail(s) queued');
+})->purpose('Mail subscribers about blogs that have gone online');
+
+Schedule::command('blogs:notify-subscribers')->everyFiveMinutes();
+
+// Sign-ups for the new-blog mail that were never confirmed are removed after 30 days
+Schedule::command('model:prune', ['--model' => [Subscriber::class]])->daily();
