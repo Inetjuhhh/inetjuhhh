@@ -27,8 +27,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Countries in the menu and footer: only those with at least one story visitors can read
         View::composer(['layouts.navigation', 'layouts.app'], function ($view) {
-            $view->with('countries', Country::orderBy('name', 'asc')->get());
+            $view->with('countries', Country::whereHas('blogs', fn ($query) => $query->published())
+                ->orderBy('name', 'asc')
+                ->get());
         });
 
         // Trips in the menu: only those with at least one story visitors can read

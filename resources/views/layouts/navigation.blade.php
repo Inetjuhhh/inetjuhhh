@@ -50,19 +50,19 @@
                             <i class="fas fa-map-marked-alt me-1 text-accent"></i>Kaart
                         </a>
                     </li>
-                    <li>
-                        <button id="dropdownHoverButton" data-dropdown-toggle="dropdownHover" data-dropdown-trigger="hover" type="button"
-                                class="{{ request()->routeIs('blogs.blogCountry') ? $navActive : $navLink }} inline-flex items-center w-full md:w-auto">
-                            Reisblogs
-                            <svg class="w-2.5 h-2.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                            </svg>
-                        </button>
+                    @if($navTrips->isNotEmpty())
+                        <li>
+                            <button id="dropdownTripsButton" data-dropdown-toggle="dropdownTrips" data-dropdown-trigger="hover" type="button"
+                                    class="{{ request()->routeIs('blogs.index') && request()->filled('reis') ? $navActive : $navLink }} inline-flex items-center w-full md:w-auto">
+                                Reizen
+                                <svg class="w-2.5 h-2.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                                </svg>
+                            </button>
 
-                        <div id="dropdownHover" class="z-50 hidden w-60 rounded-xl bg-night-700 border border-night-600 shadow-soft overflow-hidden">
-                            <ul class="py-2 text-sm" aria-labelledby="dropdownHoverButton">
-                                @if($navTrips->isNotEmpty())
-                                    <li class="px-4 pt-1 pb-1 text-[0.7rem] font-semibold uppercase tracking-widest text-accent">Reizen</li>
+                            {{-- Newest trip first; scrolls when the list gets longer than the screen --}}
+                            <div id="dropdownTrips" class="z-50 hidden w-64 rounded-xl bg-night-700 border border-night-600 shadow-soft overflow-hidden">
+                                <ul class="py-2 text-sm max-h-[70vh] overflow-y-auto" aria-labelledby="dropdownTripsButton">
                                     @foreach($navTrips as $navTrip)
                                         <li>
                                             <a href="{{ $navTrip->filterUrl() }}"
@@ -71,9 +71,21 @@
                                             </a>
                                         </li>
                                     @endforeach
-                                    <li class="mx-4 my-2 border-t border-night-600"></li>
-                                    <li class="px-4 pt-1 pb-1 text-[0.7rem] font-semibold uppercase tracking-widest text-accent">Landen</li>
-                                @endif
+                                </ul>
+                            </div>
+                        </li>
+                    @endif
+                    <li>
+                        <button id="dropdownCountriesButton" data-dropdown-toggle="dropdownCountries" data-dropdown-trigger="hover" type="button"
+                                class="{{ request()->routeIs('blogs.blogCountry') ? $navActive : $navLink }} inline-flex items-center w-full md:w-auto">
+                            Landen
+                            <svg class="w-2.5 h-2.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                            </svg>
+                        </button>
+
+                        <div id="dropdownCountries" class="z-50 hidden w-80 rounded-xl bg-night-700 border border-night-600 shadow-soft overflow-hidden">
+                            <ul class="grid grid-cols-2 py-2 text-sm" aria-labelledby="dropdownCountriesButton">
                                 @foreach($countries as $navCountry)
                                     <li>
                                         <a href="{{ route('blogs.blogCountry', $navCountry->id) }}"
