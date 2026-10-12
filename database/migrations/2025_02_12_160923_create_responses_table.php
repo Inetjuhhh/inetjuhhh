@@ -14,9 +14,16 @@ return new class extends Migration
         Schema::create('responses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('blog_id')->references('id')->on('blogs')->constrained()->cascadeOnDelete();
+            $table->foreignId('parent_id')->nullable()->constrained('responses')->cascadeOnDelete();
             $table->text('response');
             $table->string('name');
             $table->string('email');
+            $table->string('status')->default('pending')->index();
+            $table->boolean('is_author')->default(false);
+            $table->boolean('notify_on_reply')->default(false);
+            $table->string('ip_hash', 64)->nullable();
+            $table->string('user_agent')->nullable();
+            $table->timestamp('approved_at')->nullable();
             $table->timestamps();
         });
     }

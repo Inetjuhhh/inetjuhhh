@@ -16,10 +16,16 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug');
             $table->text('excerpt');
+            $table->string('location_name')->nullable();
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
+            $table->foreignId('featured_image_id')->nullable()->constrained('curator')->nullOnDelete();
             $table->json('content');
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
             $table->dateTime('published_at')->nullable();
             $table->foreignId('placed_by_id')->references('id')->on('users')->constrained();
+            // A blog belongs to at most one trip; deleting a trip keeps its blogs
+            $table->foreignId('trip_id')->nullable()->constrained('trips')->nullOnDelete();
             $table->timestamps();
         });
     }

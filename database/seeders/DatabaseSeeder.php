@@ -22,10 +22,10 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        if (! User::where('email', 'ine@inetjuhhh.nl')->exists()) {
+        if (! User::where('email', 'inetjuhhh@gmail.com')->exists()) {
             User::factory()->create([
                 'name' => 'inetjuhhh',
-                'email' => 'ine@inetjuhhh.nl',
+                'email' => 'inetjuhhh@gmail.com',
             ]);
         }
 
