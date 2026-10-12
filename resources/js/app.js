@@ -67,6 +67,15 @@ Alpine.data('travelMap', ({ markers = [], mode = 'full', trip = null } = {}) => 
     },
 }));
 
+// The route of a trip under a story; Leaflet only loads once the map scrolls into view
+Alpine.data('tripMap', (markers = []) => ({
+    async load() {
+        const { createTripMap } = await import('./travel-map');
+
+        createTripMap(this.$refs.map, markers);
+    },
+}));
+
 window.Alpine = Alpine;
 
 Alpine.start();

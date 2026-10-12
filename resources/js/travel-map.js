@@ -61,6 +61,62 @@ function popupCard(marker) {
 }
 
 /**
+ * Shows the story card on hover (mouse) or tap (touch) and returns a function to open it.
+ */
+function attachCard(map, layer, marker, canHover) {
+    const popup = L.popup({
+        closeButton: false,
+        className: 'travel-popup',
+        maxWidth: 260,
+        minWidth: 260,
+        autoPanPadding: [24, 24],
+    }).setContent(() => popupCard(marker));
+
+    // Hover cards don't pan the map: that would move the pin away from the pointer and close
+    // the card again. Cards opened by a tap or from the list do pan, so they fit in view.
+    const openCard = (pan) => {
+        popup.options.autoPan = pan;
+        popup.setLatLng(layer.getLatLng()).openOn(map);
+    };
+
+    let closeTimer = null;
+    const keepOpen = () => clearTimeout(closeTimer);
+    const closeSoon = () => {
+        clearTimeout(closeTimer);
+        closeTimer = setTimeout(() => map.closePopup(popup), 250);
+    };
+
+    layer.on('mouseover', () => {
+        keepOpen();
+        openCard(false);
+    });
+    layer.on('mouseout', closeSoon);
+
+    // With a mouse the card is already open, so a click goes to the story; on touch screens
+    // there is no hover, so a tap opens the card.
+    layer.on('click', () => {
+        if (canHover) {
+            window.location.href = marker.url;
+        } else {
+            openCard(true);
+        }
+    });
+
+    popup.on('add', () => {
+        const element = popup.getElement();
+        element.addEventListener('mouseenter', keepOpen);
+        element.addEventListener('mouseleave', closeSoon);
+    });
+
+    return openCard;
+}
+
+function addBaseTiles(map) {
+    L.tileLayer(BASE_TILES, { attribution: ATTRIBUTION, maxZoom: 16 }).addTo(map);
+    L.tileLayer(LABEL_TILES, { maxZoom: 16, pane: 'shadowPane' }).addTo(map);
+}
+
+/**
  * Creates the map inside `element`.
  *
  * mode "full": the travel map page, with clustering and a list of stories in view.
@@ -85,8 +141,7 @@ export function createTravelMap(element, markers, { mode = 'full', trip = null, 
         attributionControl: true,
     });
 
-    L.tileLayer(BASE_TILES, { attribution: ATTRIBUTION, maxZoom: 16 }).addTo(map);
-    L.tileLayer(LABEL_TILES, { maxZoom: 16, pane: 'shadowPane' }).addTo(map);
+    addBaseTiles(map);
 
     const cluster = L.markerClusterGroup({
         showCoverageOnHover: false,
@@ -100,51 +155,7 @@ export function createTravelMap(element, markers, { mode = 'full', trip = null, 
     markers.forEach((marker) => {
         const layer = L.marker([marker.lat, marker.lng], { icon: pinIcon, title: marker.title, riseOnHover: true });
 
-        const popup = L.popup({
-            closeButton: false,
-            className: 'travel-popup',
-            maxWidth: 260,
-            minWidth: 260,
-            autoPanPadding: [24, 24],
-        }).setContent(() => popupCard(marker));
-
-        // Hover cards don't pan the map: that would move the pin away from the pointer and close
-        // the card again. Cards opened by a tap or from the list do pan, so they fit in view.
-        const openCard = (pan) => {
-            popup.options.autoPan = pan;
-            popup.setLatLng(layer.getLatLng()).openOn(map);
-        };
-
-        let closeTimer = null;
-        const keepOpen = () => clearTimeout(closeTimer);
-        const closeSoon = () => {
-            clearTimeout(closeTimer);
-            closeTimer = setTimeout(() => map.closePopup(popup), 250);
-        };
-
-        layer.on('mouseover', () => {
-            keepOpen();
-            openCard(false);
-        });
-        layer.on('mouseout', closeSoon);
-
-        // With a mouse the card is already open, so a click goes to the story; on touch screens
-        // there is no hover, so a tap opens the card.
-        layer.on('click', () => {
-            if (canHover) {
-                window.location.href = marker.url;
-            } else {
-                openCard(true);
-            }
-        });
-
-        popup.on('add', () => {
-            const element = popup.getElement();
-            element.addEventListener('mouseenter', keepOpen);
-            element.addEventListener('mouseleave', closeSoon);
-        });
-
-        layers.set(marker.id, { layer, openCard });
+        layers.set(marker.id, { layer, openCard: attachCard(map, layer, marker, canHover) });
     });
 
     map.addLayer(cluster);
@@ -206,4 +217,66 @@ export function createTravelMap(element, markers, { mode = 'full', trip = null, 
         },
         invalidateSize: () => map.invalidateSize(),
     };
+}
+
+/**
+ * The map under a story: every published part of its trip, numbered like the trip strip.
+ * The route is solid up to this story and dotted for the parts that came after it.
+ */
+export function createTripMap(element, markers) {
+    const canHover = window.matchMedia('(hover: hover)').matches;
+
+    const map = L.map(element, {
+        minZoom: 1,
+        maxZoom: 16,
+        zoomSnap: 0.25,
+        maxBounds: L.latLngBounds([-85, -540], [85, 540]),
+        maxBoundsViscosity: 1,
+        // Inside a page: no scroll zoom, and on phones one finger keeps scrolling the page
+        scrollWheelZoom: false,
+        dragging: !L.Browser.mobile,
+    });
+
+    addBaseTiles(map);
+
+    const stops = markers.map((marker) => [marker.lat, marker.lng]);
+    const current = markers.findIndex((marker) => marker.current);
+    const split = current === -1 ? stops.length - 1 : current;
+
+    if (split > 0) {
+        L.polyline(stops.slice(0, split + 1), { className: 'trip-route-travelled', interactive: false }).addTo(map);
+    }
+    if (split < stops.length - 1) {
+        L.polyline(stops.slice(split), { className: 'travel-route', interactive: false }).addTo(map);
+    }
+
+    markers.forEach((marker) => {
+        const icon = L.divIcon({
+            className: `trip-pin${marker.current ? ' is-current' : ''}`,
+            html: `<span>${Number(marker.number)}</span>`,
+            iconSize: marker.current ? [36, 36] : [28, 28],
+            popupAnchor: [0, -16],
+        });
+
+        const layer = L.marker([marker.lat, marker.lng], {
+            icon,
+            title: marker.title,
+            riseOnHover: true,
+            zIndexOffset: marker.current ? 1000 : 0,
+        }).addTo(map);
+
+        if (marker.current) {
+            layer.bindTooltip('Dit verhaal', { permanent: true, direction: 'top', offset: [0, -18], className: 'trip-pin-label' });
+        } else {
+            attachCard(map, layer, marker, canHover);
+        }
+    });
+
+    if (stops.length === 1) {
+        map.setView(stops[0], 6);
+    } else {
+        map.fitBounds(stops, { padding: [48, 48], maxZoom: 8 });
+    }
+
+    return map;
 }

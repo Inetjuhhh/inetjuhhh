@@ -48,6 +48,10 @@
             {!! $blog->renderContent() !!}
         </article>
 
+        @if($blog->trip && $tripMarkers?->isNotEmpty())
+            @include('blogs.partials.trip-map', ['trip' => $blog->trip, 'markers' => $tripMarkers])
+        @endif
+
         @php $interactive = $blog->isPublished(); @endphp
 
         <div class="mt-16">

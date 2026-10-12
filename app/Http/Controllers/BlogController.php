@@ -73,6 +73,7 @@ class BlogController extends Controller
             ->with('blog', $blog->loadCount('likes'))
             ->with('liked', $visitor !== null && $blog->likes()->where('visitor_hash', $visitor)->exists())
             ->with('comments', $blog->comments()->get())
+            ->with('tripMarkers', $blog->trip ? TravelMap::forTrip($blog->trip, $blog) : collect())
             ->with('related', RelatedBlogs::for($blog));
     }
 

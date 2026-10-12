@@ -233,3 +233,64 @@
     stroke-linecap: round;
     opacity: 0.9;
 }
+
+/* The trip map under a story: the part already travelled, and numbered stops */
+.trip-route-travelled {
+    fill: none;
+    stroke: var(--color-brand);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.trip-pin span {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--color-night-600);
+    color: var(--color-cream);
+    border: 2px solid var(--color-accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+    transition: transform 150ms ease, background-color 150ms ease;
+}
+.trip-pin:hover span {
+    transform: scale(1.15);
+    background: var(--color-accent);
+    color: var(--color-night-900);
+}
+.trip-pin.is-current span {
+    background: var(--color-accent);
+    color: var(--color-night-900);
+    border: 3px solid var(--color-night-900);
+    font-size: 0.9rem;
+    animation: trip-pin-pulse 2s ease-out infinite;
+}
+@keyframes trip-pin-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(229, 139, 99, 0.6), 0 6px 14px rgba(0, 0, 0, 0.5); }
+    100% { box-shadow: 0 0 0 16px rgba(229, 139, 99, 0), 0 6px 14px rgba(0, 0, 0, 0.5); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .trip-pin.is-current span {
+        animation: none;
+        box-shadow: 0 0 0 4px rgba(229, 139, 99, 0.45), 0 6px 14px rgba(0, 0, 0, 0.5);
+    }
+}
+.leaflet-tooltip.trip-pin-label {
+    padding: 0.2rem 0.6rem;
+    border: 0;
+    border-radius: 9999px;
+    background: var(--color-night-900);
+    color: var(--color-cream);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    box-shadow: var(--shadow-soft);
+}
+.leaflet-tooltip.trip-pin-label::before {
+    border-top-color: var(--color-night-900);
+}
