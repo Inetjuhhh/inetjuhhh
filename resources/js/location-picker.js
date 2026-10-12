@@ -15,7 +15,7 @@ function addStyles() {
 
 const pinIcon = () => L.divIcon({
     className: '',
-    html: '<span style="display:block;width:26px;height:26px;border-radius:9999px;background:#E58B63;border:3px solid #16191C;box-shadow:0 0 0 2px rgba(229,139,99,.45),0 6px 14px rgba(0,0,0,.4);cursor:grab"></span>',
+    html: '<span style="display:block;width:26px;height:26px;border-radius:9999px;background:#9DB894;border:3px solid #16191C;box-shadow:0 0 0 2px rgba(157,184,148,.45),0 6px 14px rgba(0,0,0,.4);cursor:grab"></span>',
     iconSize: [26, 26],
     iconAnchor: [13, 13],
 });
