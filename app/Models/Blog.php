@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Filament\Blocks\BlogBlock;
 use App\Support\BlogImages;
+use App\Support\BlogSearch;
 use App\Support\Geocoder;
 use App\Support\NewBlogNotifier;
 use App\Support\RenderedBlocks;
@@ -44,6 +45,13 @@ class Blog extends Model implements HasMedia
                 [$blog->latitude, $blog->longitude] = $found;
             }
             // Not found: keep the pin that was there, rather than dropping the blog off the map
+        });
+
+        // Keep the plain text for the search bar in step with the content
+        static::saving(function (Blog $blog) {
+            if ($blog->isDirty('content') || $blog->search_text === null) {
+                $blog->search_text = BlogSearch::plainText($blog->content);
+            }
         });
 
         // Mail the subscribers the first time a blog goes online. Blogs planned for later are

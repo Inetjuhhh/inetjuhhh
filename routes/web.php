@@ -4,6 +4,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SubscriberController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,9 @@ Route::get('/dashboard', function () {
 
 Route::get('/', [BlogController::class, 'index'])->name('blogs.index');
 Route::get('/kaart', [BlogController::class, 'map'])->name('blogs.map');
+Route::get('/zoeken', [SearchController::class, 'index'])->name('search');
+Route::get('/zoeken/suggesties', [SearchController::class, 'suggest'])
+    ->middleware('throttle:90,1')->name('search.suggest');
 Route::get('/blogs/country/{country_id}', [BlogController::class, 'blogCountry'])->name('blogs.blogCountry');
 Route::get('/blogs/preview/{blog:id}', [BlogController::class, 'preview'])->middleware('signed')->name('blogs.preview');
 Route::get('/blogs/{slug}', [BlogController::class, 'show'])->name('blogs.show');

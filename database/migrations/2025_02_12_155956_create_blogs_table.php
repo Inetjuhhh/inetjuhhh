@@ -21,6 +21,8 @@ return new class extends Migration
             $table->decimal('longitude', 10, 7)->nullable();
             $table->foreignId('featured_image_id')->nullable()->constrained('curator')->nullOnDelete();
             $table->json('content');
+            // The words of the content without the editor's markup, for the search bar
+            $table->longText('search_text')->nullable();
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
             $table->dateTime('published_at')->nullable();
             $table->foreignId('placed_by_id')->references('id')->on('users')->constrained();

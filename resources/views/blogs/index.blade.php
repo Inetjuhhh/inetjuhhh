@@ -1,13 +1,37 @@
 @php
     $trip ??= null;
+    $search ??= null;
     // Show the newest blog large on the first page of the main overview
-    $featured = (! isset($country) && ! $trip && $blogs->onFirstPage()) ? $blogs->first() : null;
+    $featured = (! isset($country) && ! $trip && $search === null && $blogs->onFirstPage()) ? $blogs->first() : null;
     $gridBlogs = $featured ? $blogs->slice(1) : $blogs;
 @endphp
 
-<x-app-layout :title="$trip?->name ?? (isset($country) ? $country->name : null)">
+<x-app-layout :title="$search !== null ? 'Zoeken: ' . $search : ($trip?->name ?? (isset($country) ? $country->name : null))">
     <x-slot name="header">
-        @if($trip)
+        @if($search !== null)
+            {{-- Search results, with the typo fix when that was needed --}}
+            <p class="text-xs uppercase tracking-widest font-semibold text-accent">Zoeken</p>
+            <h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">
+                @if($search === '')
+                    Waar ben je naar op zoek?
+                @else
+                    {{ $blogs->total() }} {{ $blogs->total() === 1 ? 'verhaal' : 'verhalen' }} over “{{ $searchedFor }}”
+                @endif
+            </h1>
+            @if($searchedFor !== $search)
+                <p class="mt-3 text-cream-muted">Niets gevonden voor “{{ $search }}”, dus ik heb gezocht naar “{{ $searchedFor }}”.</p>
+            @endif
+            @if($places->isNotEmpty())
+                <div class="mt-6 flex flex-wrap items-center gap-2">
+                    <span class="text-sm text-cream-muted">Bekijk ook:</span>
+                    @foreach($places as $place)
+                        <a href="{{ $place['url'] }}" class="pill bg-night-700 text-cream hover:bg-night-600 transition">
+                            <i class="fas {{ $place['type'] === 'trip' ? 'fa-route' : 'fa-map-marker-alt' }} text-accent"></i>{{ $place['label'] }}
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+        @elseif($trip)
             {{-- One trip, all parts in reading order --}}
             <p class="text-xs uppercase tracking-widest font-semibold text-accent">🧭 Reis</p>
             <h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">{{ $trip->name }}</h1>
@@ -74,11 +98,21 @@
             </article>
         @endif
 
-        @if(! isset($country) && ! $trip && filled($mapMarkers ?? null))
+        @if(! isset($country) && ! $trip && $search === null && filled($mapMarkers ?? null))
             @include('blogs.partials.map-teaser', ['markers' => $mapMarkers])
         @endif
 
-        @if($blogs->isEmpty())
+        @if($blogs->isEmpty() && $search !== null)
+            <div class="py-16 text-center">
+                <p class="text-lg text-cream-muted">
+                    {{ $search === '' ? 'Typ in de zoekbalk bovenaan waar je over wilt lezen.' : 'Ik heb (nog) niets geschreven dat hierbij past.' }}
+                </p>
+                <p class="mt-2 text-cream-muted">Probeer een land, een plaats of een woord als “kleuter” of “strand”, of</p>
+                <a href="{{ route('blogs.map') }}" class="mt-6 inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 font-semibold text-night-900 transition hover:bg-cream">
+                    <i class="fas fa-map-marked-alt"></i> zoek op de reiskaart
+                </a>
+            </div>
+        @elseif($blogs->isEmpty())
             <p class="text-center text-cream-muted py-20">Hier zijn nog geen verhalen te lezen.</p>
         @else
             <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">

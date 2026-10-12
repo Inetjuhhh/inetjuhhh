@@ -15,15 +15,12 @@
             </a>
 
             <div class="flex md:order-2 gap-1">
-                <div class="relative hidden md:block">
-                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                        <svg class="w-4 h-4 text-cream-muted" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                        </svg>
-                        <span class="sr-only">Search icon</span>
-                    </div>
-                    <input type="text" id="search-navbar" class="block w-56 focus:w-72 transition-all duration-300 p-2 ps-10 text-sm rounded-full bg-night-700 border-night-600 text-cream placeholder-cream-muted focus:ring-brand focus:border-brand" placeholder="Zoeken...">
-                </div>
+                @include('layouts.partials.search', [
+                    'id' => 'search-navbar',
+                    'formClass' => 'hidden md:block',
+                    'inputClass' => 'block w-56 focus:w-72 transition-all duration-300',
+                    'panelClass' => 'absolute end-0 w-[26rem] max-w-[calc(100vw-2rem)]',
+                ])
                 <button data-collapse-toggle="navbar-search" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center rounded-lg md:hidden text-cream-muted hover:bg-night-700 focus:outline-none focus:ring-2 focus:ring-night-600" aria-controls="navbar-search" aria-expanded="false">
                     <span class="sr-only">Open main menu</span>
                     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
@@ -33,14 +30,12 @@
             </div>
 
             <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-search">
-                <div class="relative mt-3 md:hidden">
-                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                        <svg class="w-4 h-4 text-cream-muted" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                        </svg>
-                    </div>
-                    <input type="text" id="search-navbar-mobile" class="block w-full p-2 ps-10 text-sm rounded-full bg-night-700 border-night-600 text-cream placeholder-cream-muted focus:ring-brand focus:border-brand" placeholder="Zoeken...">
-                </div>
+                @include('layouts.partials.search', [
+                    'id' => 'search-navbar-mobile',
+                    'formClass' => 'mt-3 md:hidden',
+                    'inputClass' => 'block w-full',
+                    'panelClass' => 'relative',
+                ])
                 <ul class="flex md:items-center flex-col p-4 md:p-0 mt-4 font-medium rounded-xl bg-night-700 md:bg-transparent md:space-x-8 md:flex-row md:mt-0">
                     <li>
                         <a href="{{ route('blogs.index') }}" class="{{ request()->routeIs('blogs.index') ? $navActive : $navLink }}" @if(request()->routeIs('blogs.index')) aria-current="page" @endif>Home</a>
