@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +15,14 @@ Route::get('/kaart', [BlogController::class, 'map'])->name('blogs.map');
 Route::get('/blogs/country/{country_id}', [BlogController::class, 'blogCountry'])->name('blogs.blogCountry');
 Route::get('/blogs/preview/{blog:id}', [BlogController::class, 'preview'])->middleware('signed')->name('blogs.preview');
 Route::get('/blogs/{slug}', [BlogController::class, 'show'])->name('blogs.show');
+
+// Hearts and comments, without an account
+Route::post('/blogs/{blog:slug}/hartje', [LikeController::class, 'toggle'])
+    ->middleware('throttle:likes')->name('blogs.like');
+Route::post('/blogs/{blog:slug}/reacties', [CommentController::class, 'store'])
+    ->middleware('throttle:20,1')->name('comments.store');
+Route::get('/reacties/{comment}/goedkeuren', [CommentController::class, 'approve'])
+    ->middleware('signed')->name('comments.approve');
 
 
 Route::middleware('auth')->group(function () {

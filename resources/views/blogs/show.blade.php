@@ -48,6 +48,12 @@
             {!! $blog->renderContent() !!}
         </article>
 
+        @php $interactive = $blog->isPublished(); @endphp
+
+        <div class="mt-16">
+            @include('blogs.partials.like-button', ['blog' => $blog, 'liked' => $liked ?? false, 'disabled' => ! $interactive])
+        </div>
+
         <div class="mt-16 pt-8 border-t border-night-600 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div>
                 <p class="text-xs uppercase tracking-widest font-semibold text-accent">Deel dit verhaal</p>
@@ -60,6 +66,8 @@
                 Alle verhalen
             </a>
         </div>
+
+        @include('blogs.partials.comments', ['blog' => $blog, 'comments' => $comments ?? collect(), 'disabled' => ! $interactive])
     </div>
 
     @isset($related)

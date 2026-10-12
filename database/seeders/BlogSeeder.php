@@ -75,18 +75,30 @@ class BlogSeeder extends Seeder
             );
 
             $blog->responses()->delete();
+            $lastReaderComment = null;
+
             foreach ($data['responses'] ?? [] as $response) {
                 $responseDate = $date->copy()->addDays($response['days_after'])->setTime(rand(8, 22), rand(0, 59));
+                // Comments by the blog owner answer the reader comment just above them
+                $isAuthor = $response['email'] === 'ine@inetjuhhh.nl';
 
                 $model = new Response([
+                    'parent_id' => $isAuthor ? $lastReaderComment?->id : null,
                     'name' => $response['name'],
                     'email' => $response['email'],
                     'response' => $response['text'],
+                    'status' => Response::APPROVED,
+                    'approved_at' => $responseDate,
+                    'is_author' => $isAuthor,
                 ]);
                 $model->timestamps = false;
                 $model->created_at = $responseDate;
                 $model->updated_at = $responseDate;
                 $blog->responses()->save($model);
+
+                if (! $isAuthor) {
+                    $lastReaderComment = $model;
+                }
             }
         }
     }

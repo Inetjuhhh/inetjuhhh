@@ -8,6 +8,7 @@ use App\Models\Trip;
 use Illuminate\Http\Request;
 use App\Support\RelatedBlogs;
 use App\Support\TravelMap;
+use App\Support\Visitor;
 
 class BlogController extends Controller
 {
@@ -45,7 +46,7 @@ class BlogController extends Controller
             ->with('activeTrip', $tripSlugs->contains($request->query('reis')) ? $request->query('reis') : null);
     }
 
-    public function show(string $slug)
+    public function show(Request $request, string $slug)
     {
         $blog = Blog::published()->where('slug', $slug)->first();
 
@@ -56,17 +57,23 @@ class BlogController extends Controller
 
         abort_unless($blog, 404);
 
-        return view('blogs.show')
-            ->with('blog', $blog)
-            ->with('related', RelatedBlogs::for($blog));
+        return $this->showBlog($request, $blog);
     }
 
-    public function preview(Blog $blog)
+    public function preview(Request $request, Blog $blog)
     {
+        return $this->showBlog($request, $blog)->with('isPreview', true);
+    }
+
+    private function showBlog(Request $request, Blog $blog)
+    {
+        $visitor = Visitor::existingHash($request);
+
         return view('blogs.show')
-            ->with('blog', $blog)
-            ->with('related', RelatedBlogs::for($blog))
-            ->with('isPreview', true);
+            ->with('blog', $blog->loadCount('likes'))
+            ->with('liked', $visitor !== null && $blog->likes()->where('visitor_hash', $visitor)->exists())
+            ->with('comments', $blog->comments()->get())
+            ->with('related', RelatedBlogs::for($blog));
     }
 
     public function blogCountry(string $id)

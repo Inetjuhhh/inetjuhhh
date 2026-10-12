@@ -14,7 +14,7 @@
         </p>
         <h2 class="mt-2 font-display text-3xl leading-tight text-cream lg:text-4xl">Zoek je verhaal op de kaart</h2>
         <p class="mt-4 text-cream-muted">
-            Weet je al waar je heen wilt? Zoom in op een land of streek en lees wat ik daar heb meegemaakt.
+            Weet je al waarover je wilt lezen? Zoom in op een land of streek en lees wat ik daar heb meegemaakt.
         </p>
 
         <dl class="mt-6 flex gap-8">

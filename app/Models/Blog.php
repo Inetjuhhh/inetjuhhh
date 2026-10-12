@@ -55,6 +55,23 @@ class Blog extends Model implements HasMedia
         return $this->hasMany(Response::class);
     }
 
+    /**
+     * Approved comments from readers, oldest first, with the owner's approved replies.
+     */
+    public function comments()
+    {
+        return $this->hasMany(Response::class)
+            ->whereNull('parent_id')
+            ->approved()
+            ->oldest()
+            ->with(['replies' => fn ($query) => $query->approved()]);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(BlogLike::class);
+    }
+
     public function tags()
     {
         return $this->belongsToMany(Tag::class, 'blog_tag');

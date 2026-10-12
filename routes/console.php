@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Response;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Str;
 
 Artisan::command('block:make', function () {
@@ -86,3 +88,7 @@ Artisan::command('block:make', function () {
 
     $this->comment("Block '{$className}' created successfully. Add it to BlogBlock::all() to show it in the editor!");
 })->purpose('Create a new block for the blog editor');
+
+// Delete comments marked as spam after 30 days (see Response::prunable). Needs the scheduler:
+// a cron entry running `php artisan schedule:run` every minute on the server.
+Schedule::command('model:prune', ['--model' => [Response::class]])->daily();

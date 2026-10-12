@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    // Cloudflare Turnstile, a privacy friendly check against comment bots. Leave the keys
+    // empty to switch it off (the other spam checks keep working).
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
 ];

@@ -1,9 +1,9 @@
 <x-app-layout title="Reiskaart">
     <x-slot name="header">
         <p class="text-xs uppercase tracking-widest font-semibold text-accent">Reiskaart</p>
-        <h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">Waar wil je naartoe?</h1>
+        <h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">Waar wil je met me naartoe?</h1>
         <p class="mt-3 max-w-2xl text-cream-muted">
-            Elk verhaal staat op de plek waar het zich afspeelt. Zoom in op een gebied en je ziet meteen welke verhalen daar spelen.
+            Elke blog speelt zich af op een locatie. Zoom in op een gebied en je ziet meteen welke blogs daarvan te vinden zijn :).
         </p>
     </x-slot>
 
