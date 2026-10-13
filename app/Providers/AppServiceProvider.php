@@ -36,11 +36,14 @@ class AppServiceProvider extends ServiceProvider
                 ->get());
         });
 
-        // Trips in the menu: only those with at least one story visitors can read
+        // Trips in the menu, journeys and city trips apart: only those with a story visitors can read
         View::composer('layouts.navigation', function ($view) {
-            $view->with('navTrips', Trip::whereHas('blogs', fn ($query) => $query->published())
+            $trips = Trip::whereHas('blogs', fn ($query) => $query->published())
                 ->orderByDesc('starts_on')
-                ->get());
+                ->get();
+
+            $view->with('navTrips', $trips->where('kind', '!=', Trip::KIND_CITY)->values())
+                ->with('navCityTrips', $trips->where('kind', Trip::KIND_CITY)->values());
         });
 
         // Phone photos are resized in the browser before uploading (max 2400px, never enlarged),

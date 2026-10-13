@@ -18,10 +18,17 @@
 
         <div class="relative h-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-10">
             <div class="flex flex-wrap gap-1.5">
-                @foreach($blog->countries as $blogCountry)
-                    <a href="{{ route('blogs.blogCountry', $blogCountry->id) }}" class="pill bg-night-900/70 backdrop-blur text-cream hover:bg-night-900 transition">
-                        <i class="fas fa-map-marker-alt text-accent"></i>{{ $blogCountry->name }}
-                    </a>
+                {{-- "India – Varanasi", linking to all stories from that country --}}
+                @foreach($blog->placeTags() as $tag)
+                    @if($tag['country'])
+                        <a href="{{ route('blogs.blogCountry', $tag['country']->id) }}" class="pill bg-night-900/70 backdrop-blur text-cream hover:bg-night-900 transition">
+                            <i class="fas fa-map-marker-alt text-accent"></i>{{ $tag['label'] }}
+                        </a>
+                    @else
+                        <span class="pill bg-night-900/70 backdrop-blur text-cream">
+                            <i class="fas fa-map-marker-alt text-accent"></i>{{ $tag['label'] }}
+                        </span>
+                    @endif
                 @endforeach
             </div>
             <span class="mt-4 text-xs uppercase tracking-widest font-semibold text-accent">

@@ -29,7 +29,7 @@
                                     </span>
                                     <span class="mt-2 font-display text-2xl leading-snug text-cream group-hover:text-brand transition">{{ $item['blog']->title }}</span>
                                     <span class="mt-2 text-sm text-cream-muted">
-                                        {{ $item['blog']->location_name ?: $item['blog']->countries->pluck('name')->join(', ') }}
+                                        {{ collect($item['blog']->placeTags())->pluck('label')->join(' · ') }}
                                         · {{ $item['blog']->publishedDate()->translatedFormat('d F Y') }}
                                     </span>
                                 </span>

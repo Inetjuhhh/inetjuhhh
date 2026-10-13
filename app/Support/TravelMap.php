@@ -62,7 +62,7 @@ class TravelMap
             'url' => route('blogs.show', $blog),
             'lat' => round($position[0], 5),
             'lng' => round($position[1], 5),
-            'place' => $blog->location_name ?: $blog->countries->pluck('name')->join(', '),
+            'place' => collect($blog->placeTags())->pluck('label')->join(' · '),
             'country' => $blog->countries->pluck('name')->join(', '),
             'category' => $blog->categories->pluck('name')->join(' · '),
             'date' => $blog->publishedDate()->translatedFormat('d F Y'),

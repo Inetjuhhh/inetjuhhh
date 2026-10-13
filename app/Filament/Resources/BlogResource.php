@@ -8,6 +8,7 @@ use App\Filament\Resources\BlogResource\Pages\EditBlog;
 use App\Filament\Resources\BlogResource\Pages\ListBlogs;
 use App\Filament\Forms\LocationPicker;
 use App\Models\Blog;
+use App\Models\Trip;
 use App\Support\Geocoder;
 use App\Support\ImageOptimizer;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
@@ -266,6 +267,17 @@ class BlogResource extends Resource
                 ->placeholder('Bijv. Vietnam & Cambodja 2025')
                 ->required()
                 ->maxLength(255),
+            ToggleButtons::make('kind')
+                ->label('Soort')
+                ->helperText('Bepaalt of de reis in het menu onder "Reizen" of onder "Citytrips" staat.')
+                ->options(Trip::KINDS)
+                ->icons([
+                    Trip::KIND_TRIP => Heroicon::OutlinedGlobeEuropeAfrica,
+                    Trip::KIND_CITY => Heroicon::OutlinedBuildingOffice2,
+                ])
+                ->default(Trip::KIND_TRIP)
+                ->inline()
+                ->required(),
             Grid::make(2)->schema([
                 DatePicker::make('starts_on')
                     ->label('Van')

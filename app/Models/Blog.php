@@ -171,6 +171,51 @@ class Blog extends Model implements HasMedia
         return $country ? [$country->latitude, $country->longitude] : null;
     }
 
+    /**
+     * The tags on the photo: the country with the place ("India – Varanasi"), then any other countries.
+     *
+     * @return list<array{label: string, country: ?Country}>
+     */
+    public function placeTags(): array
+    {
+        $countries = $this->countries;
+
+        if (blank($this->location_name)) {
+            return $countries->map(fn (Country $c) => ['label' => $c->name, 'country' => $c])->all();
+        }
+
+        // "Varanasi, India": the part after the last comma is the country
+        $parts = array_map('trim', explode(',', $this->location_name));
+        $countryName = count($parts) > 1 ? array_pop($parts) : null;
+        $place = implode(', ', $parts);
+
+        // "Thailand" alone, or a place without a country: use the blog's country when it has one
+        if (! $countryName) {
+            $match = $countries->first(fn (Country $c) => mb_strtolower($c->name) === mb_strtolower($place));
+            if ($match) {
+                $countryName = $match->name;
+                $place = null;
+            } elseif ($countries->count() === 1) {
+                $countryName = $countries->first()->name;
+            }
+        }
+
+        $country = $countries->first(fn (Country $c) => mb_strtolower($c->name) === mb_strtolower((string) $countryName));
+
+        $tags = [[
+            'label' => collect([$countryName, $place])->filter()->join(' – '),
+            'country' => $country,
+        ]];
+
+        foreach ($countries as $other) {
+            if (! $country || ! $other->is($country)) {
+                $tags[] = ['label' => $other->name, 'country' => $other];
+            }
+        }
+
+        return $tags;
+    }
+
     public function publishedDate(): Carbon
     {
         return $this->published_at ?? $this->created_at;

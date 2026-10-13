@@ -2,6 +2,8 @@
     // Each stop: ['number' => 3, 'url' => '…', 'label' => 'Pagina 3', 'state' => 'passed'|'current'|'ahead', 'far' => bool]
     // or ['gap' => true] for skipped stops (…). A "far" stop is hidden on a phone, where only the nearby ones fit.
     'stops' => [],
+    // Shorter roads between the stops, for a long route
+    'compact' => false,
 ])
 
 {{-- A route of numbered stops, like the trip map: solid where you've been, dotted ahead, the current stop is the sage pin --}}
@@ -21,7 +23,9 @@
         {{-- The road to this stop: solid when it is behind you --}}
         @unless ($loop->first)
             <span @class([
-                'h-0 w-4 border-t-2 sm:w-8',
+                'h-0 border-t-2',
+                'w-4 sm:w-8' => ! $compact,
+                'w-2 sm:w-4' => $compact,
                 'hidden sm:block' => $far,
                 'border-brand' => $state !== 'ahead',
                 'border-dashed border-brand/40' => $state === 'ahead',

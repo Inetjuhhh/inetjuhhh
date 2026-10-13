@@ -15,6 +15,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->date('starts_on')->nullable();
             $table->date('ends_on')->nullable();
+            // 'trip' (a journey, under "Reizen") or 'city' (a city trip, under "Citytrips")
+            $table->string('kind', 20)->default('trip');
             $table->timestamps();
         });
     }

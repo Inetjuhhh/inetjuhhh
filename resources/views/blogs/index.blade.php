@@ -73,9 +73,9 @@
                     </div>
                     <div class="lg:col-span-2 flex flex-col justify-center p-8 lg:p-10">
                         <div class="flex flex-wrap gap-1.5">
-                            @foreach($featured->countries as $featuredCountry)
+                            @foreach($featured->placeTags() as $tag)
                                 <span class="pill bg-night-600 text-cream">
-                                    <i class="fas fa-map-marker-alt text-accent"></i>{{ $featuredCountry->name }}
+                                    <i class="fas fa-map-marker-alt text-accent"></i>{{ $tag['label'] }}
                                 </span>
                             @endforeach
                         </div>

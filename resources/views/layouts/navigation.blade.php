@@ -46,29 +46,10 @@
                         </a>
                     </li>
                     @if($navTrips->isNotEmpty())
-                        <li>
-                            <button id="dropdownTripsButton" data-dropdown-toggle="dropdownTrips" data-dropdown-trigger="hover" type="button"
-                                    class="{{ request()->routeIs('blogs.index') && request()->filled('reis') ? $navActive : $navLink }} inline-flex items-center w-full md:w-auto">
-                                Reizen
-                                <svg class="w-2.5 h-2.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                                </svg>
-                            </button>
-
-                            {{-- Newest trip first; scrolls when the list gets longer than the screen --}}
-                            <div id="dropdownTrips" class="z-50 hidden w-64 rounded-xl bg-night-700 border border-night-600 shadow-soft overflow-hidden">
-                                <ul class="py-2 text-sm max-h-[70vh] overflow-y-auto" aria-labelledby="dropdownTripsButton">
-                                    @foreach($navTrips as $navTrip)
-                                        <li>
-                                            <a href="{{ $navTrip->filterUrl() }}"
-                                               class="flex items-center gap-2 px-4 py-2 text-cream-muted hover:bg-night-600 hover:text-cream transition">
-                                                <span class="text-xs">🧭</span>{{ $navTrip->name }}
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </li>
+                        @include('layouts.partials.trip-menu', ['id' => 'dropdownTrips', 'label' => 'Reizen', 'icon' => '🧭', 'trips' => $navTrips])
+                    @endif
+                    @if($navCityTrips->isNotEmpty())
+                        @include('layouts.partials.trip-menu', ['id' => 'dropdownCityTrips', 'label' => 'Citytrips', 'icon' => '🏙️', 'trips' => $navCityTrips])
                     @endif
                     <li>
                         <button id="dropdownCountriesButton" data-dropdown-toggle="dropdownCountries" data-dropdown-trigger="hover" type="button"

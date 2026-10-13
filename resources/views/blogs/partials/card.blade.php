@@ -6,11 +6,12 @@
             <img src="{{ $blog->coverUrl(800, 600) }}" alt="{{ $blog->title }}" loading="lazy"
                  class="w-full h-full object-cover transition duration-700 group-hover:scale-105" />
             <div class="absolute inset-0 bg-gradient-to-t from-night-900/60 via-transparent to-transparent"></div>
-            @if($blog->countries->isNotEmpty())
-                <div class="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                    @foreach($blog->countries as $blogCountry)
+            {{-- Where the story is: "India – Varanasi" --}}
+            @if($placeTags = $blog->placeTags())
+                <div class="absolute top-3 left-3 right-3 flex flex-wrap gap-1.5">
+                    @foreach($placeTags as $tag)
                         <span class="pill bg-night-900/70 backdrop-blur text-cream">
-                            <i class="fas fa-map-marker-alt text-accent"></i>{{ $blogCountry->name }}
+                            <i class="fas fa-map-marker-alt text-accent"></i>{{ $tag['label'] }}
                         </span>
                     @endforeach
                 </div>

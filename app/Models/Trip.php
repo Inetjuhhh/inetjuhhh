@@ -8,6 +8,16 @@ use Illuminate\Support\Str;
 
 class Trip extends Model
 {
+    // A journey (menu "Reizen") or a city trip (menu "Citytrips")
+    public const KIND_TRIP = 'trip';
+
+    public const KIND_CITY = 'city';
+
+    public const KINDS = [
+        self::KIND_TRIP => 'Reis',
+        self::KIND_CITY => 'Citytrip',
+    ];
+
     protected $guarded = [];
 
     protected $casts = [

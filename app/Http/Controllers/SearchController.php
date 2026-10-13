@@ -52,7 +52,7 @@ class SearchController extends Controller
             ->map(fn (Blog $blog) => [
                 'title' => $blog->title,
                 'url' => route('blogs.show', $blog),
-                'place' => $blog->location_name ?: $blog->countries->pluck('name')->join(', '),
+                'place' => collect($blog->placeTags())->pluck('label')->join(' · '),
                 'date' => $blog->publishedDate()->translatedFormat('F Y'),
                 'cover' => $blog->coverUrl(160, 160),
             ]);
