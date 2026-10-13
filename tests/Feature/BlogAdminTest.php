@@ -42,6 +42,22 @@ it('renders the blog pages in the admin', function () {
     Livewire::test(EditBlog::class, ['record' => $blog->id])->assertOk();
 });
 
+it('opens the editor through the link in the list', function () {
+    $blog = Blog::create([
+        'title' => 'Lentekriebels', 'slug' => 'lentekriebels', 'excerpt' => 'Intro', 'status' => 'published',
+        'placed_by_id' => $this->user->id, 'content' => doc(paragraph('Hallo')),
+    ]);
+
+    // The blog's own route key is its slug; the admin uses the id, and the link has to agree
+    $url = \App\Filament\Resources\BlogResource::getUrl('edit', ['record' => $blog]);
+
+    expect($url)->toEndWith("/admin/blogs/{$blog->id}/edit");
+
+    // Outside local development only the addresses in ADMIN_EMAILS get into the admin
+    config(['blog.admin_emails' => [$this->user->email]]);
+    $this->get($url)->assertOk();
+});
+
 it('saves a draft with only a title', function () {
     Livewire::test(CreateBlog::class)
         ->fillForm(['title' => 'Half af verhaal', 'slug' => 'half-af-verhaal', 'status' => 'draft'])

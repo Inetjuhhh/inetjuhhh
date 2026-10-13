@@ -435,7 +435,8 @@ class BlogResource extends Resource
         return [
             'index' => ListBlogs::route('/'),
             'create' => CreateBlog::route('/create'),
-            'edit' => EditBlog::route('/{record}/edit'),
+            // ":id" makes the links use the id too (the Blog model's own route key is the slug)
+            'edit' => EditBlog::route('/{record:id}/edit'),
         ];
     }
 }
