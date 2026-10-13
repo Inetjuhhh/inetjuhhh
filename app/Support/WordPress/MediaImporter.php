@@ -38,6 +38,18 @@ class MediaImporter
     /**
      * The media id for a WordPress photo, importing it the first time. Null when it can't come along.
      */
+    /**
+     * WordPress photo id → media id, for the photos that came along (featured copies left out).
+     *
+     * @return array<int, int>
+     */
+    public function imported(): array
+    {
+        return collect($this->map)->reject(fn ($id, $key) => str_starts_with((string) $key, 'featured:'))
+            ->mapWithKeys(fn ($id, $key) => [(int) $key => $id])
+            ->all();
+    }
+
     public function import(int $wordpressId, bool $featured = false): ?int
     {
         $key = ($featured ? 'featured:' : '') . $wordpressId;

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- A tiny WordPress export with the tricky parts of the real one, for WordPressImportTest -->
+<rss version="2.0"
+	xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:wp="http://wordpress.org/export/1.2/"
+>
+<channel>
+	<title>Inetjuhhh</title>
+	<link>https://inetjuhhh.nl</link>
+	<wp:wxr_version>1.2</wp:wxr_version>
+
+	<item>
+		<title><![CDATA[foto]]></title>
+		<link>https://inetjuhhh.nl/?attachment_id=50</link>
+		<wp:post_id>50</wp:post_id>
+		<wp:post_type><![CDATA[attachment]]></wp:post_type>
+		<wp:status><![CDATA[inherit]]></wp:status>
+		<wp:attachment_url><![CDATA[https://inetjuhhh.nl/wp-content/uploads/2023/12/foto.jpg]]></wp:attachment_url>
+		<wp:postmeta>
+			<wp:meta_key><![CDATA[_wp_attachment_metadata]]></wp:meta_key>
+			<wp:meta_value><![CDATA[a:1:{s:5:"codec";s:4:"live"}]]></wp:meta_value>
+		</wp:postmeta>
+	</item>
+
+	<item>
+		<title><![CDATA[Dag 1 in de stad [Lissabon, Dag 1]]]></title>
+		<link>https://inetjuhhh.nl/2023/12/27/dag-1-in-de-stad/</link>
+		<content:encoded><![CDATA[<!-- wp:paragraph -->
+<p>Wat een <strong>mooie</strong> stad.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":50} -->
+<figure class="wp-block-image"><img src="https://inetjuhhh.nl/wp-content/uploads/2023/12/foto-768x1024.jpg" class="wp-image-50"/><figcaption>De tram</figcaption></figure>
+<!-- /wp:image -->]]></content:encoded>
+		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
+		<wp:post_id>100</wp:post_id>
+		<wp:post_date><![CDATA[2023-12-27 10:00:00]]></wp:post_date>
+		<wp:post_date_gmt><![CDATA[2023-12-27 09:00:00]]></wp:post_date_gmt>
+		<wp:post_name><![CDATA[dag-1-in-de-stad]]></wp:post_name>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[post]]></wp:post_type>
+		<category domain="category" nicename="travel"><![CDATA[Travel]]></category>
+		<category domain="category" nicename="blog"><![CDATA[Blog]]></category>
+		<category domain="post_tag" nicename="citytrip"><![CDATA[citytrip]]></category>
+		<wp:postmeta>
+			<wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key>
+			<wp:meta_value><![CDATA[50]]></wp:meta_value>
+		</wp:postmeta>
+		<wp:comment>
+			<wp:comment_id>1</wp:comment_id>
+			<wp:comment_author><![CDATA[Papa]]></wp:comment_author>
+			<wp:comment_author_email><![CDATA[papa@example.com]]></wp:comment_author_email>
+			<wp:comment_date_gmt><![CDATA[2023-12-27 20:00:00]]></wp:comment_date_gmt>
+			<wp:comment_content><![CDATA[Leuk verhaal!]]></wp:comment_content>
+			<wp:comment_approved><![CDATA[1]]></wp:comment_approved>
+			<wp:comment_parent>0</wp:comment_parent>
+			<wp:comment_user_id>0</wp:comment_user_id>
+		</wp:comment>
+		<wp:comment>
+			<wp:comment_id>2</wp:comment_id>
+			<wp:comment_author><![CDATA[Inetjuhhh]]></wp:comment_author>
+			<wp:comment_author_email><![CDATA[ine@inetjuhhh.nl]]></wp:comment_author_email>
+			<wp:comment_date_gmt><![CDATA[2023-12-27 21:00:00]]></wp:comment_date_gmt>
+			<wp:comment_content><![CDATA[Dankjewel!]]></wp:comment_content>
+			<wp:comment_approved><![CDATA[1]]></wp:comment_approved>
+			<wp:comment_parent>1</wp:comment_parent>
+			<wp:comment_user_id>1</wp:comment_user_id>
+		</wp:comment>
+		<wp:comment>
+			<wp:comment_id>3</wp:comment_id>
+			<wp:comment_author><![CDATA[Kees]]></wp:comment_author>
+			<wp:comment_author_email><![CDATA[kees@example.com]]></wp:comment_author_email>
+			<wp:comment_date_gmt><![CDATA[2023-12-28 08:00:00]]></wp:comment_date_gmt>
+			<wp:comment_content><![CDATA[Wacht nog op goedkeuring]]></wp:comment_content>
+			<wp:comment_approved><![CDATA[0]]></wp:comment_approved>
+			<wp:comment_parent>0</wp:comment_parent>
+			<wp:comment_user_id>0</wp:comment_user_id>
+		</wp:comment>
+	</item>
+
+	<item>
+		<title><![CDATA[Back in Holland!]]></title>
+		<link>https://inetjuhhh.nl/2023/12/29/back-in-holland/</link>
+		<content:encoded><![CDATA[<!-- wp:paragraph -->
+<p>Weer thuis.</p>
+<!-- /wp:paragraph -->]]></content:encoded>
+		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
+		<wp:post_id>101</wp:post_id>
+		<wp:post_date><![CDATA[2023-12-29 18:00:00]]></wp:post_date>
+		<wp:post_date_gmt><![CDATA[2023-12-29 17:00:00]]></wp:post_date_gmt>
+		<wp:post_name><![CDATA[back-in-holland]]></wp:post_name>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[post]]></wp:post_type>
+		<category domain="category" nicename="lissabon"><![CDATA[Lissabon]]></category>
+	</item>
+
+	<item>
+		<title><![CDATA[Rabarbermoes]]></title>
+		<link>https://inetjuhhh.nl/2015/05/01/rabarbermoes/</link>
+		<content:encoded><![CDATA[Een klassiek recept.
+
+Neem eerst de rabarber.
+Snijd hem in stukjes.]]></content:encoded>
+		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
+		<wp:post_id>102</wp:post_id>
+		<wp:post_date><![CDATA[2015-05-01 12:00:00]]></wp:post_date>
+		<wp:post_date_gmt><![CDATA[2015-05-01 10:00:00]]></wp:post_date_gmt>
+		<wp:post_name><![CDATA[rabarbermoes]]></wp:post_name>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[post]]></wp:post_type>
+		<category domain="category" nicename="food"><![CDATA[Food]]></category>
+	</item>
+
+	<item>
+		<title><![CDATA[Nog een concept]]></title>
+		<link>https://inetjuhhh.nl/?p=103</link>
+		<content:encoded><![CDATA[<!-- wp:paragraph -->
+<p>Nog niet af.</p>
+<!-- /wp:paragraph -->]]></content:encoded>
+		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
+		<wp:post_id>103</wp:post_id>
+		<wp:post_date><![CDATA[2026-01-01 12:00:00]]></wp:post_date>
+		<wp:post_date_gmt><![CDATA[0000-00-00 00:00:00]]></wp:post_date_gmt>
+		<wp:post_name><![CDATA[]]></wp:post_name>
+		<wp:status><![CDATA[draft]]></wp:status>
+		<wp:post_type><![CDATA[post]]></wp:post_type>
+	</item>
+</channel>
+</rss>

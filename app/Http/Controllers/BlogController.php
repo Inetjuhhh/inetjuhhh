@@ -17,6 +17,11 @@ class BlogController extends Controller
 
     public function index(Request $request)
     {
+        // An old WordPress short link (/?p=2232) goes to that blog
+        if (ctype_digit((string) $request->query('p'))) {
+            return app(WordPressRedirectController::class)->shortLink($request);
+        }
+
         // ?reis=vietnam-cambodja-2025 shows one trip, in reading order (oldest first)
         if ($request->filled('reis')) {
             $trip = Trip::where('slug', $request->query('reis'))->firstOrFail();

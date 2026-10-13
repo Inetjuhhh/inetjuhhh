@@ -122,6 +122,23 @@ return [
     // File types that are not imported (videos are too large for the server; links to YouTube do come along)
     'skip_media' => ['mov', 'mp4', 'm4v', 'avi', 'zip', 'pdf'],
 
+    // The folder with the export file and what the import writes next to it: media-map.json (which
+    // photo became which), redirects.json (the old links) and places.csv (to check the places)
+    'directory' => storage_path('app/wordpress'),
+
+    // The old WordPress pages, and where their link goes now (a path on this site)
+    'page_redirects' => [
+        'over-ine' => '/',
+        'travel' => '/kaart',
+        'perform' => '/zoeken?q=performing',
+        'voetreis' => '/',
+        'vork' => '/zoeken?q=food',
+        'lootbox' => '/',
+        'barts-31e-verjaardag' => '/',
+        'fotos' => '/',
+        'food' => '/zoeken?q=food',
+    ],
+
     // Comments that were still waiting for approval in WordPress: true = they come along as
     // "Wacht op goedkeuring" (approve or delete them in the admin), false = left behind.
     // Spam and the WordPress trash never come along.

@@ -13,6 +13,7 @@ use App\Support\WordPress\ContentConverter;
 use App\Support\Geocoder;
 use App\Support\WordPress\MediaImporter;
 use App\Support\WordPress\TitlePlace;
+use App\Support\WordPress\WordPressUploads;
 use Illuminate\Support\Facades\Cache;
 use App\Support\WordPress\WxrReader;
 use Illuminate\Console\Command;
@@ -51,7 +52,7 @@ class ImportWordPress extends Command
         $this->config = config('wordpress-import');
         $dryRun = (bool) $this->option('dry-run');
 
-        $file = $this->argument('file') ?? collect(glob(storage_path('app/wordpress/*.xml')))->sortDesc()->first();
+        $file = $this->argument('file') ?? collect(glob(config('wordpress-import.directory') . '/*.xml'))->sortDesc()->first();
         if (! $file) {
             $this->error('No export file found in storage/app/wordpress.');
 
@@ -102,7 +103,7 @@ class ImportWordPress extends Command
         // With --photos every photo goes through the media importer; without, photos are left out for now
         // With --photos new photos are downloaded. Without it, photos imported before are still used:
         // otherwise running again (for the comments, say) would take every photo out of the blogs
-        $mapFile = storage_path('app/wordpress/media-map.json');
+        $mapFile = config('wordpress-import.directory') . '/media-map.json';
         $media = $this->option('photos') || is_file($mapFile)
             ? new MediaImporter($reader->attachments, $mapFile, $this->config['skip_media'], download: (bool) $this->option('photos'))
             : null;
@@ -129,6 +130,11 @@ class ImportWordPress extends Command
         $bar->finish();
         $this->newLine(2);
         $this->info('Done: ' . Blog::whereNotNull('wordpress_id')->count() . ' blogs from WordPress in the database.');
+
+        // Old links keep working: which WordPress link and photo became what (see WordPressRedirectController)
+        if (! $only) {
+            $this->writeRedirects($reader, $media);
+        }
 
         $c = $this->comments->stats;
         $this->table(['Comments', ''], [
@@ -371,11 +377,37 @@ class ImportWordPress extends Command
     }
 
     /**
+     * The map for the old links: WordPress slug → post id (the blog is found by that id, so it keeps
+     * working when a link is changed in the admin later), and old photo path → new photo.
+     * Written to storage/app/wordpress/redirects.json.
+     */
+    private function writeRedirects(WxrReader $reader, ?MediaImporter $media): void
+    {
+        $posts = collect($reader->posts)
+            ->filter(fn ($p) => $p['slug'] !== '')
+            ->mapWithKeys(fn ($p) => [mb_strtolower($p['slug']) => $p['id']]);
+
+        // "2019/01/foto-04-01-19" for uploads/2019/01/Foto-04-01-19.jpg (and its -768x1024 and -scaled copies)
+        $uploads = collect($media?->imported() ?? [])->mapWithKeys(function ($mediaId, $wordpressId) use ($reader) {
+            $url = $reader->attachments[$wordpressId]['url'] ?? null;
+
+            return $url ? [WordPressUploads::key($url) => $mediaId] : [];
+        })->filter();
+
+        file_put_contents(config('wordpress-import.directory') . '/redirects.json', json_encode([
+            'posts' => $posts,
+            'uploads' => $uploads,
+        ]));
+
+        $this->line("  Redirect map: {$posts->count()} old blog links, {$uploads->count()} old photo links.");
+    }
+
+    /**
      * Every post's place, to check in a spreadsheet: storage/app/wordpress/places.csv.
      */
     private function writePlaces(Collection $posts): void
     {
-        $csv = fopen(storage_path('app/wordpress/places.csv'), 'w');
+        $csv = fopen(config('wordpress-import.directory') . '/places.csv', 'w');
         fputcsv($csv, ['WordPress title', 'New title', 'Date', 'Place', 'Latitude', 'Longitude', 'Found'], ';', '"', '');
         foreach ($posts->sortBy('date') as $post) {
             fputcsv($csv, [
