@@ -316,13 +316,29 @@ class BlogResource extends Resource
             ->columns([
                 ImageColumn::make('cover')
                     ->label('')
-                    ->state(fn (Blog $record) => $record->coverUrl(160, 120))
+                    // A full URL: Filament reads a relative one as a file on the disk
+                    ->state(fn (Blog $record) => url($record->coverUrl(160, 120)))
                     ->imageWidth(64)
-                    ->imageHeight(48),
+                    ->imageHeight(48)
+                    // On a phone the title needs the room
+                    ->visibleFrom('sm'),
+                // On a phone: title, status, country and trip in one column, so the title has the width
+                TextColumn::make('title_on_phone')
+                    ->label('Blog')
+                    ->state(fn (Blog $record) => $record->title)
+                    ->wrap()
+                    ->weight('medium')
+                    ->description(fn (Blog $record) => collect([
+                        self::statusLabel($record),
+                        $record->countries->pluck('name')->join(', '),
+                        $record->trip ? '🧭 ' . $record->trip->name : null,
+                    ])->filter()->join(' · '))
+                    ->hiddenFrom('sm'),
                 TextColumn::make('title')
                     ->label('Titel')
                     ->searchable()
                     ->sortable()
+                    ->visibleFrom('sm')
                     ->wrap()
                     ->description(fn (Blog $record) => collect([
                         $record->countries->pluck('name')->join(', '),
@@ -331,16 +347,15 @@ class BlogResource extends Resource
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn (Blog $record, string $state) => $state === 'published' && ! $record->isPublished()
-                        ? 'Ingepland'
-                        : (self::STATUSES[$state] ?? $state))
+                    ->formatStateUsing(fn (Blog $record) => self::statusLabel($record))
                     ->color(fn (Blog $record, string $state) => match (true) {
                         $state === 'published' && ! $record->isPublished() => 'info',
                         $state === 'published' => 'success',
                         $state === 'archived' => 'warning',
                         default => 'gray',
                     })
-                    ->sortable(),
+                    ->sortable()
+                    ->visibleFrom('sm'),
                 TextColumn::make('published_at')
                     ->label('Publicatiedatum')
                     ->dateTime('d-m-Y H:i')
@@ -351,7 +366,7 @@ class BlogResource extends Resource
                     ->label('Laatst bewerkt')
                     ->since()
                     ->sortable()
-                    ->visibleFrom('lg'),
+                    ->visibleFrom('xl'),
             ])
             ->modifyQueryUsing(fn ($query) => $query->with(['countries', 'trip', 'featuredImage', 'media']))
             ->defaultSort('updated_at', 'desc')
@@ -375,14 +390,25 @@ class BlogResource extends Resource
                     ->url(fn (Blog $record) => $record->isPublished()
                         ? route('blogs.show', $record)
                         : $record->previewUrl())
-                    ->openUrlInNewTab(),
-                EditAction::make(),
+                    ->openUrlInNewTab()
+                    ->iconButton()
+                    ->tooltip('Bekijk op de site'),
+                // Icons, so the title keeps its room on phone and iPad (clicking the row also opens the editor)
+                EditAction::make()->iconButton()->tooltip('Bewerken'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    // "Ingepland" for a published blog whose date is still to come
+    private static function statusLabel(Blog $record): string
+    {
+        return $record->status === 'published' && ! $record->isPublished()
+            ? 'Ingepland'
+            : (self::STATUSES[$record->status] ?? $record->status);
     }
 
     public static function getRelations(): array

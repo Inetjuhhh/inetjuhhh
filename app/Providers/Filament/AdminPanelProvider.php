@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Pages\BasePage;
 use Filament\Pages\Dashboard;
 use Filament\Widgets\AccountWidget;
 use Filament\Http\Middleware\Authenticate;
@@ -36,6 +37,9 @@ class AdminPanelProvider extends PanelProvider
                 'gray' => Color::Stone,
             ])
             ->font('Figtree')
+            // On an iPad the menu can be folded away, so lists and the editor get the full width
+            ->sidebarCollapsibleOnDesktop()
+            ->sidebarWidth('16rem')
             ->unsavedChangesAlerts()
             ->databaseTransactions()
             ->plugins([
@@ -68,5 +72,12 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    public function boot(): void
+    {
+        // Save and cancel stay at the bottom of the screen, so on a phone you don't have to
+        // scroll past the whole story to save
+        BasePage::stickyFormActions();
     }
 }

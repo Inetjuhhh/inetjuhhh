@@ -5,3 +5,14 @@
 @source '../../../../app/Filament/Blocks/**/*';
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../vendor/awcodes/filament-curator/resources/**/*.blade.php';
+
+/* iPhone and iPad zoom in on a field whose text is smaller than 16px, and stay zoomed in.
+   On touch screens all fields and the story editor get 16px, so the page stays put. */
+@media (pointer: coarse) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    textarea,
+    select,
+    [contenteditable="true"] {
+        font-size: 16px !important;
+    }
+}

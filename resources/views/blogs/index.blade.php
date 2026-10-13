@@ -127,7 +127,7 @@
         @endif
 
         <div class="mt-14">
-            {{ $blogs->links() }}
+            {{ $blogs->onEachSide(1)->links('pagination.route') }}
         </div>
     </div>
 </x-app-layout>

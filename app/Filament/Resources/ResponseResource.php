@@ -84,12 +84,26 @@ class ResponseResource extends Resource
             ->modifyQueryUsing(fn (Builder $query) => $query->where('is_author', false)->with(['blog', 'replies']))
             ->defaultSort('created_at', 'desc')
             ->columns([
+                // On a phone: who and what in one column, so the comment isn't cut off at the edge
+                TextColumn::make('comment_on_phone')
+                    ->label('Reactie')
+                    ->state(fn (Response $record) => $record->response)
+                    ->limit(140)
+                    ->wrap()
+                    ->description(fn (Response $record) => collect([
+                        $record->name,
+                        $record->created_at->diffForHumans(),
+                        $record->status !== Response::APPROVED ? Response::STATUSES[$record->status] ?? null : null,
+                    ])->filter()->join(' · '), position: 'above')
+                    ->hiddenFrom('sm'),
                 TextColumn::make('name')
                     ->label('Van')
                     ->description(fn (Response $record) => $record->email)
-                    ->searchable(['name', 'email']),
+                    ->searchable(['name', 'email'])
+                    ->visibleFrom('sm'),
                 TextColumn::make('response')
                     ->label('Reactie')
+                    ->visibleFrom('sm')
                     ->limit(160)
                     ->wrap()
                     ->grow()
@@ -105,7 +119,7 @@ class ResponseResource extends Resource
                         ? route('blogs.show', $record->blog).'#reactie-'.$record->id
                         : null)
                     ->openUrlInNewTab()
-                    ->visibleFrom('lg'),
+                    ->visibleFrom('xl'),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -114,12 +128,13 @@ class ResponseResource extends Resource
                         Response::APPROVED => 'success',
                         Response::SPAM => 'danger',
                         default => 'warning',
-                    }),
+                    })
+                    ->visibleFrom('sm'),
                 TextColumn::make('created_at')
                     ->label('Geplaatst')
                     ->since()
                     ->sortable()
-                    ->visibleFrom('md'),
+                    ->visibleFrom('xl'),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -136,7 +151,11 @@ class ResponseResource extends Resource
                     ->icon(Heroicon::OutlinedCheck)
                     ->color('success')
                     ->visible(fn (Response $record) => $record->status !== Response::APPROVED)
-                    ->action(fn (Response $record) => $record->approve()),
+                    ->action(fn (Response $record) => $record->approve())
+                    // A button with text on a computer, just the tick on phone and iPad
+                    ->button()
+                    ->size('sm')
+                    ->labeledFrom('xl'),
                 // Less used actions in a menu, so the comment itself gets the room
                 ActionGroup::make([
                     Action::make('reply')
