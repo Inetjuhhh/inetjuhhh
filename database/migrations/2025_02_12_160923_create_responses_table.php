@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('ip_hash', 64)->nullable();
             $table->string('user_agent')->nullable();
             $table->timestamp('approved_at')->nullable();
+            // The comment's id in the old WordPress blog, so running the import again updates instead of duplicates
+            $table->unsignedBigInteger('wordpress_comment_id')->nullable()->unique();
             $table->timestamps();
         });
     }

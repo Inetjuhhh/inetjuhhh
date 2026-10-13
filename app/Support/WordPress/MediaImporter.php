@@ -27,6 +27,8 @@ class MediaImporter
         private array $attachments,
         private string $mapFile,
         private array $skipTypes = [],
+        // False: only photos imported before are used, nothing new is downloaded
+        private bool $download = true,
     ) {
         if (is_file($mapFile)) {
             $this->map = json_decode(file_get_contents($mapFile), true) ?: [];
@@ -44,6 +46,12 @@ class MediaImporter
             $this->stats['reused']++;
 
             return $this->map[$key];
+        }
+
+        if (! $this->download) {
+            $this->stats['skipped']++;
+
+            return null;
         }
 
         $attachment = $this->attachments[$wordpressId] ?? null;

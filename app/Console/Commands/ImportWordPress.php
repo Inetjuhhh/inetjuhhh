@@ -8,6 +8,7 @@ use App\Models\Country;
 use App\Models\Tag;
 use App\Models\Trip;
 use App\Models\User;
+use App\Support\WordPress\CommentImporter;
 use App\Support\WordPress\ContentConverter;
 use App\Support\Geocoder;
 use App\Support\WordPress\MediaImporter;
@@ -42,6 +43,8 @@ class ImportWordPress extends Command
 
     /** @var list<string> */
     private array $knownCountries = [];
+
+    private CommentImporter $comments;
 
     public function handle(): int
     {
@@ -84,6 +87,9 @@ class ImportWordPress extends Command
         [$posts, $trips] = $this->tripPlaces($posts, $trips);   // what's left: from its own trip
         $this->writePlaces($posts);
 
+        // You, as the writer of comments: the admin addresses and the account the blogs go under
+        $this->comments = new CommentImporter([...config('blog.admin_emails'), $author->email], $this->config['pending_comments'] ?? true);
+
         $this->report($posts, $trips, $author, $dryRun);
 
         if ($dryRun) {
@@ -94,8 +100,11 @@ class ImportWordPress extends Command
         }
 
         // With --photos every photo goes through the media importer; without, photos are left out for now
-        $media = $this->option('photos')
-            ? new MediaImporter($reader->attachments, storage_path('app/wordpress/media-map.json'), $this->config['skip_media'])
+        // With --photos new photos are downloaded. Without it, photos imported before are still used:
+        // otherwise running again (for the comments, say) would take every photo out of the blogs
+        $mapFile = storage_path('app/wordpress/media-map.json');
+        $media = $this->option('photos') || is_file($mapFile)
+            ? new MediaImporter($reader->attachments, $mapFile, $this->config['skip_media'], download: (bool) $this->option('photos'))
             : null;
         $converter = new ContentConverter($media ? fn (int $id) => $media->import($id) : null);
 
@@ -120,6 +129,13 @@ class ImportWordPress extends Command
         $bar->finish();
         $this->newLine(2);
         $this->info('Done: ' . Blog::whereNotNull('wordpress_id')->count() . ' blogs from WordPress in the database.');
+
+        $c = $this->comments->stats;
+        $this->table(['Comments', ''], [
+            ['Approved / waiting for approval', "{$c['approved']} / {$c['pending']}"],
+            ['Your replies (under the comment they answer)', $c['replies']],
+            ['Left behind (spam, trash' . (($this->config['pending_comments'] ?? true) ? '' : ', waiting') . ')', $c['skipped']],
+        ]);
 
         if ($media) {
             $s = $media->stats;
@@ -300,6 +316,9 @@ class ImportWordPress extends Command
         $blog->tags()->sync($post['tags']->map(function ($name) {
             return (Tag::whereRaw('LOWER(name) = ?', [mb_strtolower($name)])->first() ?? Tag::create(['name' => $name]))->id;
         }));
+
+        // The comments under it (matched on their WordPress id, so a second run updates them)
+        $this->comments->import($blog, $post['wp']['comments']);
     }
 
     /**
@@ -569,6 +588,15 @@ class ImportWordPress extends Command
         ksort($stats);
         $this->info('Content');
         $this->table(['What', 'Count'], collect($stats)->map(fn ($n, $k) => [$k, $n])->values()->all());
-        $this->comment('"waiting:media" = photos that come along in the photo step (next session).');
+        $this->comment('"waiting:media" = photos, they come along with --photos.');
+
+        $counter = new CommentImporter([...config('blog.admin_emails'), $author->email], $this->config['pending_comments'] ?? true);
+        $posts->each(fn ($p) => $counter->count($p['wp']['comments']));
+        $this->info('Comments');
+        $this->table(['', ''], [
+            ['Approved / waiting for approval', "{$counter->stats['approved']} / {$counter->stats['pending']}"],
+            ['Your replies', $counter->stats['replies']],
+            ['Left behind (spam, trash)', $counter->stats['skipped']],
+        ]);
     }
 }

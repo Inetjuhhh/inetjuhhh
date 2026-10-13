@@ -122,4 +122,9 @@ return [
     // File types that are not imported (videos are too large for the server; links to YouTube do come along)
     'skip_media' => ['mov', 'mp4', 'm4v', 'avi', 'zip', 'pdf'],
 
+    // Comments that were still waiting for approval in WordPress: true = they come along as
+    // "Wacht op goedkeuring" (approve or delete them in the admin), false = left behind.
+    // Spam and the WordPress trash never come along.
+    'pending_comments' => true,
+
 ];
