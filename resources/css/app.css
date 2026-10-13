@@ -31,8 +31,8 @@
     /* Soft sage green for highlights and categories */
     --color-accent: #9DB894;
 
-    --font-sans: Figtree, ui-sans-serif, system-ui, sans-serif;
-    --font-display: Fraunces, ui-serif, Georgia, serif;
+    --font-sans: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-display: Delius, ui-rounded, "Nunito Sans", system-ui, sans-serif;
 
     --shadow-soft: 0 10px 30px -12px rgba(0, 0, 0, 0.6);
     --shadow-lift: 0 24px 48px -16px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(91, 181, 170, 0.25);
@@ -52,6 +52,13 @@
     [role="button"]:not(:disabled) {
         cursor: pointer;
     }
+}
+
+/* Delius has a single weight. Without this the browser fakes bold for `font-semibold` headings,
+   which smudges the letters. Outside the layers on purpose, so it wins from the weight utilities. */
+.font-display,
+.prose :where(h1, h2, h3, h4) {
+    font-weight: 400;
 }
 
 /* Dark colour scheme for the typography plugin, used as `prose prose-night`.
