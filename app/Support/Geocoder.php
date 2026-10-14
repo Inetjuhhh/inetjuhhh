@@ -51,4 +51,38 @@ class Geocoder
 
         return $coordinates;
     }
+
+    /**
+     * The rectangle a country lies in, to spot a pin that landed in the wrong country.
+     *
+     * @return array{0: float, 1: float, 2: float, 3: float}|null  [south, north, west, east]
+     */
+    public static function countryBox(string $country): ?array
+    {
+        $key = 'geocode:box:' . md5(mb_strtolower($country));
+
+        if (Cache::has($key)) {
+            return Cache::get($key);
+        }
+
+        try {
+            $result = Http::timeout(8)
+                ->withHeaders(['User-Agent' => config('app.name') . ' travel blog (' . config('app.url') . ')'])
+                ->get('https://nominatim.openstreetmap.org/search', [
+                    'country' => $country,
+                    'format' => 'jsonv2',
+                    'limit' => 1,
+                    'accept-language' => 'nl',
+                ])
+                ->throw()
+                ->json('0.boundingbox');
+        } catch (Throwable) {
+            return null;
+        }
+
+        $box = $result ? array_map('floatval', $result) : null;
+        Cache::forever($key, $box);
+
+        return $box;
+    }
 }

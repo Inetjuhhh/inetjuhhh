@@ -32,7 +32,7 @@ return [
 
     // Other country names that may appear in a title's [brackets] ("[Gerlos, Oostenrijk]")
     'more_countries' => [
-        'Oostenrijk', 'Zweden', 'Nederland', 'België', 'Luxemburg', 'Engeland', 'Schotland', 'Ierland',
+        'Oostenrijk', 'Zweden', 'Nederland', 'België', 'Luxemburg', 'Monaco', 'Engeland', 'Schotland', 'Ierland',
         'Griekenland', 'Kroatië', 'Slovenië', 'Tsjechië', 'Hongarije', 'Polen', 'Finland', 'Turkije',
         'Marokko', 'Egypte', 'Laos', 'Myanmar', 'Maleisië', 'Singapore', 'Sri Lanka', 'Japan', 'China',
         'Verenigde Staten', 'Canada', 'Mexico', 'Costa Rica', 'Ecuador', 'Bolivia', 'Chili', 'Argentinië',
@@ -121,6 +121,13 @@ return [
 
     // File types that are not imported (videos are too large for the server; links to YouTube do come along)
     'skip_media' => ['mov', 'mp4', 'm4v', 'avi', 'zip', 'pdf'],
+
+    // Seconds between two place lookups: OpenStreetMap's free service allows one request per second
+    'lookup_pause' => 1.1,
+
+    // Places corrected in the admin, saved with `php artisan wordpress:keep-places`. Part of the
+    // project (commit it): the import uses these before any other rule, here and on production.
+    'corrections_file' => database_path('wordpress/place-corrections.json'),
 
     // The folder with the export file and what the import writes next to it: media-map.json (which
     // photo became which), redirects.json (the old links) and places.csv (to check the places)

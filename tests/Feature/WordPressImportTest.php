@@ -27,7 +27,12 @@ beforeEach(function () {
     // WordPress puts invisible characters in video data; the import has to survive them
     $xml = str_replace('"codec"', "\"co\x00dec\"", file_get_contents(base_path('tests/Fixtures/wordpress-export.xml')));
     file_put_contents("{$this->directory}/export.xml", $xml);
-    config(['wordpress-import.directory' => $this->directory]);
+    config([
+        'wordpress-import.directory' => $this->directory,
+        'wordpress-import.corrections_file' => "{$this->directory}/place-corrections.json",
+        // The lookups are faked here, so there is no service to be polite to
+        'wordpress-import.lookup_pause' => 0,
+    ]);
 
     $this->author = User::factory()->create(['email' => 'ine@example.com']);
     Subscriber::create(['name' => 'Femke', 'email' => 'femke@example.com', 'confirmed_at' => now()]);
@@ -102,6 +107,38 @@ it('writes the map for the old links', function () {
     expect($map['posts'])->toBe(['dag-1-in-de-stad' => 100, 'back-in-holland' => 101, 'rabarbermoes' => 102]);
 
     $this->get('/2023/12/27/dag-1-in-de-stad/')->assertRedirect('/blogs/dag-1-in-de-stad');
+});
+
+it('keeps a place corrected in the admin when it imports again', function () {
+    runImport();
+
+    // In the admin: Lissabon was really Sintra, and the day home gets no place at all
+    Blog::where('wordpress_id', 100)->first()->update(['location_name' => 'Sintra, Portugal', 'latitude' => 38.8029, 'longitude' => -9.3817]);
+    Blog::where('wordpress_id', 101)->first()->update(['location_name' => null, 'latitude' => null, 'longitude' => null]);
+
+    test()->artisan('wordpress:keep-places')->assertSuccessful();
+    runImport();
+
+    $day1 = Blog::where('wordpress_id', 100)->first();
+    expect($day1->location_name)->toBe('Sintra, Portugal')
+        ->and($day1->latitude)->toBe(38.8029)
+        // An emptied place stays empty: the trip doesn't fill it in again
+        ->and(Blog::where('wordpress_id', 101)->value('location_name'))->toBeNull()
+        ->and(json_decode(file_get_contents("{$this->directory}/place-corrections.json"), true))->toHaveKeys(['100', '101']);
+});
+
+it('rejects a place found in another country than the one it names', function () {
+    // Iceland's outline, and a place called "Aurora Borealis" in the United States
+    Http::fake([
+        'nominatim.openstreetmap.org/search?country=*' => Http::response([['boundingbox' => ['63.0', '67.0', '-25.0', '-13.0']]]),
+        'nominatim.openstreetmap.org/*' => Http::response([['lat' => '39.28', 'lon' => '-76.61']]),
+    ]);
+    $xml = str_replace('Dag 1 in de stad [Lissabon, Dag 1]', 'Ijs [Aurora Borealis - IJsland]', file_get_contents("{$this->directory}/export.xml"));
+    file_put_contents("{$this->directory}/export.xml", $xml);
+
+    runImport();
+
+    expect(Blog::where('wordpress_id', 100)->value('latitude'))->not->toBe(39.28);
 });
 
 it('can run again without duplicates', function () {

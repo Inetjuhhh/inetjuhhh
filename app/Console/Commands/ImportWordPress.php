@@ -47,6 +47,9 @@ class ImportWordPress extends Command
 
     private CommentImporter $comments;
 
+    /** @var array<int, array{place: ?string, latitude: ?float, longitude: ?float}> Admin corrections, by WordPress id */
+    private array $corrections = [];
+
     public function handle(): int
     {
         $this->config = config('wordpress-import');
@@ -73,6 +76,12 @@ class ImportWordPress extends Command
         $this->line("  {$reader->removedCharacters} invalid characters removed, " . count($reader->posts) . ' posts, ' . count($reader->attachments) . ' media files');
 
         // Work out everything first; only then write, so a dry run shows exactly what a real run does
+        // Places corrected in the admin (php artisan wordpress:keep-places)
+        $this->corrections = KeepWordPressPlaces::load();
+        if ($this->corrections) {
+            $this->line('  ' . count($this->corrections) . ' place corrections from the admin are used');
+        }
+
         // Every country name a title's [brackets] may end with
         $this->knownCountries = collect($this->config['countries'])->values()
             ->concat(array_values($this->config['cities']))
@@ -86,6 +95,7 @@ class ImportWordPress extends Command
         $posts = $this->travelDays($posts);      // "Heenreis", "Home sweet home": from the blog next to it
         $trips = $this->trips($posts);
         [$posts, $trips] = $this->tripPlaces($posts, $trips);   // what's left: from its own trip
+        $posts = $this->checkPlaces($posts);    // pins outside the country they name, to look at
         $this->writePlaces($posts);
 
         // You, as the writer of comments: the admin addresses and the account the blogs go under
@@ -180,9 +190,17 @@ class ImportWordPress extends Command
 
         // "Rookies op de terugreis [Lissabon, Dag 4]": the place leaves the title and goes on the map
         $place = TitlePlace::parse($post['title'], $this->knownCountries, $this->config['place_fixes'] ?? [], $countries->first());
-        // 1. A fixed place from the config wins from everything ("Le Corbier, Frankrijk"),
+        // 0. A correction made in the admin (saved with wordpress:keep-places) wins from everything,
+        //    with its exact pin; an emptied place stays empty
+        $correction = $this->corrections[$post['id']] ?? null;
+        if ($correction) {
+            $place['place'] = $correction['place'];
+            $place['candidates'] = [];
+        }
+
+        // 1. A fixed place from the config ("Le Corbier, Frankrijk"),
         //    or "next trip": a warm-up blog that belongs to the journey after it
-        $override = $this->config['place_overrides'][$post['slug']] ?? null;
+        $override = $correction ? null : ($this->config['place_overrides'][$post['slug']] ?? null);
         $followsNextTrip = $override === 'next trip';
         if ($override && ! $followsNextTrip) {
             $place['place'] = $override;
@@ -190,7 +208,7 @@ class ImportWordPress extends Command
         }
 
         // 2. No place in brackets: one named in the title itself ("*Taj Mahal*", "Een dagje Bremen", "Oui Oui dans Paris")
-        if ($place['candidates'] === [] && ! $followsNextTrip && ($named = $this->placeInTitle($place['title'], $countries->first()))) {
+        if (! $correction && $place['candidates'] === [] && ! $followsNextTrip && ($named = $this->placeInTitle($place['title'], $countries->first()))) {
             $place['place'] = $named;
             $place['candidates'] = [['place' => $named, 'queries' => array_values(array_unique([$named, explode(',', $named)[0]]))]];
         }
@@ -224,7 +242,8 @@ class ImportWordPress extends Command
             'bracket' => $place['bracket'],
             'place' => $place['place'],
             'candidates' => $place['candidates'],
-            'coordinates' => null,   // filled in by locate()
+            'coordinates' => $correction && $correction['latitude'] !== null ? [(float) $correction['latitude'], (float) $correction['longitude']] : null,   // else filled in by locate()
+            'corrected' => $correction !== null,
             'follows_next_trip' => $followsNextTrip,
             'slug' => $post['slug'] ?: Str::slug($post['title']) ?: 'wordpress-' . $post['id'],
             'status' => $published ? 'published' : 'draft',
@@ -350,14 +369,15 @@ class ImportWordPress extends Command
                 foreach ($candidate['queries'] as $query) {
                     if (! Cache::has('geocode:' . md5(mb_strtolower($query)))) {
                         // Nominatim's fair use: at most one request per second
-                        $wait = 1.1 - (microtime(true) - $lastRequest);
+                        $wait = $this->config['lookup_pause'] - (microtime(true) - $lastRequest);
                         if ($wait > 0) {
                             usleep((int) ($wait * 1_000_000));
                         }
                         $lastRequest = microtime(true);
                     }
 
-                    if ($found = Geocoder::find($query)) {
+                    // A hit outside the country the place names ("Aurora Borealis" in Baltimore) doesn't count
+                    if (($found = Geocoder::find($query)) && $this->inCountry($found, $candidate['place'])) {
                         $post['coordinates'] = $found;
                         $post['place'] = $candidate['place'];
                         break 2;
@@ -403,15 +423,57 @@ class ImportWordPress extends Command
     }
 
     /**
+     * A pin outside the country its place names ("Monte Carlo, Italië" in Liguria) was probably
+     * found in the wrong spot. Those are marked, to look at and correct in the admin.
+     */
+    private function checkPlaces(Collection $posts): Collection
+    {
+        return $posts->map(function (array $post) {
+            if ($post['coordinates'] && $post['place'] && ! $this->inCountry($post['coordinates'], $post['place'])) {
+                $post['suspicious'] = 'pin ligt niet in ' . Str::afterLast($post['place'], ', ');
+            }
+
+            return $post;
+        });
+    }
+
+    /**
+     * Whether a pin lies in the country a place names ("Hanoi, Vietnam"). True when the place
+     * names no known country, or the country's outline can't be fetched: then there's nothing to check.
+     */
+    private function inCountry(array $coordinates, string $place): bool
+    {
+        $country = trim(Str::afterLast($place, ', '));
+        if (! str_contains($place, ', ') || ! in_array($country, $this->knownCountries, true)) {
+            return true;
+        }
+
+        // Nominatim's fair use: at most one request per second, also for the outlines
+        static $lastRequest = 0.0;
+        if (! Cache::has('geocode:box:' . md5(mb_strtolower($country)))) {
+            usleep((int) (max(0, $this->config['lookup_pause'] - (microtime(true) - $lastRequest)) * 1_000_000));
+            $lastRequest = microtime(true);
+        }
+
+        $box = Geocoder::countryBox($country);
+
+        // A little room around the outline, for places on the coast and the border
+        return ! $box || (
+            $coordinates[0] >= $box[0] - 0.3 && $coordinates[0] <= $box[1] + 0.3
+            && $coordinates[1] >= $box[2] - 0.3 && $coordinates[1] <= $box[3] + 0.3
+        );
+    }
+
+    /**
      * Every post's place, to check in a spreadsheet: storage/app/wordpress/places.csv.
      */
     private function writePlaces(Collection $posts): void
     {
         $csv = fopen(config('wordpress-import.directory') . '/places.csv', 'w');
-        fputcsv($csv, ['WordPress title', 'New title', 'Date', 'Place', 'Latitude', 'Longitude', 'Found'], ';', '"', '');
+        fputcsv($csv, ['WordPress id', 'WordPress title', 'New title', 'Date', 'Place', 'Latitude', 'Longitude', 'Found', 'Check'], ';', '"', '');
         foreach ($posts->sortBy('date') as $post) {
             fputcsv($csv, [
-                $post['wp']['title'], $post['title'], $post['date']->format('Y-m-d'), $post['place'],
+                $post['wp']['id'], $post['wp']['title'], $post['title'], $post['date']->format('Y-m-d'), $post['place'],
                 $post['coordinates'][0] ?? '', $post['coordinates'][1] ?? '',
                 match (true) {
                     isset($this->config['place_overrides'][$post['wp']['slug']]) && $post['coordinates'] && ! isset($post['from_trip']) => 'ja, vaste plaats (config)',
@@ -423,6 +485,7 @@ class ImportWordPress extends Command
                     $post['bracket'] !== null => 'geen plaats in titel',
                     default => 'geen [ ] in titel',
                 },
+                $post['suspicious'] ?? '',
             ], ';', '"', '');
         }
         fclose($csv);
@@ -480,7 +543,7 @@ class ImportWordPress extends Command
             }
 
             foreach ($members as $i => $post) {
-                if ($post['coordinates'] !== null) {
+                if ($post['coordinates'] !== null || $post['corrected']) {
                     continue;
                 }
 
@@ -509,7 +572,7 @@ class ImportWordPress extends Command
         $dated = $posts->sortBy('date')->values();
 
         return $posts->map(function (array $post) use ($dated, $outbound, $return, $gap) {
-            if ($post['coordinates']) {
+            if ($post['coordinates'] || $post['corrected']) {
                 return $post;
             }
 
@@ -600,6 +663,15 @@ class ImportWordPress extends Command
         $unmapped = $posts->pluck('unmapped')->flatten()->countBy();
         if ($unmapped->isNotEmpty()) {
             $this->warn('Categories not in config/wordpress-import.php (left out): ' . $unmapped->map(fn ($n, $c) => "{$c} ({$n})")->join(', '));
+        }
+
+        $this->newLine();
+        $suspicious = $posts->filter(fn ($p) => isset($p['suspicious']));
+        if ($suspicious->isNotEmpty()) {
+            $this->warn($suspicious->count() . ' places to check (the pin is outside the country it names):');
+            $this->table(['Blog', 'Place', 'Pin'], $suspicious->map(fn ($p) => [
+                $p['title'], $p['place'], round($p['coordinates'][0], 3) . ', ' . round($p['coordinates'][1], 3),
+            ])->values()->all());
         }
 
         $this->newLine();
