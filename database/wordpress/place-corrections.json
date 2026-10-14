@@ -1,1 +1,30 @@
-[]
+{
+    "3008": {
+        "slug": "twee-vrouwen-1-auto-spullen-voor-4-personen-2-groffen-koeken-14-uur-rijden-en-een-halve-red-bull-zonder-suiker-wintersport-2020",
+        "title": "Twee vrouwen, 1 auto, spullen voor 4 personen, 2 Groffen-koeken, 14 uur rijden en een halve Red-Bull zonder suiker",
+        "place": "konigsleiten, oostenrijk",
+        "latitude": 47.249268,
+        "longitude": 12.120522
+    },
+    "3030": {
+        "slug": "omgeving-verkennen-metertjes-maken-en-sneeuwhappen-wintersport-2",
+        "title": "Omgeving verkennen, metertjes maken en sneeuwhappen",
+        "place": "konigsleiten, oostenrijk",
+        "latitude": 47.249268,
+        "longitude": 12.120522
+    },
+    "3946": {
+        "slug": "de-kers-op-de-toch-al-heerlijke-taart-actieve-vulkaan-geothermisch-gebied-aurora-borealis-ijsland",
+        "title": "De kers op de toch al heerlijke taart",
+        "place": "keflavik, ijsland",
+        "latitude": 63.9997694,
+        "longitude": -22.5565373
+    },
+    "4164": {
+        "slug": "geld-noch-moeite-gespaard-dubai",
+        "title": "Geld noch moeite gespaard",
+        "place": "Dubai, verenigde arabische emiraten",
+        "latitude": 25.074282,
+        "longitude": 55.188562
+    }
+}
