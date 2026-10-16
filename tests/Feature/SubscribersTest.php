@@ -157,6 +157,14 @@ it('supports one-click unsubscribe from mail apps', function () {
     expect(Subscriber::count())->toBe(0);
 });
 
+it('lets mail apps unsubscribe without the token forms need', function () {
+    // Tests skip the token check, so look at what the route really runs: mail apps have no token
+    $route = app('router')->getRoutes()->getByName('subscribers.destroy');
+
+    expect(app('router')->gatherRouteMiddleware($route))
+        ->not->toContain(\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class);
+});
+
 it('removes sign-ups that were never confirmed after 30 days', function () {
     Subscriber::create(['name' => 'Oud', 'email' => 'oud@example.com']);
     confirmed();

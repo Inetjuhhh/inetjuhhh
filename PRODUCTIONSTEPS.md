@@ -17,7 +17,7 @@ From the old WordPress site to the new blog on inetjuhhh.nl. Locally everything 
 ## A. Server and site on the temporary address
 
 ### A1. What the server needs
-- **PHP 8.2 or newer**, with the extensions Laravel needs, plus:
+- **PHP 8.3 or newer** (Laravel 13 needs it; locally 8.4 is used), with the extensions Laravel needs, plus:
   - `gd` **with WebP and JPEG support** (shrinking photos); check with `php -r "print_r(gd_info());"`
   - `exif` (photos the right way up)
 - **MySQL 8** (or MariaDB 10.6+)

@@ -55,7 +55,7 @@ Route::get('/nieuwsbrief/uitschrijven/{token}', [SubscriberController::class, 'u
     ->name('subscribers.unsubscribe');
 // Also posted to directly by mail apps (one-click unsubscribe), so without a CSRF token
 Route::post('/nieuwsbrief/uitschrijven/{token}', [SubscriberController::class, 'destroy'])
-    ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class)
+    ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class)
     ->middleware('throttle:20,1')->name('subscribers.destroy');
 
 Route::middleware('auth')->group(function () {
