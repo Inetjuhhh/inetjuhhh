@@ -81,6 +81,12 @@ class Blog extends Model
             ->with(['replies' => fn ($query) => $query->approved()]);
     }
 
+    // How often it was read, per day (see ViewCounter)
+    public function views()
+    {
+        return $this->hasMany(BlogView::class);
+    }
+
     public function likes()
     {
         return $this->hasMany(BlogLike::class);

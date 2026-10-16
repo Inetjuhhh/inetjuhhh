@@ -6,9 +6,9 @@ use App\Models\Blog;
 use App\Models\Country;
 use App\Models\Trip;
 use Illuminate\Http\Request;
-use App\Support\RelatedBlogs;
 use App\Support\SiteCache;
 use App\Support\TravelMap;
+use App\Support\ViewCounter;
 use App\Support\Visitor;
 
 class BlogController extends Controller
@@ -62,6 +62,9 @@ class BlogController extends Controller
         }
 
         abort_unless($blog, 404);
+
+        // Counted only here, not for previews of drafts
+        ViewCounter::record($request, $blog);
 
         return $this->showBlog($request, $blog);
     }

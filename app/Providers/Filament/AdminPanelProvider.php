@@ -4,7 +4,6 @@ namespace App\Providers\Filament;
 
 use Filament\Pages\BasePage;
 use Filament\Pages\Dashboard;
-use Filament\Widgets\AccountWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -54,10 +53,8 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
+            // The dashboard: the statistics in app/Filament/Widgets (logging out is in the account menu)
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
-            ->widgets([
-                AccountWidget::class,
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

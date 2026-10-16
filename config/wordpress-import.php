@@ -138,6 +138,7 @@ return [
     // Comments that were still waiting for approval in WordPress: true = they come along as
     // "Wacht op goedkeuring" (approve or delete them in the admin), false = left behind.
     // Spam and the WordPress trash never come along.
-    'pending_comments' => true,
+    // Off: all 39 waiting comments in the export turned out to be spam (links, casino, Russian adverts).
+    'pending_comments' => false,
 
 ];

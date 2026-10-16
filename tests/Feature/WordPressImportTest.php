@@ -32,6 +32,8 @@ beforeEach(function () {
         'wordpress-import.corrections_file' => "{$this->directory}/place-corrections.json",
         // The lookups are faked here, so there is no service to be polite to
         'wordpress-import.lookup_pause' => 0,
+        // Off for the real export (only spam was waiting), on here to test that it still works
+        'wordpress-import.pending_comments' => true,
     ]);
 
     $this->author = User::factory()->create(['email' => 'ine@example.com']);
