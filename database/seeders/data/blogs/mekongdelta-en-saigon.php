@@ -5,7 +5,7 @@ return [
     'slug' => 'mekongdelta-en-saigon',
     'excerpt' => 'Een drijvende markt bij zonsopkomst, smalle kanaaltjes vol waterpalmen, en tot slot de drukke, bruisende stad die iedereen nog steeds Saigon noemt. Het einde van onze reis door Vietnam.',
     'published_at' => '2022-12-04 11:30',
-    'categories' => ['Travel', 'Family'],
+    'categories' => ['Travel', 'Lifestyle'],
     'countries' => ['Vietnam'],
     'location' => ['name' => 'Can Tho, Vietnam', 'lat' => 10.0452, 'lng' => 105.7469],
     'trip' => 'Vietnam 2022',

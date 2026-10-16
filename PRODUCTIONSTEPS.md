@@ -136,6 +136,12 @@ php -d memory_limit=1G artisan wordpress:import --photos --author=ine@inetjuhhh.
 
 Leave the session with `Ctrl+A`, then `D`; the import keeps running.
 
+Then fill the **Ik & wij** page with the text of the old "Over mij en ons" page and its first three photos (a few seconds):
+```bash
+php artisan wordpress:import-about
+```
+It does nothing when the page already has text, so it is safe to run again. Afterwards, update the text in the admin under **Ik & wij** (age, Sam's age, trips).
+
 ### B5. What the import leaves behind, and must stay
 In `storage/app/wordpress/`:
 - (The old links are stored in the database, table `legacy_links`, so every database backup includes them.)
@@ -148,7 +154,7 @@ In `storage/app/wordpress/`:
 
 - [ ] Open a few blogs from different years: text, photos, galleries, featured image, the place on the photo ("India – Varanasi")
 - [ ] The travel map shows pins in the right countries
-- [ ] Menu: **Reizen** and **Citytrips** contain the right trips
+- [ ] Menu: **Reizen** and **Citytrips** contain the right trips; **Lifestyle** shows the family and lifestyle blogs; **Ik & wij** shows the about text with three photos
 - [ ] Admin → **Reacties** → tab "Wacht op goedkeuring": the 39 old comments that were waiting. Approve or delete them
 - [ ] Admin → **Blogs**: the 17 drafts are there (read them via the eye icon)
 - [ ] Search for a word from an old blog

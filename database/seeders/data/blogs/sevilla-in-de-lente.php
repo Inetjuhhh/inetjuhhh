@@ -5,7 +5,7 @@ return [
     'slug' => 'sevilla-in-de-lente',
     'excerpt' => 'In het voorjaar ruikt heel Sevilla naar sinaasappelbloesem. We begonnen onze reis door Andalusië hier, met een peuter die zich in het Spaanse ritme bleek thuis te voelen.',
     'published_at' => '2024-05-02 17:45',
-    'categories' => ['Travel', 'Family', 'Food'],
+    'categories' => ['Travel', 'Lifestyle', 'Food'],
     'countries' => ['Spanje'],
     'location' => ['name' => 'Sevilla, Spanje', 'lat' => 37.3891, 'lng' => -5.9845],
     'trip' => 'Spanje 2024',

@@ -5,7 +5,7 @@ return [
     'slug' => 'tien-jaar-later-terug-in-thailand',
     'excerpt' => 'In 2015 landden Bas en ik met een rugzak in Bangkok, op onze eerste grote reis samen. Tien jaar later staan we er weer, met een kleuter van drie aan onze hand. Wat is er veranderd?',
     'published_at' => '2025-01-14 16:10',
-    'categories' => ['Travel', 'Family'],
+    'categories' => ['Travel', 'Lifestyle'],
     'countries' => ['Thailand'],
     'location' => ['name' => 'Bangkok, Thailand', 'lat' => 13.7563, 'lng' => 100.5018],
     'trip' => 'Thailand 2025',

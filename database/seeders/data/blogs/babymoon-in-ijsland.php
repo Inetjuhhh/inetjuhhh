@@ -5,7 +5,7 @@ return [
     'slug' => 'babymoon-in-ijsland',
     'excerpt' => 'Groot nieuws: in september worden we met z\'n drieën! Voor het zover is, gaan we nog één keer met z\'n tweeën op reis. Twee weken IJsland, met een buik van 28 weken.',
     'published_at' => '2021-06-21 15:20',
-    'categories' => ['Travel', 'Family'],
+    'categories' => ['Travel', 'Lifestyle'],
     'countries' => ['IJsland'],
     'location' => ['name' => 'Reykjavík, IJsland', 'lat' => 64.1466, 'lng' => -21.9426],
     'trip' => 'IJsland 2021',

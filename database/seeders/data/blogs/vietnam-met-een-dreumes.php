@@ -5,7 +5,7 @@ return [
     'slug' => 'vietnam-met-een-dreumes',
     'excerpt' => 'Een verre reis met een kind van veertien maanden: is dat niet heel zwaar? Soms wel. Maar Vietnam bleek een van de meest kindvriendelijke landen waar we ooit zijn geweest. Onze eerste dagen in Hanoi.',
     'published_at' => '2022-11-09 13:40',
-    'categories' => ['Travel', 'Family'],
+    'categories' => ['Travel', 'Lifestyle'],
     'countries' => ['Vietnam'],
     'location' => ['name' => 'Hanoi, Vietnam', 'lat' => 21.0285, 'lng' => 105.8542],
     'trip' => 'Vietnam 2022',

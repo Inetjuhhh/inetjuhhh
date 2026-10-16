@@ -5,7 +5,7 @@ return [
     'slug' => 'gouden-cirkel-zwanger',
     'excerpt' => 'Een geiser die elke tien minuten ontploft, een waterval die in een kloof verdwijnt en een plek waar twee continenten uit elkaar drijven. De Gouden Cirkel, met een babybuik.',
     'published_at' => '2021-06-26 21:00',
-    'categories' => ['Travel', 'Family'],
+    'categories' => ['Travel', 'Lifestyle'],
     'countries' => ['IJsland'],
     'location' => ['name' => 'Geysir, IJsland', 'lat' => 64.3104, 'lng' => -20.3024],
     'trip' => 'IJsland 2021',

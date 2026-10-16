@@ -2,11 +2,11 @@
     $trip ??= null;
     $search ??= null;
     // Show the newest blog large on the first page of the main overview
-    $featured = (! isset($country) && ! $trip && $search === null && $blogs->onFirstPage()) ? $blogs->first() : null;
+    $featured = (! isset($country) && ! isset($category) && ! $trip && $search === null && $blogs->onFirstPage()) ? $blogs->first() : null;
     $gridBlogs = $featured ? $blogs->slice(1) : $blogs;
 @endphp
 
-<x-app-layout :title="$search !== null ? 'Zoeken: ' . $search : ($trip?->name ?? (isset($country) ? $country->name : null))">
+<x-app-layout :title="$search !== null ? 'Zoeken: ' . $search : ($trip?->name ?? (isset($country) ? $country->name : (isset($category) ? $category->name : null)))">
     <x-slot name="header">
         @if($search !== null)
             {{-- Search results, with the typo fix when that was needed --}}
@@ -53,10 +53,10 @@
             </div>
         @else
             <p class="text-xs uppercase tracking-widest font-semibold text-accent">
-                {{ isset($country) ? 'Reisblogs' : 'Welkom' }}
+                {{ isset($country) ? 'Reisblogs' : (isset($category) ? 'Categorie' : 'Welkom') }}
             </p>
             <h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">
-                {{ isset($country) ? $country->name : 'Verhalen van onderweg' }}
+                {{ isset($country) ? $country->name : (isset($category) ? $category->name : 'Verhalen van onderweg') }}
             </h1>
         @endif
     </x-slot>

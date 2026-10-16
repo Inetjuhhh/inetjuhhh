@@ -16,6 +16,9 @@ class WxrReader
     /** @var array<int, array{id: int, url: string, title: string, alt: string, mime: string}> keyed by WordPress id */
     public array $attachments = [];
 
+    /** @var array<string, array<string, mixed>> The fixed pages ("Over mij en ons" …), keyed by slug */
+    public array $pages = [];
+
     public int $removedCharacters = 0;
 
     public function __construct(string $path)
@@ -42,6 +45,7 @@ class WxrReader
             match ((string) $wp->post_type) {
                 'post' => $this->posts[] = $this->post($item, $wp, $ns),
                 'attachment' => $this->attachments[(int) $wp->post_id] = $this->attachment($item, $wp),
+                'page' => $this->pages[urldecode((string) $wp->post_name)] = $this->post($item, $wp, $ns),
                 default => null,
             };
         }

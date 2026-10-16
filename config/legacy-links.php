@@ -10,7 +10,7 @@ return [
 
     // The old pages (inetjuhhh.nl/over-ine/ …) → a path on this site
     'pages' => [
-        'over-ine' => '/',
+        'over-ine' => '/ik-en-wij',
         'travel' => '/kaart',
         'perform' => '/zoeken?q=performing',
         'voetreis' => '/',
@@ -27,9 +27,9 @@ return [
         'blog' => '/',
         'travel' => '/kaart',
         'reizen' => '/kaart',
-        'familie' => '/zoeken?q=Family',
-        'sam' => '/zoeken?q=Family',
-        'lifestyle' => '/zoeken?q=Lifestyle',
+        'familie' => '/categorie/lifestyle',
+        'sam' => '/categorie/lifestyle',
+        'lifestyle' => '/categorie/lifestyle',
         'food' => '/zoeken?q=Food',
     ],
 

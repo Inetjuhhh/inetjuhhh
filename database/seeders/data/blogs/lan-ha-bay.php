@@ -5,7 +5,7 @@ return [
     'slug' => 'lan-ha-bay',
     'excerpt' => 'Ha Long Bay is prachtig, maar ook propvol boten. De baai ernaast, Lan Ha Bay, is net zo mooi en een stuk rustiger. Twee dagen tussen de kalksteenrotsen, met een dreumes aan boord.',
     'published_at' => '2022-11-15 18:30',
-    'categories' => ['Travel', 'Family'],
+    'categories' => ['Travel', 'Lifestyle'],
     'countries' => ['Vietnam'],
     'location' => ['name' => 'Cat Ba, Vietnam', 'lat' => 20.7270, 'lng' => 107.0480],
     'trip' => 'Vietnam 2022',

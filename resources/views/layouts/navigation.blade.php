@@ -73,14 +73,12 @@
                             </ul>
                         </div>
                     </li>
+                    @php $onLifestyle = request()->routeIs('blogs.category') && request()->route('category')?->slug === 'lifestyle'; @endphp
                     <li>
-                        <a href="#" class="{{ $navLink }}">Familie</a>
+                        <a href="{{ route('blogs.category', 'lifestyle') }}" class="{{ $onLifestyle ? $navActive : $navLink }}" @if($onLifestyle) aria-current="page" @endif>Lifestyle</a>
                     </li>
                     <li>
-                        <a href="#" class="{{ $navLink }}">Lifestyle</a>
-                    </li>
-                    <li>
-                        <a href="#" class="{{ $navLink }}">Ik &amp; wij</a>
+                        <a href="{{ route('about') }}" class="{{ request()->routeIs('about') ? $navActive : $navLink }}" @if(request()->routeIs('about')) aria-current="page" @endif>Ik &amp; wij</a>
                     </li>
                 </ul>
             </div>

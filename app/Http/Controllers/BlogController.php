@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blog;
+use App\Models\Category;
 use App\Models\Country;
 use App\Models\Trip;
 use Illuminate\Http\Request;
@@ -99,5 +100,15 @@ class BlogController extends Controller
         return view('blogs.index')
             ->with('blogs', $blogs)
             ->with('country', $country);
+    }
+
+    public function category(Category $category)
+    {
+        $blogs = Blog::published()->whereHas('categories', fn ($query) => $query->whereKey($category->id))
+            ->newestFirst()->with(self::CARD_RELATIONS)->paginate(10);
+
+        return view('blogs.index')
+            ->with('blogs', $blogs)
+            ->with('category', $category);
     }
 }

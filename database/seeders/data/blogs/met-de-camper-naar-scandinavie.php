@@ -5,7 +5,7 @@ return [
     'slug' => 'met-de-camper-naar-scandinavie',
     'excerpt' => 'Een gehuurde camper, een peuter van bijna twee, 6.000 kilometer en geen enkele vaste overnachting. Hoe we onze camperreis door Scandinavië hebben voorbereid, en wat we onderweg leerden.',
     'published_at' => '2023-07-31 20:00',
-    'categories' => ['Travel', 'Family'],
+    'categories' => ['Travel', 'Lifestyle'],
     'countries' => ['Noorwegen', 'Zweden'],
     'location' => ['name' => 'Atlanterhavsveien, Noorwegen', 'lat' => 63.0170, 'lng' => 7.3560],
     'trip' => 'Noorwegen & Zweden 2023',

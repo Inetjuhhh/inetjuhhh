@@ -5,7 +5,7 @@ return [
     'slug' => 'sommerhus-in-denemarken',
     'excerpt' => 'Sam is er! En zeven weken na zijn geboorte zaten we met hem in een houten huisje in de duinen van de Deense westkust. Over reizen met een pasgeboren baby.',
     'published_at' => '2021-10-28 14:00',
-    'categories' => ['Travel', 'Family'],
+    'categories' => ['Travel', 'Lifestyle'],
     'countries' => ['Denemarken'],
     'location' => ['name' => 'Henne Strand, Denemarken', 'lat' => 55.7360, 'lng' => 8.1690],
     'trip' => 'Denemarken 2021',

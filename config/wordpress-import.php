@@ -87,8 +87,8 @@ return [
         'Travel' => 'Travel',
         'Reizen' => 'Travel',
         'Food' => 'Food',
-        'Familie' => 'Family',
-        'Sam' => 'Family',
+        'Familie' => 'Lifestyle',
+        'Sam' => 'Lifestyle',
         'Lifestyle' => 'Lifestyle',
     ],
 

@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use App\Filament\Blocks\BlogBlock;
+use App\Models\Concerns\RendersRichContent;
 use App\Support\BlogImages;
 use App\Support\BlogSearch;
 use App\Support\Geocoder;
 use App\Support\NewBlogNotifier;
-use App\Support\RenderedBlocks;
 use Awcodes\Curator\Models\Media as CuratorMedia;
-use Filament\Forms\Components\RichEditor\RichContentRenderer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -17,6 +15,8 @@ use Illuminate\Support\Facades\URL;
 
 class Blog extends Model
 {
+    use RendersRichContent;
+
     protected $table = 'blogs';
     protected $guarded = [];
     protected $casts = [
@@ -265,30 +265,5 @@ class Blog extends Model
         }
 
         return null;
-    }
-
-    /**
-     * The post content as safe HTML, including the editor blocks (galleries, maps, tips, ...).
-     */
-    public function renderContent(): string
-    {
-        if (blank($this->content)) {
-            return '';
-        }
-
-        $stash = new RenderedBlocks();
-
-        $html = RichContentRenderer::make($this->content)
-            ->customBlocks(collect(BlogBlock::all())->mapWithKeys(fn ($block) => [$block => ['stash' => $stash]])->all())
-            ->toHtml();
-
-        // Serve images in the text resized as WebP instead of the original upload
-        $html = preg_replace_callback(
-            '~(<img\b[^>]*?\bsrc=")(?:https?://[^/"]+)?/storage/([^"]+\.(?:jpe?g|png|webp))(")~i',
-            fn (array $m) => $m[1] . e(BlogImages::url(rawurldecode($m[2]))) . $m[3],
-            $html,
-        );
-
-        return $stash->restore($html);
     }
 }

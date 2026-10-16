@@ -5,7 +5,7 @@ return [
     'slug' => 'skagen-waar-twee-zeeen-samenkomen',
     'excerpt' => 'Op het noordelijkste puntje van Denemarken botsen de Noordzee en het Kattegat tegen elkaar. Daar stonden we, met Sam in de draagdoek en een voet in elke zee.',
     'published_at' => '2021-11-01 20:10',
-    'categories' => ['Travel', 'Family'],
+    'categories' => ['Travel', 'Lifestyle'],
     'countries' => ['Denemarken'],
     'location' => ['name' => 'Skagen, Denemarken', 'lat' => 57.7209, 'lng' => 10.5839],
     'trip' => 'Denemarken 2021',

@@ -58,7 +58,7 @@ it('sends old categories to a country, the map or the search', function () {
     $this->get('/category/italie/')->assertRedirect(route('blogs.blogCountry', $italy->id));
     $this->get('/category/rome/')->assertRedirect(route('blogs.blogCountry', $italy->id));
     $this->get('/category/travel/')->assertRedirect('/kaart');
-    $this->get('/category/familie/')->assertRedirect('/zoeken?q=Family');
+    $this->get('/category/familie/')->assertRedirect('/categorie/lifestyle');
     $this->get('/category/klein-leed/')->assertRedirect(route('search', ['q' => 'klein leed']));
     $this->get('/tag/wintersport/')->assertRedirect(route('search', ['q' => 'wintersport']));
 });

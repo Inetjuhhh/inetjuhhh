@@ -5,7 +5,7 @@ return [
     'slug' => 'onze-route-door-costa-rica',
     'excerpt' => 'Vier weken, vijf gebieden, een huurauto en een kleuter. Zo hebben we onze route door Costa Rica gepland: van de schildpadden van Tortuguero tot de stranden van de Pacific.',
     'published_at' => '2026-10-04 20:15',
-    'categories' => ['Travel', 'Family'],
+    'categories' => ['Travel', 'Lifestyle'],
     'countries' => ['Costa Rica'],
     'location' => ['name' => 'Monteverde, Costa Rica', 'lat' => 10.3000, 'lng' => -84.8167],
     'trip' => 'Costa Rica 2026',

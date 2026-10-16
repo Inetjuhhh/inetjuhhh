@@ -12,7 +12,7 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        foreach (['Travel', 'Food', 'Lifestyle', 'Family'] as $name) {
+        foreach (['Travel', 'Food', 'Lifestyle'] as $name) {
             Category::firstOrCreate(['name' => $name]);
         }
     }

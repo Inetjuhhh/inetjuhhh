@@ -5,7 +5,7 @@ return [
     'slug' => 'wie-zijn-wij',
     'excerpt' => 'Tien jaar, dertien reizen en één kleine reisgenoot erbij. Even voorstellen: wie schrijft hier eigenlijk, en waarom?',
     'published_at' => '2026-01-04 10:15',
-    'categories' => ['Lifestyle', 'Family'],
+    'categories' => ['Lifestyle'],
     'countries' => [],
     'tags' => ['Persoonlijk', 'Reizen met kinderen'],
     'body' => <<<'MD'

@@ -2,24 +2,22 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Blocks\BlogBlock;
 use App\Filament\Resources\BlogResource\Pages\CreateBlog;
 use App\Filament\Resources\BlogResource\Pages\EditBlog;
 use App\Filament\Resources\BlogResource\Pages\ListBlogs;
 use App\Filament\Forms\LocationPicker;
+use App\Filament\Forms\StoryEditor;
 use App\Models\Blog;
 use App\Models\Trip;
 use App\Support\Geocoder;
 use App\Support\ImageOptimizer;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
-use Awcodes\Curator\Components\Forms\RichEditor\AttachCuratorMediaPlugin;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -101,28 +99,8 @@ class BlogResource extends Resource
                                         ->required($requiredWhenPublished)
                                         ->maxLength(500),
                                 ]),
-                            RichEditor::make('content')
+                            StoryEditor::make('content')
                                 ->label('Verhaal')
-                                ->json()
-                                ->toolbarButtons([
-                                    ['bold', 'italic', 'link'],
-                                    ['h2', 'h3'],
-                                    ['blockquote', 'bulletList', 'orderedList', 'horizontalRule'],
-                                    ['attachCuratorMedia', 'customBlocks', 'grid', 'table'],
-                                    ['undo', 'redo'],
-                                ])
-                                ->floatingToolbars([
-                                    'paragraph' => ['bold', 'italic', 'link', 'h2', 'h3'],
-                                    'heading' => ['h2', 'h3'],
-                                    'grid' => ['gridAddColumnBefore', 'gridAddColumnAfter', 'gridDeleteColumn', 'gridDelete'],
-                                    'table' => ['tableAddColumnAfter', 'tableDeleteColumn', 'tableAddRowAfter', 'tableDeleteRow', 'tableDelete'],
-                                ])
-                                ->plugins([AttachCuratorMediaPlugin::make()])
-                                ->customBlocks(BlogBlock::all())
-                                ->searchableCustomBlocks(false)
-                                ->stickyToolbar()
-                                ->resizableImages()
-                                ->extraInputAttributes(['style' => 'min-height: 28rem'])
                                 ->required($requiredWhenPublished),
                         ])->columnSpan(['lg' => 2]),
 

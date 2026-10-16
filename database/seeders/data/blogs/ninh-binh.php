@@ -5,7 +5,7 @@ return [
     'slug' => 'ninh-binh',
     'excerpt' => 'Rijstvelden tussen torens van kalksteen, roeisters die met hun voeten roeien en een berg met 500 treden en een draak op de top. Ninh Binh was onze favoriete plek in Vietnam.',
     'published_at' => '2022-11-20 16:50',
-    'categories' => ['Travel', 'Family'],
+    'categories' => ['Travel', 'Lifestyle'],
     'countries' => ['Vietnam'],
     'location' => ['name' => 'Tam Coc, Ninh Binh, Vietnam', 'lat' => 20.2160, 'lng' => 105.9370],
     'trip' => 'Vietnam 2022',
