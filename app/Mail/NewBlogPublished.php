@@ -55,7 +55,8 @@ class NewBlogPublished extends Mailable implements ShouldQueue
             'blog' => $blog,
             'url' => route('blogs.show', $blog),
             // JPEG: not every mail app shows WebP (Outlook on Windows doesn't)
-            'cover' => url($blog->coverUrl(1200, 700, 'jpg')),
+            // A real photo only: the placeholder is an SVG, which most mail apps don't show
+            'cover' => $blog->hasCover() ? url($blog->coverUrl(1200, 700, 'jpg')) : null,
             'excerpt' => $blog->excerpt !== 'No excerpt' ? $blog->excerpt : null,
             'author' => $blog->placed_by?->name,
         ]);

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+  <!-- Cover for a blog without a photo: the site's anthracite with a sage route, like the trip map -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#272C31"/>
+      <stop offset="1" stop-color="#16191C"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <path d="M170 590 C 330 470, 430 640, 590 500 S 860 300, 1030 230" fill="none" stroke="#5BB5AA" stroke-opacity=".45" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 22"/>
+  <circle cx="170" cy="590" r="16" fill="#323840" stroke="#5BB5AA" stroke-width="5"/>
+  <circle cx="590" cy="500" r="16" fill="#323840" stroke="#5BB5AA" stroke-width="5"/>
+  <circle cx="1030" cy="230" r="30" fill="#9DB894" stroke="#16191C" stroke-width="8"/>
+</svg>

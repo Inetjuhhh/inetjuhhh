@@ -3,7 +3,9 @@ Hoi {{ $name }},
 
 Er staat een nieuw verhaal online{{ $blog->trip ? ' over ' . $blog->trip->name : '' }}!
 
+@if($cover)
 <a href="{{ $url }}"><img src="{{ $cover }}" alt="{{ $blog->title }}" width="570" style="display: block; width: 100%; max-width: 570px; height: auto; border-radius: 12px; margin: 8px 0 20px;"></a>
+@endif
 
 # {{ $blog->title }}
 

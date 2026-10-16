@@ -14,13 +14,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Blog extends Model implements HasMedia
+class Blog extends Model
 {
-    use InteractsWithMedia;
-
     protected $table = 'blogs';
     protected $guarded = [];
     protected $casts = [
@@ -221,18 +217,48 @@ class Blog extends Model implements HasMedia
         return $this->published_at ?? $this->created_at;
     }
 
-    // Featured image from the media library, else the first old upload, else a placeholder (stable per blog)
+    // The featured photo, else the first photo in the story, else the site's own placeholder
     public function coverUrl(int $width = 1200, int $height = 800, string $format = 'webp'): string
     {
-        if ($this->featuredImage) {
-            return BlogImages::url($this->featuredImage->path, $width, $format);
+        $photo = $this->coverMedia();
+
+        return $photo
+            ? BlogImages::url($photo->path, $width, $format)
+            : asset('images/cover-placeholder.svg');
+    }
+
+    // Whether the blog has a photo of its own to show (a mail leaves the placeholder out)
+    public function hasCover(): bool
+    {
+        return $this->coverMedia() !== null;
+    }
+
+    private ?CuratorMedia $coverMedia = null;
+
+    private bool $coverLooked = false;
+
+    private function coverMedia(): ?CuratorMedia
+    {
+        if (! $this->coverLooked) {
+            $this->coverLooked = true;
+            $this->coverMedia = $this->featuredImage ?? $this->firstPhotoInStory();
         }
 
-        $legacy = $this->getMedia('blog_attachments')
-            ->first(fn ($media) => str_starts_with($media->mime_type, 'image/'));
+        return $this->coverMedia;
+    }
 
-        return $legacy?->getUrl()
-            ?? "https://picsum.photos/seed/blog-{$this->id}/{$width}/{$height}";
+    // The first photo of a photo or gallery block in the story
+    private function firstPhotoInStory(): ?CuratorMedia
+    {
+        foreach ($this->content['content'] ?? [] as $node) {
+            if (($node['type'] ?? null) === 'customBlock' && in_array($node['attrs']['id'] ?? null, ['photo', 'gallery'], true)) {
+                if ($media = BlogImages::media($node['attrs']['config']['media'] ?? null)->first()) {
+                    return $media;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -31,9 +31,11 @@
                     @endif
                 @endforeach
             </div>
-            <span class="mt-4 text-xs uppercase tracking-widest font-semibold text-accent">
-                {{ $blog->categories->isNotEmpty() ? $blog->categories->pluck('name')->join(' · ') : 'Geen categorieën' }}
-            </span>
+            @if($blog->categories->isNotEmpty())
+                <span class="mt-4 text-xs uppercase tracking-widest font-semibold text-accent">
+                    {{ $blog->categories->pluck('name')->join(' · ') }}
+                </span>
+            @endif
             <h1 class="mt-2 font-display text-4xl sm:text-5xl lg:text-6xl leading-tight text-cream drop-shadow-lg">{{ $blog->title }}</h1>
             <p class="mt-4 text-cream-muted">
                 Door {{ $blog->placed_by->name }} · {{ $blog->publishedDate()->translatedFormat('d F Y') }}

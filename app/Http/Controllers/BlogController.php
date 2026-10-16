@@ -14,7 +14,7 @@ use App\Support\Visitor;
 class BlogController extends Controller
 {
     // Everything a blog card shows, loaded in one go instead of per card
-    private const CARD_RELATIONS = ['countries', 'categories', 'trip', 'featuredImage', 'media', 'placed_by'];
+    private const CARD_RELATIONS = ['countries', 'categories', 'trip', 'featuredImage', 'placed_by'];
 
     public function index(Request $request)
     {

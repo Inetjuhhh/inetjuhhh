@@ -34,7 +34,7 @@ class RelatedBlogs
 
         $others = Blog::published()
             ->whereKeyNot($blog->getKey())
-            ->with(['countries', 'categories', 'tags', 'trip', 'featuredImage', 'media'])
+            ->with(['countries', 'categories', 'tags', 'trip', 'featuredImage'])
             ->get();
 
         $date = $blog->publishedDate();

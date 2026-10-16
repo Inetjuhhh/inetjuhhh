@@ -21,7 +21,6 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
@@ -240,17 +239,6 @@ class BlogResource extends Resource
                                 ])
                                 ->description('De app doet een voorstel op basis van de plek; je kunt de pin altijd zelf verzetten.')
                                 ->collapsible(),
-                            Section::make('Oude afbeeldingen')
-                                ->description('Geüpload met de vorige editor. De eerste wordt als omslagfoto gebruikt zolang er geen uitgelichte foto is.')
-                                ->collapsed()
-                                ->visible(fn (?Blog $record) => $record?->hasMedia('blog_attachments'))
-                                ->schema([
-                                    SpatieMediaLibraryFileUpload::make('attachments')
-                                        ->hiddenLabel()
-                                        ->collection('blog_attachments')
-                                        ->multiple()
-                                        ->reorderable(),
-                                ]),
                         ])->columnSpan(['lg' => 1]),
                     ]),
             ]);
@@ -380,7 +368,7 @@ class BlogResource extends Resource
                     ->sortable()
                     ->visibleFrom('xl'),
             ])
-            ->modifyQueryUsing(fn ($query) => $query->with(['countries', 'trip', 'featuredImage', 'media']))
+            ->modifyQueryUsing(fn ($query) => $query->with(['countries', 'trip', 'featuredImage']))
             ->defaultSort('updated_at', 'desc')
             ->filters([
                 SelectFilter::make('status')

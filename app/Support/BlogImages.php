@@ -43,32 +43,18 @@ class BlogImages
     }
 
     /**
-     * Images for a gallery: media library items plus legacy paths from the old editor.
+     * Images for a gallery, from the media library.
      *
      * @return Collection<int, array{src: string, thumb: string, full: string, alt: string, landscape: bool}>
      */
     public static function gallery(array $config): Collection
     {
-        $fromLibrary = static::media($config['media'] ?? [])->map(fn (Media $media) => [
+        return static::media($config['media'] ?? [])->map(fn (Media $media) => [
             'src' => static::url($media->path),
             'thumb' => static::url($media->path, static::WIDTH_THUMB),
             'full' => static::url($media->path, ImageOptimizer::MAX_EDGE),
             'alt' => $media->alt ?: ($media->title ?: ''),
             'landscape' => ($media->width ?? 0) >= ($media->height ?? 0),
-        ]);
-
-        $legacy = collect($config['gallery_images'] ?? [])->map(function (string $path) {
-            $size = @getimagesize(storage_path('app/public/' . $path)) ?: [1, 0];
-
-            return [
-                'src' => static::url($path),
-                'thumb' => static::url($path, static::WIDTH_THUMB),
-                'full' => static::url($path, 2400),
-                'alt' => '',
-                'landscape' => $size[0] >= $size[1],
-            ];
-        });
-
-        return $fromLibrary->concat($legacy)->values();
+        ])->values();
     }
 }

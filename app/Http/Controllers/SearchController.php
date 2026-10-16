@@ -13,7 +13,7 @@ use Illuminate\View\View;
  */
 class SearchController extends Controller
 {
-    private const CARD_RELATIONS = ['countries', 'categories', 'trip', 'featuredImage', 'media', 'placed_by'];
+    private const CARD_RELATIONS = ['countries', 'categories', 'trip', 'featuredImage', 'placed_by'];
 
     public function index(Request $request): View
     {
@@ -48,7 +48,7 @@ class SearchController extends Controller
         $search = BlogSearch::query($query);
         $total = (clone $search)->count();
 
-        $results = $search->with(['countries', 'featuredImage', 'media'])->limit(6)->get()
+        $results = $search->with(['countries', 'featuredImage'])->limit(6)->get()
             ->map(fn (Blog $blog) => [
                 'title' => $blog->title,
                 'url' => route('blogs.show', $blog),

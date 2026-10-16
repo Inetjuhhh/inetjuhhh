@@ -18,7 +18,7 @@ class TravelMap
     {
         return Blog::published()
             ->newestFirst()
-            ->with(['countries', 'categories', 'trip', 'featuredImage', 'media'])
+            ->with(['countries', 'categories', 'trip', 'featuredImage'])
             ->get()
             ->map(fn (Blog $blog) => static::marker($blog))
             ->filter()
@@ -33,7 +33,7 @@ class TravelMap
      */
     public static function forTrip(Trip $trip, Blog $current): Collection
     {
-        $parts = $trip->parts()->load(['countries', 'categories', 'featuredImage', 'media']);
+        $parts = $trip->parts()->load(['countries', 'categories', 'featuredImage']);
 
         return $parts
             ->map(function (Blog $blog, int $i) use ($trip, $current) {
