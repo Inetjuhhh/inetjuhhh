@@ -59,10 +59,14 @@ class Trip extends Model
      */
     public function parts(): Collection
     {
-        return $this->blogs()->published()->get()
+        // Remembered for the rest of the request: a blog page asks twice (the route and the map)
+        return $this->parts ??= $this->blogs()->published()->get()
             ->sortBy(fn (Blog $blog) => $blog->publishedDate())
             ->values();
     }
+
+    /** @var Collection<int, Blog>|null */
+    private ?Collection $parts = null;
 
     /**
      * "maart – april 2026", "juni 2025" or null when no dates were entered.

@@ -130,21 +130,10 @@ return [
     'corrections_file' => database_path('wordpress/place-corrections.json'),
 
     // The folder with the export file and what the import writes next to it: media-map.json (which
-    // photo became which), redirects.json (the old links) and places.csv (to check the places)
+    // photo became which) and places.csv (to check the places)
     'directory' => storage_path('app/wordpress'),
 
-    // The old WordPress pages, and where their link goes now (a path on this site)
-    'page_redirects' => [
-        'over-ine' => '/',
-        'travel' => '/kaart',
-        'perform' => '/zoeken?q=performing',
-        'voetreis' => '/',
-        'vork' => '/zoeken?q=food',
-        'lootbox' => '/',
-        'barts-31e-verjaardag' => '/',
-        'fotos' => '/',
-        'food' => '/zoeken?q=food',
-    ],
+    // (Where old pages, categories and links go now is in config/legacy-links.php: that stays after the move)
 
     // Comments that were still waiting for approval in WordPress: true = they come along as
     // "Wacht op goedkeuring" (approve or delete them in the admin), false = left behind.

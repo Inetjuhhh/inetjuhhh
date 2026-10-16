@@ -138,7 +138,7 @@ Leave the session with `Ctrl+A`, then `D`; the import keeps running.
 
 ### B5. What the import leaves behind, and must stay
 In `storage/app/wordpress/`:
-- **`redirects.json`**: makes the old links work. **Needed for years**: include it in your backups.
+- (The old links are stored in the database, table `legacy_links`, so every database backup includes them.)
 - `media-map.json`: which photo became which (needed if you ever run the import again)
 - `places.csv`: every blog's place, to check in a spreadsheet
 
@@ -201,7 +201,7 @@ The same old links as in step C, now on `https://inetjuhhh.nl/…`. Also try `ww
 
 - **Keep the old hosting for a few weeks**, unused, in case something turns out to be missing. Only then cancel it.
 - **Google Search Console** (if you use it): the domain stays the same, so nothing has to move. Under "Pages" you can see whether Google follows the old links to the new pages.
-- **After a few weeks**, the import code can be removed from the project (the command and `app/Support/WordPress`, except `WordPressUploads.php`). **Keep the redirects** (`WordPressRedirectController`, `WordPressUploads.php`, the routes, `redirects.json`): old links keep coming in for years.
+- **After a few weeks**, the import code can be removed from the project (the command and `app/Support/WordPress`). **Keep the old links** (`LegacyLinkController`, `app/Support/LegacyLinks`, `config/legacy-links.php`, the routes and the `legacy_links` table): old links keep coming in for years.
 - **Registration:** the site still has a public "register" page from the starter kit. Anyone can create an account, but only the addresses in `ADMIN_EMAILS` get into the admin. If you don't need accounts for readers, it can be switched off.
 
 ## When something goes wrong
@@ -211,6 +211,6 @@ The same old links as in step C, now on `https://inetjuhhh.nl/…`. Also try `ww
 | Import stops halfway | Run the same command again; it carries on |
 | "Failed" photos in the totals table | `storage/logs/laravel.log` says which; run the command again to retry them |
 | Old photo links give a 404 | Web server setting, step A7 |
-| Old blog link gives a 404 | Does `storage/app/wordpress/redirects.json` exist? It's written at the end of a full import (not with `--only`) |
+| Old blog link gives a 404 | Is the `legacy_links` table filled? It is filled at the end of a full import (not with `--only`) |
 | Links in mails point to nieuw.inetjuhhh.nl | `APP_URL` in step D4, then `php artisan config:cache` |
 | Out of memory during the import | The `-d memory_limit=1G` part of the command is missing |

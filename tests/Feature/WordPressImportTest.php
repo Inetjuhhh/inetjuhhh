@@ -100,11 +100,12 @@ it('mails nobody about the old blogs', function () {
     expect(Blog::whereNull('subscribers_notified_at')->where('status', 'published')->count())->toBe(0);
 });
 
-it('writes the map for the old links', function () {
+it('remembers the old links in the database', function () {
     runImport();
 
-    $map = json_decode(file_get_contents("{$this->directory}/redirects.json"), true);
-    expect($map['posts'])->toBe(['dag-1-in-de-stad' => 100, 'back-in-holland' => 101, 'rabarbermoes' => 102]);
+    // The draft never had a public link, so it has no old link either
+    expect(\App\Models\LegacyLink::where('type', 'post')->orderBy('old_key')->pluck('old_key')->all())
+        ->toBe(['back-in-holland', 'dag-1-in-de-stad', 'rabarbermoes']);
 
     $this->get('/2023/12/27/dag-1-in-de-stad/')->assertRedirect('/blogs/dag-1-in-de-stad');
 });
@@ -147,5 +148,6 @@ it('can run again without duplicates', function () {
 
     expect(Blog::count())->toBe(4)
         ->and(Response::count())->toBe(3)
+        ->and(\App\Models\LegacyLink::count())->toBe(3)
         ->and(Trip::count())->toBe(1);
 });

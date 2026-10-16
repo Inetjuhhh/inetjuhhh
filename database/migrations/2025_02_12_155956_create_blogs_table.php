@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('blogs', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('slug');
+            // Every blog page is looked up by its link; unique, so two blogs can never share one
+            $table->string('slug')->unique();
             $table->text('excerpt');
             $table->string('location_name')->nullable();
             $table->decimal('latitude', 10, 7)->nullable();
@@ -33,6 +34,9 @@ return new class extends Migration
             // When subscribers were mailed about this blog; set once, so they never get it twice
             $table->timestamp('subscribers_notified_at')->nullable();
             $table->timestamps();
+
+            // Every list of blogs visitors may see filters on these two (the published() scope)
+            $table->index(['status', 'published_at']);
         });
     }
 

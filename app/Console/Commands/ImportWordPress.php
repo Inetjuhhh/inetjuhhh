@@ -13,7 +13,8 @@ use App\Support\WordPress\ContentConverter;
 use App\Support\Geocoder;
 use App\Support\WordPress\MediaImporter;
 use App\Support\WordPress\TitlePlace;
-use App\Support\WordPress\WordPressUploads;
+use App\Models\LegacyLink;
+use App\Support\LegacyLinks\UploadKey;
 use Illuminate\Support\Facades\Cache;
 use App\Support\WordPress\WxrReader;
 use Illuminate\Console\Command;
@@ -141,7 +142,7 @@ class ImportWordPress extends Command
         $this->newLine(2);
         $this->info('Done: ' . Blog::whereNotNull('wordpress_id')->count() . ' blogs from WordPress in the database.');
 
-        // Old links keep working: which WordPress link and photo became what (see WordPressRedirectController)
+        // Old links keep working: which WordPress link and photo became what (see LegacyLinkController)
         if (! $only) {
             $this->writeRedirects($reader, $media);
         }
@@ -399,27 +400,30 @@ class ImportWordPress extends Command
     /**
      * The map for the old links: WordPress slug → post id (the blog is found by that id, so it keeps
      * working when a link is changed in the admin later), and old photo path → new photo.
-     * Written to storage/app/wordpress/redirects.json.
+     * Written to the legacy_links table.
      */
     private function writeRedirects(WxrReader $reader, ?MediaImporter $media): void
     {
+        $now = now();
+        $blogIds = Blog::whereNotNull('wordpress_id')->pluck('id', 'wordpress_id');
+
+        // Old blog link (the WordPress slug) → the blog; it keeps working when the link is changed later
         $posts = collect($reader->posts)
-            ->filter(fn ($p) => $p['slug'] !== '')
-            ->mapWithKeys(fn ($p) => [mb_strtolower($p['slug']) => $p['id']]);
+            ->filter(fn ($p) => $p['slug'] !== '' && isset($blogIds[$p['id']]))
+            ->map(fn ($p) => ['type' => LegacyLink::POST, 'old_key' => mb_strtolower($p['slug']), 'target_id' => $blogIds[$p['id']]]);
 
         // "2019/01/foto-04-01-19" for uploads/2019/01/Foto-04-01-19.jpg (and its -768x1024 and -scaled copies)
-        $uploads = collect($media?->imported() ?? [])->mapWithKeys(function ($mediaId, $wordpressId) use ($reader) {
-            $url = $reader->attachments[$wordpressId]['url'] ?? null;
+        $uploads = collect($media?->imported() ?? [])
+            ->filter(fn ($mediaId, $wordpressId) => isset($reader->attachments[$wordpressId]))
+            ->map(fn ($mediaId, $wordpressId) => ['type' => LegacyLink::UPLOAD, 'old_key' => UploadKey::from($reader->attachments[$wordpressId]['url']), 'target_id' => $mediaId]);
 
-            return $url ? [WordPressUploads::key($url) => $mediaId] : [];
-        })->filter();
+        // Into the database (not a file), so every database backup has them; a second run updates
+        $posts->concat($uploads)->unique(fn ($l) => "{$l['type']}:{$l['old_key']}")->values()
+            ->map(fn ($l) => [...$l, 'created_at' => $now, 'updated_at' => $now])
+            ->chunk(500)
+            ->each(fn ($chunk) => LegacyLink::upsert($chunk->all(), ['type', 'old_key'], ['target_id', 'updated_at']));
 
-        file_put_contents(config('wordpress-import.directory') . '/redirects.json', json_encode([
-            'posts' => $posts,
-            'uploads' => $uploads,
-        ]));
-
-        $this->line("  Redirect map: {$posts->count()} old blog links, {$uploads->count()} old photo links.");
+        $this->line("  Old links: {$posts->count()} blog links, {$uploads->count()} photo links (table legacy_links).");
     }
 
     /**

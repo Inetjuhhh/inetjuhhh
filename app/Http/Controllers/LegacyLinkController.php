@@ -4,29 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Models\Blog;
 use App\Models\Country;
+use App\Models\LegacyLink;
 use App\Support\BlogImages;
-use App\Support\WordPress\WordPressUploads;
+use App\Support\LegacyLinks\UploadKey;
 use Awcodes\Curator\Models\Media;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
  * Links to the old WordPress blog keep working: each one is sent on, permanently (301), to where
  * that content is now. Search engines then move the old link's place in their results along.
- * Blogs and photos are found through storage/app/wordpress/redirects.json, written by the import.
+ * Blogs and photos are found in the legacy_links table, filled by the WordPress import.
+ *
+ * Keep this for years: old links in search results, on Pinterest and in mails keep coming in.
  */
-class WordPressRedirectController extends Controller
+class LegacyLinkController extends Controller
 {
     /**
-     * /2019/01/12/jutten-of-jatten/ → the blog
+     * /2019/01/12/jutten-of-jatten/ → the blog (also when its link was changed later)
      */
     public function post(string $year, string $month, string $day, string $slug): RedirectResponse
     {
-        $wordpressId = $this->map('posts')[mb_strtolower($slug)] ?? null;
+        $blogId = LegacyLink::target(LegacyLink::POST, mb_strtolower($slug));
 
-        $blog = ($wordpressId ? Blog::published()->where('wordpress_id', $wordpressId)->first() : null)
+        $blog = ($blogId ? Blog::published()->find($blogId) : null)
             ?? Blog::published()->where('slug', $slug)->first();
 
         abort_unless($blog, 404);
@@ -51,7 +53,7 @@ class WordPressRedirectController extends Controller
      */
     public function upload(string $path): RedirectResponse
     {
-        $mediaId = $this->map('uploads')[WordPressUploads::key($path)] ?? null;
+        $mediaId = LegacyLink::target(LegacyLink::UPLOAD, UploadKey::from($path));
         $media = $mediaId ? Media::find($mediaId) : null;
 
         abort_unless($media, 404);
@@ -65,27 +67,21 @@ class WordPressRedirectController extends Controller
     public function category(string $path): RedirectResponse
     {
         $slug = Str::afterLast(trim($path, '/'), '/');
-        $config = config('wordpress-import');
-        $matches = fn (string $name) => Str::slug($name) === $slug;
 
-        // A country, or a city of a country
-        $country = collect($config['countries'])->first(fn ($to, $from) => $matches($from))
-            ?? collect($config['cities'])->first(fn ($to, $from) => $matches($from));
-        if ($country && ($model = Country::where('name', $country)->first())) {
-            return redirect()->route('blogs.blogCountry', $model->id, 301);
+        // Set in config/legacy-links.php: a category that has its own place now
+        if ($to = config("legacy-links.categories.{$slug}")) {
+            return redirect()->to($to, 301);
         }
 
-        // Travel is best seen on the map; the other topics through the search
-        $category = collect($config['categories'])->first(fn ($to, $from) => $matches($from));
-        if ($category === 'Travel') {
-            return redirect()->route('blogs.map', status: 301);
+        // A country ("thailand", "italie"), or a city of one ("rome" → Italië)
+        $countryName = config("legacy-links.cities.{$slug}");
+        $country = Country::all()->first(fn (Country $c) => $countryName ? $c->name === $countryName : Str::slug($c->name) === $slug);
+        if ($country) {
+            return redirect()->route('blogs.blogCountry', $country->id, 301);
         }
 
-        if ($category || ! in_array($slug, array_map(fn ($c) => Str::slug($c), $config['ignore']), true)) {
-            return redirect()->route('search', ['q' => $category ?? str_replace('-', ' ', $slug)], 301);
-        }
-
-        return redirect()->route('blogs.index', status: 301);
+        // Anything else: the search for that word
+        return redirect()->route('search', ['q' => str_replace('-', ' ', $slug)], 301);
     }
 
     /**
@@ -109,21 +105,6 @@ class WordPressRedirectController extends Controller
      */
     public function oldPage(string $slug): RedirectResponse
     {
-        return redirect()->to(config("wordpress-import.page_redirects.{$slug}", '/'), 301);
-    }
-
-    /**
-     * @return array<string, int>
-     */
-    private function map(string $part): array
-    {
-        $file = config('wordpress-import.directory') . '/redirects.json';
-
-        if (! is_file($file)) {
-            return [];
-        }
-
-        // Read once per change of the file, not on every request
-        return Cache::remember('wordpress-redirects:' . filemtime($file), now()->addDay(), fn () => json_decode(file_get_contents($file), true) ?: [])[$part] ?? [];
+        return redirect()->to(config("legacy-links.pages.{$slug}", '/'), 301);
     }
 }

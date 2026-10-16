@@ -7,6 +7,7 @@ use App\Models\Country;
 use App\Models\Trip;
 use Illuminate\Http\Request;
 use App\Support\RelatedBlogs;
+use App\Support\SiteCache;
 use App\Support\TravelMap;
 use App\Support\Visitor;
 
@@ -19,7 +20,7 @@ class BlogController extends Controller
     {
         // An old WordPress short link (/?p=2232) goes to that blog
         if (ctype_digit((string) $request->query('p'))) {
-            return app(WordPressRedirectController::class)->shortLink($request);
+            return app(LegacyLinkController::class)->shortLink($request);
         }
 
         // ?reis=vietnam-cambodja-2025 shows one trip, in reading order (oldest first)
@@ -36,12 +37,12 @@ class BlogController extends Controller
         return view('blogs.index')
             ->with('blogs', $blogs)
             // The travel map teaser is only shown on the first page of the homepage
-            ->with('mapMarkers', $blogs->onFirstPage() ? TravelMap::markers() : null);
+            ->with('mapMarkers', $blogs->onFirstPage() ? SiteCache::mapMarkers() : null);
     }
 
     public function map(Request $request)
     {
-        $markers = TravelMap::markers();
+        $markers = SiteCache::mapMarkers();
         $tripSlugs = $markers->pluck('trip.slug')->filter()->unique();
 
         return view('blogs.map')
@@ -74,12 +75,15 @@ class BlogController extends Controller
     {
         $visitor = Visitor::existingHash($request);
 
+        // Everything the page shows of this blog, in one go instead of piece by piece
+        $blog->load(['countries', 'categories', 'tags', 'trip', 'featuredImage', 'placed_by'])->loadCount('likes');
+
         return view('blogs.show')
-            ->with('blog', $blog->loadCount('likes'))
+            ->with('blog', $blog)
             ->with('liked', $visitor !== null && $blog->likes()->where('visitor_hash', $visitor)->exists())
             ->with('comments', $blog->comments()->get())
             ->with('tripMarkers', $blog->trip ? TravelMap::forTrip($blog->trip, $blog) : collect())
-            ->with('related', RelatedBlogs::for($blog));
+            ->with('related', SiteCache::related($blog));
     }
 
     public function blogCountry(string $id)

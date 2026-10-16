@@ -2,11 +2,11 @@
 
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\LegacyLinkController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SubscriberController;
-use App\Http\Controllers\WordPressRedirectController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/dashboard', function () {
@@ -31,14 +31,14 @@ Route::get('/reacties/{comment}/goedkeuren', [CommentController::class, 'approve
     ->middleware('signed')->name('comments.approve');
 
 // Links to the old WordPress blog, sent on permanently to where that content is now
-Route::controller(WordPressRedirectController::class)->group(function () {
+Route::controller(LegacyLinkController::class)->group(function () {
     Route::get('/{year}/{month}/{day}/{slug}', 'post')->where(['year' => '\d{4}', 'month' => '\d{2}', 'day' => '\d{2}']);
     Route::get('/wp-content/uploads/{path}', 'upload')->where('path', '.+');
     Route::get('/category/{path}', 'category')->where('path', '.+');
     Route::get('/tag/{slug}', 'tag');
     Route::get('/page/{number}', 'page')->whereNumber('number');
 
-    foreach (array_keys(config('wordpress-import.page_redirects', [])) as $page) {
+    foreach (array_keys(config('legacy-links.pages', [])) as $page) {
         Route::get("/{$page}", 'oldPage')->defaults('slug', $page);
     }
 });

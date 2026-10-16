@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Blog;
 use App\Models\Country;
 use App\Models\Trip;
 use App\Support\ImageOptimizer;
+use App\Support\SiteCache;
 use Awcodes\Curator\Facades\Curator;
 use Awcodes\Curator\Models\Media;
 use Filament\Forms\Components\FileUpload;
@@ -31,20 +33,22 @@ class AppServiceProvider extends ServiceProvider
     {
         // Countries in the menu and footer: only those with at least one story visitors can read
         View::composer(['layouts.navigation', 'layouts.app'], function ($view) {
-            $view->with('countries', Country::whereHas('blogs', fn ($query) => $query->published())
-                ->orderBy('name', 'asc')
-                ->get());
+            $view->with('countries', SiteCache::menuCountries());
         });
 
         // Trips in the menu, journeys and city trips apart: only those with a story visitors can read
         View::composer('layouts.navigation', function ($view) {
-            $trips = Trip::whereHas('blogs', fn ($query) => $query->published())
-                ->orderByDesc('starts_on')
-                ->get();
+            $trips = SiteCache::menuTrips();
 
             $view->with('navTrips', $trips->where('kind', '!=', Trip::KIND_CITY)->values())
                 ->with('navCityTrips', $trips->where('kind', Trip::KIND_CITY)->values());
         });
+
+        // The remembered menu and map are out of date as soon as a blog, trip or country changes
+        foreach ([Blog::class, Trip::class, Country::class] as $model) {
+            $model::saved(fn () => SiteCache::forget());
+            $model::deleted(fn () => SiteCache::forget());
+        }
 
         // Phone photos are resized in the browser before uploading (max 2400px, never enlarged),
         // which keeps uploads fast on holiday wifi and the storage small.

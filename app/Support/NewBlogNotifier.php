@@ -44,10 +44,16 @@ class NewBlogNotifier
      */
     public static function sendDue(): int
     {
-        return Blog::published()
+        $due = Blog::published()
             ->whereNull('subscribers_notified_at')
             ->oldestFirst()
-            ->get()
-            ->sum(fn (Blog $blog) => static::send($blog));
+            ->get();
+
+        // A planned blog just went online without anyone saving it: the menu and map must show it
+        if ($due->isNotEmpty()) {
+            SiteCache::forget();
+        }
+
+        return $due->sum(fn (Blog $blog) => static::send($blog));
     }
 }
