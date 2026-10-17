@@ -53,7 +53,8 @@ class CommentController extends Controller
             'user_agent' => mb_substr((string) $request->userAgent(), 0, 255),
         ]);
 
-        if ($status !== Response::SPAM) {
+        // A mail per comment, but not a full inbox when a spam wave gets through: the rest wait in the admin
+        if ($status !== Response::SPAM && RateLimiter::attempt('comment-mails', config('blog.comments.mails_per_hour'), fn () => true, 3600)) {
             Notification::route('mail', config('blog.admin_emails'))->notify(new NewCommentNotification($comment));
         }
 

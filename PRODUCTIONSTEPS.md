@@ -1,230 +1,150 @@
-# Going live: step by step
+# Going live: your steps
 
-From the old WordPress site to the new blog on inetjuhhh.nl. Locally everything has been rehearsed; on the server you follow the same steps.
+The new blog goes from your laptop to the server of your host (Cloudways). **He** sets up the server with [HOSTING.md](HOSTING.md); **you** prepare the content, send it, check it, and later connect inetjuhhh.nl yourself.
 
-**The most important thing to know:** the import downloads the photos from the WordPress site at inetjuhhh.nl. So WordPress has to stay online at that address **until the import is finished and checked**. That's why the new site first runs on a temporary address (in these steps: `nieuw.inetjuhhh.nl`), and only at the very end does inetjuhhh.nl switch over.
+**How it works:** the code is already on his server via GitHub. Everything else (blogs, photos, comments, trips, subjects, the Ik & wij page) is in your local database and in `storage/app/public`. You pack those two into files, he puts them on the server. No WordPress import happens on the server.
 
-| Part | What | Time |
-|---|---|---|
-| A | Server and site on the temporary address | ~1 hour |
-| B | The import (blogs, photos, comments) | ~3 hours, mostly waiting |
-| C | Checking | ~30 min |
-| D | Switching inetjuhhh.nl over | ~30 min + waiting for DNS |
-| E | Afterwards | a few minutes, spread over weeks |
+| Step | Who | What | Time |
+|---|---|---|---|
+| 1 | you | Clean up test content | 10 min |
+| 2 | you | Make the export | 1 min |
+| 3 | you | Gather the secret settings | 30–60 min (mail provider takes longest) |
+| 4 | you | Send everything | 15 min |
+| 5 | host | Server setup (HOSTING.md) | his part |
+| 6 | you | Check on the temporary address | 30 min |
+| 7 | you | Connect inetjuhhh.nl | 30 min + waiting for DNS |
+| 8 | you | Afterwards | spread over weeks |
 
----
-
-## A. Server and site on the temporary address
-
-### A1. What the server needs
-- **PHP 8.3 or newer** (Laravel 13 needs it; locally 8.4 is used), with the extensions Laravel needs, plus:
-  - `gd` **with WebP and JPEG support** (shrinking photos); check with `php -r "print_r(gd_info());"`
-  - `exif` (photos the right way up)
-- **MySQL 8** (or MariaDB 10.6+)
-- **Composer** and **Node.js** (to build the styles)
-- **SSH access**: the photo import takes hours and has to run on the server itself
-- **Disk space:** about **2 GB** free (0.85 GB of photos, plus room for the cache and backups)
-
-### A2. The temporary address
-At your domain host, add a DNS record for `nieuw.inetjuhhh.nl` pointing to the new server, and give it an SSL certificate (Let's Encrypt, usually one click in Forge/Ploi or your host's panel).
-
-### A3. Put the code on the server
-```bash
-git clone <your repository> /var/www/inetjuhhh
-cd /var/www/inetjuhhh
-composer install --no-dev --optimize-autoloader
-npm ci && npm run build
-cp .env.example .env
-php artisan key:generate
-```
-
-### A4. Settings in `.env`
-```env
-APP_NAME="Inetjuhhh - Blogs"
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://nieuw.inetjuhhh.nl     # for now; becomes https://inetjuhhh.nl in step D
-APP_TIMEZONE=UTC
-
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_DATABASE=inetjuhhh
-DB_USERNAME=...
-DB_PASSWORD=...
-
-SESSION_DRIVER=database
-CACHE_STORE=database
-QUEUE_CONNECTION=database
-
-ADMIN_EMAILS=ine@inetjuhhh.nl
-
-ANTHROPIC_API_KEY=...                   # for "Stel voor" next to Tags; empty = button explains it is off
-```
-Plus the mail settings from **EMAILSTEPS.md** (step 3 there). Remember: a value with spaces needs "quotes".
-
-### A5. Database and storage
-```bash
-php artisan migrate --force
-php artisan storage:link
-```
-**Do not run `db:seed`**: that would put the example blogs back.
-
-### A6. Your admin account
-```bash
-php artisan make:filament-user
-```
-Use **ine@inetjuhhh.nl** (the address in `ADMIN_EMAILS`). The blogs will be placed under this account.
-
-### A7. The web server: let old photo links through to Laravel
-Old photo links (`/wp-content/uploads/…jpg`) are sent on to the new photos by the app. Some nginx setups answer image requests themselves with a 404, so the app never sees them. In nginx, the site should **not** have a separate block like `location ~* \.(jpg|png)$ { ... }` that ends in `=404`; the usual Laravel block is enough:
-```nginx
-location / {
-    try_files $uri $uri/ /index.php?$query_string;
-}
-```
-(With Apache, Laravel's own `.htaccess` already does this.)
-
-### A8. Queue worker and scheduler
-Set up as described in **EMAILSTEPS.md** (steps 4 and 5). Needed for the newsletter, the comment mails and the nightly cleanup.
-
-### A9. Speed
-```bash
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan filament:optimize
-```
-Run these again after every change to `.env` or every new version of the code.
-
-**Check:** `https://nieuw.inetjuhhh.nl` shows an empty blog, and you can log in at `/admin`.
+**The most important rule:** from the moment you make the export (step 2), **edit only on the server**. Changes you make locally after that are not sent along, and making a new export later would overwrite what you did on the server.
 
 ---
 
-## B. The import
+## 1. Clean up test content
 
-### B1. Put the export file on the server
-Download a **fresh** export from WordPress (Tools → Export → All content), so posts and comments since the last export come along too. Upload it, **not** in a public folder:
+Things that exist only for testing should not go online:
+
+- **Admin → Blogs** (filter "Concept" and "Gepubliceerd"): delete the three blogs that start with **"Test:"** (Costa Rica).
+- **Admin → Reizen**: delete **Costa Rica 2027** (the test trip; its description starts with "TESTREIS"). Planning a real trip? Add it again on the server later.
+- **The test account** `test@example.com`, from the Breeze starter kit:
+  ```bash
+  php artisan tinker --execute "App\Models\User::where('email', 'test@example.com')->delete();"
+  ```
+- Glance through **Admin → Abonnees** and **Reacties** for anything you made yourself while testing.
+
+You don't have to clean up the drafts: they stay invisible to readers, and you can finish them online.
+
+## 2. Make the export
+
 ```bash
-# from your laptop
-scp inetjuhhh.WordPress.*.xml user@server:/var/www/inetjuhhh/storage/app/wordpress/
-```
-(If the folder doesn't exist yet: `mkdir -p storage/app/wordpress` on the server.)
-
-### B2. Work in a session that survives a dropped connection
-The import runs for hours. If your SSH connection drops, an ordinary command stops. So start a `screen` session first:
-```bash
-screen -S import
-cd /var/www/inetjuhhh
-```
-Connection lost? Log in again and type `screen -r import` to go back.
-
-### B3. Test run
-```bash
-php -d memory_limit=1G artisan wordpress:import --dry-run --author=ine@inetjuhhh.nl
-```
-The first time takes a few minutes: about 150 places are looked up on the map (one per second). Check:
-- **271 blogs** (254 published, 17 drafts); more if you wrote new ones in WordPress since 13 October
-- **22 trips**, with India & Nepal 2016 and Thailand & Cambodja 2017 as one trip each
-- **379 comments**
-- "places to check": ideally none
-
-### B4. The real import, with photos
-```bash
-php -d memory_limit=1G artisan wordpress:import --photos --author=ine@inetjuhhh.nl
-```
-- ~2.5 hours (locally it was 1.4 seconds per photo; a server is often faster)
-- **Stopped halfway?** Run the same command again. Photos already done are skipped.
-- At the end you get the totals table; locally that was: 4,022 photos, 2,405 MB downloaded, 808 MB stored, 66% smaller.
-- The import ends with the **subjects** from `config/subjects.php` (the bubbles on the Lifestyle and Travel pages): themes per story, 51 stories moved to the right category, 3 WordPress leftovers made drafts. Locally: 249 stories changed. To run it on its own: `php artisan blogs:subjects` (add `--dry-run` to only see what it would do).
-
-Leave the session with `Ctrl+A`, then `D`; the import keeps running.
-
-Then fill the **Ik & wij** page with the text of the old "Over mij en ons" page and its first three photos (a few seconds):
-```bash
-php artisan wordpress:import-about
-```
-It does nothing when the page already has text, so it is safe to run again. Afterwards, update the text in the admin under **Ik & wij** (age, Sam's age, trips).
-
-Then give every imported photo a fingerprint, so uploading a photo that is already in the library is noticed (~7 minutes for 4,000 photos; stopped halfway? run it again):
-```bash
-php artisan media:fingerprint
+php artisan site:export
 ```
 
-### B5. What the import leaves behind, and must stay
-In `storage/app/wordpress/`:
-- (The old links are stored in the database, table `legacy_links`, so every database backup includes them.)
-- `media-map.json`: which photo became which (needed if you ever run the import again)
-- `places.csv`: every blog's place, to check in a spreadsheet
+What happens:
+- It first checks for test content (step 1). Finds some? It stops and lists it. Nothing has been exported then.
+- **Database** → `storage/app/export/inetjuhhh-database.sql.gz` (~1.6 MB). Every table, with all rows except things that only matter on your laptop: login sessions, the cache and queued jobs (these go along empty).
+- **Photos** → `storage/app/export/inetjuhhh-photos.tar` (~820 MB). Every photo in the media library, in every size.
+- At the end a table with the totals. Write them down; you check them in step 6. Locally it was about 274 blogs (254 published), 4,076 photos, 340 comments, 4,053 old links.
 
----
+Both files are ignored by git, so they never end up on GitHub. After sending them (step 4) you can delete the `export` folder.
 
-## C. Checking (on nieuw.inetjuhhh.nl)
+## 3. Gather the secret settings
 
-- [ ] Open a few blogs from different years: text, photos, galleries, featured image, the place on the photo ("India – Varanasi")
-- [ ] The travel map shows pins in the right countries
-- [ ] Menu: **Reizen** and **Citytrips** contain the right trips; **Lifestyle** shows the family and lifestyle blogs; **Ik & wij** shows the about text with three photos
-- [ ] Admin → **Reacties** → tab "Wacht op goedkeuring": the 39 old comments that were waiting. Approve or delete them
-- [ ] Admin → **Blogs**: the 17 drafts are there (read them via the eye icon)
+He needs these for the server's `.env`. Never put them in a file in the project (see the API key mishap of 17 October).
+
+| Setting | Where you get it |
+|---|---|
+| `ADMIN_EMAILS` | Your admin login: **inetjuhhh@gmail.com**. Only this address gets into `/admin` on the server, and the "new comment" mails go here too. More addresses: separate them with a comma. |
+| `MAIL_…` (host, username, password, from address) | Your mail provider. Choose one and set the DNS records (SPF/DKIM) for inetjuhhh.nl: **EMAILSTEPS.md steps 1 and 2**. You manage the domain, so this one is yours. |
+| `ANTHROPIC_API_KEY` | console.anthropic.com → API keys (the one in your local `.env`, or a new one). Optional: without it the "Stel voor" button explains it is off. |
+| `TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` | Cloudflare dashboard → *Turnstile* → *Add widget*, mode *Managed*. Hostnames: `inetjuhhh.nl` **and the temporary Cloudways address** (ask him for it). Free. Without them the robot check is off and only the lighter spam checks run, so you want these. |
+
+He makes the database password and the app key himself.
+
+## 4. Send everything
+
+- **The two files** from step 2. The photos file is too big for email: use WeTransfer or a shared Google Drive/OneDrive folder.
+- **The secrets** from step 3, **separately** from the files: a password manager share, or a message that disappears. Not in the same email as the download link.
+- **HOSTING.md**: it's in the GitHub repository he already has. Point him to it.
+
+## 5. The host's part
+
+He follows [HOSTING.md](HOSTING.md): server settings, the code, `.env`, loading the database and the photos, the queue worker and scheduler for mails, and a few checks. When he's done, he gives you the temporary address.
+
+What you need to know about it:
+- **Varnish** (Cloudways' page cache) is switched off for your site. Otherwise logged-in pages, comment forms and hearts can show someone else's or old pages. The app has its own cache.
+- The **queue worker** sends the mails (new blog, comments, confirmations) in the background; the **scheduler** sends "new story" mails for planned blogs and removes old spam every night.
+- He **never** runs the WordPress import or `db:seed`: that would overwrite your content.
+
+## 6. Check on the temporary address
+
+- [ ] Log in at `/admin` with inetjuhhh@gmail.com and your local password (the database came along, so your password did too)
+- [ ] **Admin → Blogs**: the counts from step 2 (filter on Gepubliceerd and Concept)
+- [ ] Open a few blogs from different years: text, photos, galleries, featured image, the place on the photo
+- [ ] **Reizen**: the timeline and trip cards; **Kaart**: pins in the right countries
+- [ ] **Lifestyle**: the subject bubbles; **Ik & wij**: the text with three photos
 - [ ] Search for a word from an old blog
-- [ ] Old links, by putting the temporary address in front:
-  - `https://nieuw.inetjuhhh.nl/2019/01/12/jutten-of-jatten/` → the blog
-  - `https://nieuw.inetjuhhh.nl/wp-content/uploads/2019/01/Foto-04-01-19-20-43-16-768x1024.jpg` → the photo (if not: step A7)
-  - `https://nieuw.inetjuhhh.nl/category/thailand/` → the Thailand page
+- [ ] Upload a photo in a blog (checks the server's upload limits), and save
+- [ ] **Stel voor** next to Tags gives suggestions (if you sent the Anthropic key)
+- [ ] Old links, with the temporary address in front:
+  - `/2019/01/12/jutten-of-jatten/` → the blog
+  - `/wp-content/uploads/2019/01/Foto-04-01-19-20-43-16-768x1024.jpg` → the photo
+  - `/category/thailand/` → the Thailand page
+- [ ] Mail: sign up for the newsletter with your own address. Is there a robot check, does the confirmation mail arrive, and does the link work? Then post a comment in a private window: you get a "new comment" mail
+- [ ] mail-tester.com: aim for 9/10 or higher (EMAILSTEPS.md step 7)
 
-**Found a wrong place?** Correct it in the admin (place name and/or drag the pin), then save it so it's never lost:
-```bash
-php artisan wordpress:keep-places
-```
-That writes `database/wordpress/place-corrections.json`. Copy it to your laptop and commit it, so your corrections are in the project too. (Corrections made locally first work the same way: commit the file before deploying.)
+Something wrong? Tell him which item; most fixes are on his side (settings) and take minutes.
 
-**From here on, don't run the import again on production.** You're free to edit blogs in the admin now; a new import run would overwrite those edits.
+**From here on, write and edit on the server.** Search engines don't know the temporary address, so readers won't find it yet.
 
----
+## 7. Connect inetjuhhh.nl
 
-## D. Switching inetjuhhh.nl over
+You do this yourself, when you're happy with step 6.
 
-### D1. A final backup of WordPress
-Before anything changes: a **full backup** of the old site, **files and database** (your host's backup function, or a plugin like UpdraftPlus). Keep it somewhere safe, for example on an external drive *and* in the cloud.
+### 7.1 A final backup of WordPress
+A **full backup** of the old site, files and database (your old host's backup function, or a plugin like UpdraftPlus). Keep it somewhere safe, on an external drive *and* in the cloud.
 
-### D2. Comments placed in the meantime
-Comments placed on WordPress after your export didn't come along. Usually it's easiest to copy the few that matter by hand, or to let them go.
+### 7.2 Comments placed on WordPress since your import
+Your local import was made from a WordPress export from 13 October. Comments placed on WordPress after that didn't come along. Copy the few that matter by hand (Admin → Reacties), or let them go.
 
-Running the import again with a fresh export also works, but **first** run `php artisan wordpress:keep-places` (otherwise corrected places are lost) and know that **other edits you made in the admin to imported blogs** (texts, titles) are overwritten. So only do this before you start editing blogs.
+### 7.3 Point the domain to the server
+- In **Cloudways** (or ask him): add `inetjuhhh.nl` and `www.inetjuhhh.nl` as the domain of the app, then request the free **Let's Encrypt** certificate for both.
+- At your **domain host**: change the DNS records of `inetjuhhh.nl` and `www` to the Cloudways server IP (he can tell you which). It can take a few hours before everyone sees the new site, usually much less.
+- Let's Encrypt only works once DNS points to the server; if the request fails, try again an hour later.
 
-### D3. Point the domain to the new server
-At your domain host, change the DNS records for `inetjuhhh.nl` and `www.inetjuhhh.nl` to the new server. It can take a few hours before everyone sees the new site (usually much faster).
-
-### D4. The new address in the app
-In `.env`:
+### 7.4 The new address in the app
+On the server, in `.env`:
 ```env
 APP_URL=https://inetjuhhh.nl
 ```
 then:
 ```bash
-php artisan config:cache
+php artisan optimize
 php artisan queue:restart
 ```
-And give `inetjuhhh.nl` an SSL certificate, like in step A2.
+No SSH access? Ask him; it takes him a minute. Without this step, links in mails keep pointing to the temporary address.
 
-### D5. Check again
-The same old links as in step C, now on `https://inetjuhhh.nl/…`. Also try `www.inetjuhhh.nl`: it should end up at the same site.
+### 7.5 Check again
+The old links from step 6, now on `https://inetjuhhh.nl/…`. Also try `www.inetjuhhh.nl`: it should end up at the same site. Publish a blog (or a test draft you publish and take back) and check that the mail links to inetjuhhh.nl.
 
 ---
 
-## E. Afterwards
+## 8. Afterwards
 
 - **Keep the old hosting for a few weeks**, unused, in case something turns out to be missing. Only then cancel it.
+- **Turnstile:** remove the temporary address from the widget's hostnames.
 - **Google Search Console** (if you use it): the domain stays the same, so nothing has to move. Under "Pages" you can see whether Google follows the old links to the new pages.
-- **After a few weeks**, the import code can be removed from the project (the command and `app/Support/WordPress`). **Keep the old links** (`LegacyLinkController`, `app/Support/LegacyLinks`, `config/legacy-links.php`, the routes and the `legacy_links` table): old links keep coming in for years.
-- **Registration:** the site still has a public "register" page from the starter kit. Anyone can create an account, but only the addresses in `ADMIN_EMAILS` get into the admin. If you don't need accounts for readers, it can be switched off.
+- **After a few weeks**, the import code can be removed from the project (`app/Console/Commands/ImportWordPress.php` and `app/Support/WordPress`). **Keep the old links** (`LegacyLinkController`, `app/Support/LegacyLinks`, `config/legacy-links.php`, the routes and the `legacy_links` table): old links keep coming in for years.
+- **New code** (after you commit and push): he runs the deploy steps from HOSTING.md. Your content on the server stays as it is.
 
 ## When something goes wrong
 
 | Problem | What to do |
 |---|---|
-| Import stops halfway | Run the same command again; it carries on |
-| "Failed" photos in the totals table | `storage/logs/laravel.log` says which; run the command again to retry them |
-| Old photo links give a 404 | Web server setting, step A7 |
-| Old blog link gives a 404 | Is the `legacy_links` table filled? It is filled at the end of a full import (not with `--only`) |
-| Links in mails point to nieuw.inetjuhhh.nl | `APP_URL` in step D4, then `php artisan config:cache` |
-| Out of memory during the import | The `-d memory_limit=1G` part of the command is missing |
+| `site:export` stops with "Still in the database" | Step 1, then run it again |
+| `site:export` can't find mysqldump | Laragon not in `C:\laragon`? Add `MYSQLDUMP_PATH=` with the full path to `mysqldump.exe` to your local `.env` |
+| Can't log in at `/admin` on the server | `ADMIN_EMAILS` must contain the address you log in with |
+| Photos missing on the server, text is there | The photos file wasn't unpacked into `storage/app/public`, or `php artisan storage:link` is missing (his side) |
+| Old photo links give a 404 | nginx answers image requests itself (his side, HOSTING.md → Check) |
+| Mails don't arrive | Queue worker not running, or mail settings (EMAILSTEPS.md "When something goes wrong") |
+| Links in mails point to the temporary address | Step 7.4 |
+| You see an old version of a page when logged out | Varnish is on (his side) |

@@ -135,6 +135,30 @@ it('files comments with too many links or blocked words as spam', function () {
     Notification::assertNothingSent();
 });
 
+it('recognises the usual spam tricks, but not a normal reaction', function (string $text, string $name, bool $spam) {
+    expect(SpamGuard::looksLikeSpam($text, $name))->toBe($spam);
+})->with([
+    'forum link' => ['Great post [url=https://pills.example]click[/url]', 'John', true],
+    'html link' => ['Nice <a href="https://pills.example">site</a>', 'John', true],
+    'link as name' => ['Great article', 'best-pills.com', true],
+    'Russian' => ['Отличная статья, спасибо за информацию', 'Ivan', true],
+    'Chinese' => ['非常好的文章，谢谢分享', 'Li', true],
+    'Dutch, with one link' => ['Wat mooi! Wij sliepen hier ook: https://www.booking.com', 'Femke', false],
+    'English' => ['Lovely story, we went to Nepal last year too!', 'Sarah', false],
+    'Dutch with a Japanese word' => ['Wat een mooie foto van de 寿司, we hebben zin gekregen in Japan!', 'Bas', false],
+]);
+
+it('stops mailing about new comments after the hourly limit, but keeps them', function () {
+    config(['blog.comments.mails_per_hour' => 2, 'blog.comments.per_ten_minutes' => 10]);
+
+    foreach (range(1, 3) as $i) {
+        sendComment(['email' => "lezer{$i}@example.com", 'response' => "Reactie {$i}"]);
+    }
+
+    expect(Response::where('status', Response::PENDING)->count())->toBe(3);
+    Notification::assertSentOnDemandTimes(NewCommentNotification::class, 2);
+});
+
 it('limits how many comments one visitor can send', function () {
     foreach (range(1, 3) as $i) {
         sendComment(['response' => "Reactie {$i}"]);

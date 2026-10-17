@@ -49,6 +49,19 @@ class SubscriberController extends Controller
             throw $exception->redirectTo(url()->previous() . "#nieuwsbrief-{$form}");
         }
 
+        if (! SpamGuard::passesTurnstile($request)) {
+            throw ValidationException::withMessages([
+                'email' => 'We konden niet controleren dat je geen robot bent. Probeer het nog eens.',
+            ])->errorBag("newsletter_{$form}")->redirectTo(url()->previous() . "#nieuwsbrief-{$form}");
+        }
+
+        // One person signs up once or twice; more from the same address is someone filling in strangers
+        $limiter = 'newsletter:' . Visitor::ipHash($request);
+        if (RateLimiter::tooManyAttempts($limiter, config('blog.newsletter.per_hour'))) {
+            return $done();
+        }
+        RateLimiter::hit($limiter, 3600);
+
         $subscriber = Subscriber::firstOrNew(['email' => mb_strtolower(trim($data['email']))]);
 
         if (! $subscriber->isConfirmed()) {

@@ -54,7 +54,25 @@ class SpamGuard
     {
         $content = mb_strtolower($text . ' ' . $name);
 
-        if (preg_match_all('~https?://|www\.~i', $content) > config('blog.comments.max_links')) {
+        // One match per link: "https://www.…" is one link, not two
+        if (preg_match_all('~(?:https?://|www\.)\S+~i', $content) > config('blog.comments.max_links')) {
+            return true;
+        }
+
+        // Forum and HTML links are written for other sites, never by a reader here
+        if (preg_match('~\[url|\[link|<a\s|href\s*=~i', $content)) {
+            return true;
+        }
+
+        // A real name has no link in it
+        if (preg_match('~https?://|www\.|\.(com|net|org|ru|xyz|top|info|biz|io)\b~i', $name)) {
+            return true;
+        }
+
+        // Mostly Cyrillic, Chinese, Arabic … on a Dutch blog: almost always a spam run
+        $letters = preg_match_all('~\p{L}~u', $content);
+        $foreign = preg_match_all('~[\p{Cyrillic}\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}\p{Arabic}\p{Thai}\p{Hebrew}]~u', $content);
+        if ($letters > 0 && $foreign / $letters > 0.3) {
             return true;
         }
 

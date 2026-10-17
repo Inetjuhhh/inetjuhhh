@@ -75,6 +75,12 @@
             </div>
             <input type="hidden" name="{{ \App\Support\SpamGuard::STARTED }}" value="{{ \App\Support\SpamGuard::startedToken() }}">
 
+            @if($turnstileKey = config('services.turnstile.site_key'))
+                {{-- The robot check loads only once the form is opened, so the footer on every page stays light --}}
+                <div @class(['sm:col-span-2' => ! $footer]) x-ref="turnstile" data-sitekey="{{ $turnstileKey }}"
+                     x-effect="open && window.renderTurnstile($refs.turnstile)"></div>
+            @endif
+
             <div @class(['flex flex-col gap-3', 'sm:col-span-2 sm:flex-row sm:items-center sm:justify-between' => ! $footer])>
                 <p class="text-xs leading-relaxed text-cream-muted">
                     Je krijgt eerst een mail om je inschrijving te bevestigen. Uitschrijven kan in elke mail.
@@ -87,3 +93,25 @@
         </form>
     @endif
 </div>
+
+@if(config('services.turnstile.site_key'))
+    @once
+        <script>
+            // Cloudflare's script is fetched the first time a sign-up form opens, then each form gets its own check
+            window.renderTurnstile = (el) => {
+                if (! el || el.dataset.rendered) return;
+                el.dataset.rendered = '1';
+                const render = () => turnstile.render(el, { sitekey: el.dataset.sitekey, theme: 'dark', language: 'nl' });
+                if (window.turnstile) return render();
+                // The comment form may have loaded it already
+                if (! document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')) {
+                    const script = document.createElement('script');
+                    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+                    script.async = true;
+                    document.head.appendChild(script);
+                }
+                const wait = setInterval(() => window.turnstile && (clearInterval(wait), render()), 100);
+            };
+        </script>
+    @endonce
+@endif

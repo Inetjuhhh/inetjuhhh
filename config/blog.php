@@ -23,6 +23,9 @@ return [
 
         'max_length' => 3000,
 
+        // At most this many "new comment" mails to the admin per hour; more still show in the admin
+        'mails_per_hour' => 10,
+
         // More links than this marks the comment as spam
         'max_links' => 1,
 
@@ -31,6 +34,14 @@ return [
             'viagra', 'cialis', 'casino', 'crypto', 'bitcoin', 'forex', 'loan', 'porn', 'escort',
             'seo service', 'backlinks', 'payday',
         ],
+    ],
+
+    /*
+    | Spam protection for the newsletter sign-up (the hidden field and the timing check are shared).
+    */
+    'newsletter' => [
+        // Per IP address: this many sign-ups per hour, so nobody can make the site mail a list of strangers
+        'per_hour' => 5,
     ],
 
 ];

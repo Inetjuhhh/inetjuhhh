@@ -83,6 +83,34 @@ it('ignores bots', function () {
     Mail::assertNothingSent();
 });
 
+it('stops mailing strangers when one visitor signs up a whole list', function () {
+    config(['blog.newsletter.per_hour' => 2]);
+
+    foreach (range(1, 4) as $i) {
+        signUp(['email' => "vreemde{$i}@example.com"])->assertSessionHas('newsletter_status_blog');
+    }
+
+    expect(Subscriber::count())->toBe(2);
+    Mail::assertSentCount(2);
+});
+
+it('asks Cloudflare Turnstile when it is switched on', function () {
+    config(['services.turnstile.secret_key' => 'secret']);
+    \Illuminate\Support\Facades\Http::fake(['challenges.cloudflare.com/*' => \Illuminate\Support\Facades\Http::response(['success' => false])]);
+
+    signUp()->assertRedirect('/blogs/poon-hill#nieuwsbrief-blog')
+        ->assertSessionHasErrors(['email'], null, 'newsletter_blog');
+
+    expect(Subscriber::count())->toBe(0);
+    Mail::assertNothingSent();
+});
+
+it('shows the robot check in the sign-up form when Turnstile is switched on', function () {
+    config(['services.turnstile.site_key' => 'site-key']);
+
+    $this->get('/')->assertOk()->assertSee('data-sitekey="site-key"', false)->assertSee('window.renderTurnstile', false);
+});
+
 it('shows mistakes at the form that was used', function () {
     signUp(['email' => 'geen-adres', 'form' => 'footer'])
         ->assertRedirect('/blogs/poon-hill#nieuwsbrief-footer')
