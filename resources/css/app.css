@@ -324,3 +324,20 @@
     .subject-bubble circle { transition: none; }
     .subject-bubble:hover circle { transform: none; }
 }
+
+/* Rows that scroll sideways without a scrollbar (trips on the Reizen page) */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* The faint > on the trip row nudges to the right while you point at it */
+@keyframes trip-nudge {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(6px); }
+}
+.trip-next:hover i,
+.trip-next:focus-visible i {
+    animation: trip-nudge 0.9s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+    .trip-next:hover i, .trip-next:focus-visible i { animation: none; }
+}

@@ -115,3 +115,9 @@ it('says in the admin list whether a trip photo was chosen', function () {
         ->assertTableColumnStateSet('cover_choice', 'Automatisch', $auto)
         ->assertTableColumnStateSet('cover_choice', 'Zelf gekozen', $chosen);
 });
+
+it('lets you browse the trips without a scrollbar, with a > to move on', function () {
+    $this->get(route('blogs.category', 'reizen'))
+        ->assertSee('no-scrollbar', false)
+        ->assertSee('aria-label="Meer reizen"', false);
+});
