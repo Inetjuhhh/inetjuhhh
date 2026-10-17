@@ -36,7 +36,7 @@ it('shows the subjects of the published stories in this category, with their num
     $response = $this->get(route('blogs.category', 'lifestyle'))->assertOk();
 
     expect($response->viewData('subjects')->pluck('count', 'name')->all())->toBe(['Familie' => 2, 'Sam' => 1, 'Klein leed' => 1]);
-    $response->assertSee('Waar schrijf ik over?')
+    $response->assertSee('aria-label="Onderwerpen"', false)
         // The links work without JavaScript too
         ->assertSee(route('blogs.category', ['lifestyle', 'onderwerp' => 'klein-leed']), false)
         ->assertDontSee('Geheim')
@@ -64,7 +64,7 @@ it('leaves the bubbles out when there is nothing to choose', function () {
     $food = Category::create(['name' => 'Food']);
     storyAbout('Pad thai', $food, ['koken']);
 
-    $this->get(route('blogs.category', 'food'))->assertOk()->assertDontSee('Waar schrijf ik over?');
+    $this->get(route('blogs.category', 'food'))->assertOk()->assertDontSee('aria-label="Onderwerpen"', false);
 });
 
 it('shows at most the 20 subjects written about most, plus the chosen one', function () {
@@ -78,4 +78,18 @@ it('shows at most the 20 subjects written about most, plus the chosen one', func
 
     $chosen = $this->get(route('blogs.category', ['reizen', 'onderwerp' => 'plek-1']))->viewData('subjects');
     expect($chosen)->toHaveCount(21)->and($chosen->last())->toMatchArray(['name' => 'Plek 1', 'active' => true]);
+});
+
+it('puts the first story of each page large next to the bubbles, as the newest on the first page', function () {
+    foreach (range(1, 11) as $i) {
+        storyAbout("Verhaal {$i}", $this->lifestyle, ['familie'])->update(['published_at' => now()->subDays(20 - $i)]);
+    }
+
+    $this->get(route('blogs.category', 'lifestyle'))
+        ->assertSeeInOrder(['aria-label="Onderwerpen"', 'Nieuwste verhaal', 'Verhaal 11'], false);
+
+    // Page 2 also starts with a large story, but not labelled as the newest
+    $this->get(route('blogs.category', ['lifestyle', 'page' => 2]))
+        ->assertSeeInOrder(['aria-label="Onderwerpen"', 'lg:col-span-3'], false)
+        ->assertDontSee('Nieuwste verhaal');
 });

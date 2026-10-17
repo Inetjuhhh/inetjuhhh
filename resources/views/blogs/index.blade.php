@@ -4,6 +4,13 @@
     // Show the newest blog large on the first page of the main overview
     $featured = (! isset($country) && ! isset($category) && ! $trip && $search === null && $blogs->onFirstPage()) ? $blogs->first() : null;
     $gridBlogs = $featured ? $blogs->slice(1) : $blogs;
+    // A category page with subjects: the bubbles sit next to the first story of the page, shown large
+    // (on the first page that is the newest story)
+    $bubbles = isset($category) && count($subjects ?? []) >= 2;
+    $newest = $bubbles ? $blogs->first() : null;
+    if ($newest) {
+        $gridBlogs = $blogs->slice(1);
+    }
 @endphp
 
 <x-app-layout :title="$search !== null ? 'Zoeken: ' . $search : ($trip?->name ?? (isset($country) ? $country->name : (isset($category) ? $category->name : null)))">
@@ -58,7 +65,7 @@
             <h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">
                 {{ isset($country) ? $country->name : (isset($category) ? $category->name : 'Verhalen van onderweg') }}
             </h1>
-            @if(isset($category) && count($subjects ?? []) >= 2)
+            @if($bubbles && ! $newest)
                 @include('blogs.partials.subject-bubbles', ['subjects' => $subjects, 'subject' => $subject ?? null, 'category' => $category])
             @endif
         @endif
@@ -118,6 +125,25 @@
         @elseif($blogs->isEmpty())
             <p class="text-center text-cream-muted py-20">Hier zijn nog geen verhalen te lezen.</p>
         @else
+            @if($newest)
+                {{-- Bubbles left, the newest story large beside them --}}
+                <div class="grid lg:grid-cols-5 gap-8 mb-8">
+                    @include('blogs.partials.subject-bubbles', ['subjects' => $subjects, 'subject' => $subject ?? null, 'category' => $category, 'class' => 'lg:col-span-2'])
+                    <a href="{{ route('blogs.show', $newest) }}" class="lg:col-span-3 group relative flex min-h-[22rem] overflow-hidden rounded-3xl bg-night-700 shadow-soft ring-1 ring-white/5 hover:shadow-lift transition duration-300">
+                        <img src="{{ $newest->coverUrl(1400, 900) }}" srcset="{{ $newest->coverSrcset([800, 1200, 1600]) }}" sizes="(min-width: 1024px) 60vw, 100vw" alt="{{ $newest->title }}"
+                             class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-gradient-to-t from-night-900/90 via-night-900/30 to-transparent"></div>
+                        @if($blogs->onFirstPage())
+                            <span class="absolute top-4 left-4 pill bg-accent text-night-900">Nieuwste verhaal</span>
+                        @endif
+                        <div class="relative mt-auto p-6 lg:p-8">
+                            <h2 class="font-display text-3xl leading-tight text-cream group-hover:text-brand transition">{{ $newest->title }}</h2>
+                            @if($newest->excerpt !== 'No excerpt')<p class="mt-3 text-cream/85 line-clamp-2">{{ $newest->excerpt }}</p>@endif
+                            <p class="mt-4 text-sm text-cream-muted">{{ $newest->publishedDate()->translatedFormat('d F Y') }}</p>
+                        </div>
+                    </a>
+                </div>
+            @endif
             <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach($gridBlogs as $blog)
                     @include('blogs.partials.card', [

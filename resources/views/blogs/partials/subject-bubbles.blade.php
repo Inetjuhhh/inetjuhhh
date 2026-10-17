@@ -1,12 +1,12 @@
 {{-- What the stories in a category are about, as bubbles: the bigger, the more stories. A list of links
      without JavaScript (and for screen readers); subject-bubbles.js draws the bubbles over it. --}}
-<section x-data="subjectBubbles(@js($subjects))" class="mt-8 rounded-3xl bg-night-700 ring-1 ring-white/5 p-4 sm:p-7">
+<section x-data="subjectBubbles(@js($subjects))" class="{{ $class ?? 'mt-8' }} rounded-3xl bg-night-700 ring-1 ring-white/5 p-4 sm:p-7">
     <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
         <p class="text-cream-muted">
             @if($subject)
                 Verhalen over <span class="font-semibold text-cream">{{ $subject['name'] }}</span>
             @else
-                Waar schrijf ik over? Klik op een onderwerp.
+                Buiten reisblogs schrijf ik nog over andere leuke (en minder leuke) dingen. Klik op een onderwerp om meer te lezen over...
             @endif
         </p>
         @if($subject)
