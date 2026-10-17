@@ -5,7 +5,7 @@ return [
     'slug' => 'colca-canyon-condors',
     'excerpt' => 'De Colca Canyon is twee keer zo diep als de Grand Canyon. Dat merk je vooral als je er weer uit moet klimmen. Maar eerst: de condors.',
     'published_at' => '2019-04-30 21:00',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Peru'],
     'location' => ['name' => 'Colca Canyon, Peru', 'lat' => -15.6100, 'lng' => -71.9000],
     'trip' => 'Peru 2019',

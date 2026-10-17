@@ -5,7 +5,7 @@ return [
     'slug' => 'we-gaan-naar-costa-rica',
     'excerpt' => 'De tickets zijn geboekt! Vier weken Costa Rica, met kerst en oud en nieuw in de jungle. Waarom we voor Costa Rica kozen, en wat Sam (bijna vijf) het allerliefst wil zien.',
     'published_at' => '2026-08-23 10:30',
-    'categories' => ['Travel', 'Lifestyle'],
+    'categories' => ['Reizen', 'Lifestyle'],
     'countries' => ['Costa Rica'],
     'location' => ['name' => 'Arenal, Costa Rica', 'lat' => 10.4630, 'lng' => -84.7032],
     'trip' => 'Costa Rica 2026',

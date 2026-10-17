@@ -66,7 +66,7 @@ it('imports the blogs with their titles, places, trips and categories', function
         ->and($day1->location_name)->toBe('Lissabon, Portugal')
         ->and($day1->latitude)->toBe(38.7077)
         ->and($day1->placeTags()[0]['label'])->toBe('Portugal – Lissabon')
-        ->and($day1->categories->pluck('name')->all())->toBe(['Travel'])
+        ->and($day1->categories->pluck('name')->all())->toBe(['Reizen'])
         ->and($day1->tags->pluck('name')->all())->toBe(['citytrip'])
         ->and($day1->published_at->format('Y-m-d H:i'))->toBe('2023-12-27 09:00');
 

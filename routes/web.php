@@ -20,6 +20,8 @@ Route::get('/zoeken', [SearchController::class, 'index'])->name('search');
 Route::get('/zoeken/suggesties', [SearchController::class, 'suggest'])
     ->middleware('throttle:90,1')->name('search.suggest');
 Route::get('/ik-en-wij', [PageController::class, 'about'])->name('about');
+// The travel category was called "Travel" before it became "Reizen"
+Route::permanentRedirect('/categorie/travel', '/categorie/reizen');
 Route::get('/categorie/{category:slug}', [BlogController::class, 'category'])->name('blogs.category');
 Route::get('/blogs/country/{country_id}', [BlogController::class, 'blogCountry'])->name('blogs.blogCountry');
 Route::get('/blogs/preview/{blog:id}', [BlogController::class, 'preview'])->middleware('signed')->name('blogs.preview');

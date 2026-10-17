@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Awcodes\Curator\Models\Media;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class Trip extends Model
 {
-    // A journey (menu "Reizen") or a city trip (menu "Citytrips")
+    // A journey or a city trip (the label on its card on the Reizen page)
     public const KIND_TRIP = 'trip';
 
     public const KIND_CITY = 'city';
@@ -67,6 +68,36 @@ class Trip extends Model
 
     /** @var Collection<int, Blog>|null */
     private ?Collection $parts = null;
+
+    public function coverImage()
+    {
+        return $this->belongsTo(Media::class, 'cover_image_id');
+    }
+
+    /**
+     * The featured photos of the trip's stories, in reading order: what its card photo is chosen from.
+     *
+     * @return Collection<int, Media>
+     */
+    public function coverChoices(): Collection
+    {
+        return $this->parts()->loadMissing('featuredImage')->pluck('featuredImage')->filter()->unique('id')->values();
+    }
+
+    /**
+     * The photo on the trip's card: the one chosen in the admin, otherwise the featured photo of the
+     * story halfway through the trip (the first is often packing, the last coming home).
+     */
+    public function coverMedia(): ?Media
+    {
+        if ($this->coverImage) {
+            return $this->coverImage;
+        }
+
+        $choices = $this->coverChoices();
+
+        return $choices->get(intdiv(max($choices->count() - 1, 0), 2));
+    }
 
     /**
      * "maart – april 2026", "juni 2025" or null when no dates were entered.

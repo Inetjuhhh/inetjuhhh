@@ -5,7 +5,7 @@ return [
     'slug' => 'snaefellsnes-ijsland-in-het-klein',
     'excerpt' => 'Een schiereiland met alles wat IJsland zo mooi maakt, op een paar uur rijden van Reykjavík. De perfecte afsluiter van onze babymoon.',
     'published_at' => '2021-07-04 11:50',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['IJsland'],
     'location' => ['name' => 'Kirkjufell, IJsland', 'lat' => 64.9260, 'lng' => -23.3070],
     'trip' => 'IJsland 2021',

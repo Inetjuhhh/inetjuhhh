@@ -125,28 +125,9 @@
         @elseif($blogs->isEmpty())
             <p class="text-center text-cream-muted py-20">Hier zijn nog geen verhalen te lezen.</p>
         @else
-            {{-- TEMPORARY (choosing a menu, option C): the trips as cards at the top of the travel page --}}
-            @if(isset($category) && $category->slug === 'travel' && request('nav') === 'c' && app()->isLocal())
-                @php $cardTrips = App\Support\SiteCache::menuTrips(); @endphp
-                <section class="mb-10">
-                    <div class="flex items-baseline justify-between">
-                        <h2 class="font-display text-2xl text-cream">Mijn reizen</h2>
-                        <a href="{{ route('blogs.map') }}" class="text-sm text-brand hover:underline underline-offset-4"><i class="fas fa-map-marked-alt me-1"></i>Bekijk ze op de kaart</a>
-                    </div>
-                    <div class="mt-4 -mx-4 px-4 flex gap-4 overflow-x-auto pb-3 snap-x">
-                        @foreach($cardTrips as $cardTrip)
-                            @php $cardBlog = $cardTrip->blogs()->published()->oldestFirst()->first(); @endphp
-                            <a href="{{ $cardTrip->filterUrl() }}" class="snap-start group relative flex-none w-56 h-36 overflow-hidden rounded-2xl bg-night-700 ring-1 ring-white/5">
-                                @if($cardBlog)
-                                    <img src="{{ $cardBlog->coverUrl(600, 400) }}" alt="" loading="lazy" class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105">
-                                @endif
-                                <div class="absolute inset-0 bg-gradient-to-t from-night-900/90 via-night-900/20 to-transparent"></div>
-                                <span class="absolute top-2 left-2 pill bg-night-900/70 backdrop-blur text-cream text-xs">{{ $cardTrip->kind === App\Models\Trip::KIND_CITY ? '🏙️ Citytrip' : '🧭 Reis' }}</span>
-                                <span class="absolute bottom-3 left-3 right-3 font-display text-lg leading-tight text-cream">{{ $cardTrip->name }}</span>
-                            </a>
-                        @endforeach
-                    </div>
-                </section>
+            {{-- On the Reizen page (first page, all subjects): the trips as photo cards, and the way to the map --}}
+            @if(isset($category) && $category->slug === 'reizen' && $blogs->onFirstPage() && ! ($subject ?? null) && ($tripCards ?? collect())->isNotEmpty())
+                @include('blogs.partials.trip-cards', ['trips' => $tripCards])
             @endif
             @if($newest)
                 {{-- Bubbles left, the newest story large beside them --}}
@@ -156,11 +137,22 @@
                         <img src="{{ $newest->coverUrl(1400, 900) }}" srcset="{{ $newest->coverSrcset([800, 1200, 1600]) }}" sizes="(min-width: 1024px) 60vw, 100vw" alt="{{ $newest->title }}"
                              class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105">
                         <div class="absolute inset-0 bg-gradient-to-t from-night-900/90 via-night-900/30 to-transparent"></div>
-                        @if($blogs->onFirstPage())
-                            <span class="absolute top-4 left-4 pill bg-accent text-night-900">Nieuwste verhaal</span>
-                        @endif
+                        {{-- Like every story card: where it is at the top, the trip above the title --}}
+                        <div class="absolute top-4 left-4 right-4 flex flex-wrap gap-1.5">
+                            @if($blogs->onFirstPage())
+                                <span class="pill bg-accent text-night-900">Nieuwste verhaal</span>
+                            @endif
+                            @foreach($newest->placeTags() as $tag)
+                                <span class="pill bg-night-900/70 backdrop-blur text-cream">
+                                    <i class="fas fa-map-marker-alt text-accent"></i>{{ $tag['label'] }}
+                                </span>
+                            @endforeach
+                        </div>
                         <div class="relative mt-auto p-6 lg:p-8">
-                            <h2 class="font-display text-3xl leading-tight text-cream group-hover:text-brand transition">{{ $newest->title }}</h2>
+                            @if($newest->trip)
+                                <span class="pill bg-night-900/70 backdrop-blur text-cream">🧭 {{ $newest->trip->name }}</span>
+                            @endif
+                            <h2 class="mt-3 font-display text-3xl leading-tight text-cream group-hover:text-brand transition">{{ $newest->title }}</h2>
                             @if($newest->excerpt !== 'No excerpt')<p class="mt-3 text-cream/85 line-clamp-2">{{ $newest->excerpt }}</p>@endif
                             <p class="mt-4 text-sm text-cream-muted">{{ $newest->publishedDate()->translatedFormat('d F Y') }}</p>
                         </div>

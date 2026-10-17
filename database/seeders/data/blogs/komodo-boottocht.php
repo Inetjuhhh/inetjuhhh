@@ -5,7 +5,7 @@ return [
     'slug' => 'komodo-boottocht',
     'excerpt' => 'Slapen op het dek onder de sterren, zwemmen met schildpadden en oog in oog staan met een draak van drie meter. Onze boottocht door het Nationaal Park Komodo.',
     'published_at' => '2018-08-09 10:45',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Indonesië'],
     'location' => ['name' => 'Labuan Bajo, Indonesië', 'lat' => -8.4964, 'lng' => 119.8877],
     'trip' => 'Indonesië 2018',

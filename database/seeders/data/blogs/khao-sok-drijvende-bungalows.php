@@ -5,7 +5,7 @@ return [
     'slug' => 'khao-sok-drijvende-bungalows',
     'excerpt' => 'Een meer tussen kalksteenrotsen, bungalows die op het water drijven, gibbons die je wakker roepen en een grot vol vleermuizen. Twee nachten op het Cheow Lan-meer in Khao Sok.',
     'published_at' => '2025-02-02 12:20',
-    'categories' => ['Travel', 'Lifestyle'],
+    'categories' => ['Reizen', 'Lifestyle'],
     'countries' => ['Thailand'],
     'location' => ['name' => 'Cheow Lan Lake, Thailand', 'lat' => 8.9700, 'lng' => 98.8200],
     'trip' => 'Thailand 2025',

@@ -5,7 +5,7 @@ return [
     'slug' => 'annapurna-base-camp-trek',
     'excerpt' => 'Ruim 110 kilometer, duizenden traptreden en een zonsopkomst tussen de reuzen van de Himalaya op 4.130 meter. Ons verslag van de trektocht naar Annapurna Base Camp.',
     'published_at' => '2016-11-14 18:20',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Nepal'],
     'location' => ['name' => 'Annapurna Base Camp, Nepal', 'lat' => 28.5300, 'lng' => 83.8780],
     'trip' => 'India & Nepal 2016',

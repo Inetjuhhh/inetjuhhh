@@ -5,7 +5,7 @@ return [
     'slug' => 'koh-tao-duikbrevet',
     'excerpt' => 'Vier dagen les, één paniekmoment op twaalf meter diepte en een schildpad die rustig voorbij zwom. Hoe Koh Tao ons leerde duiken.',
     'published_at' => '2015-02-27 17:45',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Thailand'],
     'location' => ['name' => 'Koh Tao, Thailand', 'lat' => 10.0956, 'lng' => 99.8404],
     'trip' => 'Thailand 2015',

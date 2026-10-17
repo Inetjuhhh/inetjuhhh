@@ -5,7 +5,7 @@ return [
     'slug' => 'inca-trail-en-een-aanzoek',
     'excerpt' => 'Vier dagen lopen over een pad van vijfhonderd jaar oud, een pas van 4.215 meter, en dan, bij zonsopkomst, Machu Picchu onder je. En Bas, op één knie.',
     'published_at' => '2019-05-16 22:30',
-    'categories' => ['Travel', 'Lifestyle'],
+    'categories' => ['Reizen', 'Lifestyle'],
     'countries' => ['Peru'],
     'location' => ['name' => 'Machu Picchu, Peru', 'lat' => -13.1631, 'lng' => -72.5450],
     'trip' => 'Peru 2019',

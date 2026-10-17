@@ -5,7 +5,7 @@ return [
     'slug' => 'nusa-penida',
     'excerpt' => 'Op een halfuur varen van Bali ligt een eiland met kliffen als uit een fantasyfilm. Maar om er te komen, moet je wel over de slechtste wegen van Indonesië.',
     'published_at' => '2018-07-31 20:20',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Indonesië'],
     'location' => ['name' => 'Nusa Penida, Indonesië', 'lat' => -8.7275, 'lng' => 115.5444],
     'trip' => 'Indonesië 2018',

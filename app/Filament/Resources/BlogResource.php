@@ -235,7 +235,7 @@ class BlogResource extends Resource
                 ->maxLength(255),
             ToggleButtons::make('kind')
                 ->label('Soort')
-                ->helperText('Bepaalt of de reis in het menu onder "Reizen" of onder "Citytrips" staat.')
+                ->helperText('Staat als label op het kaartje van de reis op de pagina Reizen.')
                 ->options(Trip::KINDS)
                 ->icons([
                     Trip::KIND_TRIP => Heroicon::OutlinedGlobeEuropeAfrica,

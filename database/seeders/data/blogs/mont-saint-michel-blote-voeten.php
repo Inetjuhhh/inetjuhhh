@@ -5,7 +5,7 @@ return [
     'slug' => 'mont-saint-michel-blote-voeten',
     'excerpt' => 'Iedereen loopt over de brug naar Mont-Saint-Michel. Wij liepen met een gids op blote voeten door het wad, met drijfzand, stromend water en een kerk op een rots als stip op de horizon.',
     'published_at' => '2020-08-18 19:15',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Frankrijk'],
     'location' => ['name' => 'Mont-Saint-Michel, Frankrijk', 'lat' => 48.6361, 'lng' => -1.5115],
     'trip' => 'Normandië 2020',

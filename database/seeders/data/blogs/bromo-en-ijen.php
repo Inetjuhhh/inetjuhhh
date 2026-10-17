@@ -5,7 +5,7 @@ return [
     'slug' => 'bromo-en-ijen',
     'excerpt' => 'Een zonsopkomst boven een zee van zand en een kratermeer van zuur, turquoise water. Voor de vulkanen van Oost-Java moet je je wekker twee nachten achter elkaar om één uur zetten.',
     'published_at' => '2018-07-19 11:10',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Indonesië'],
     'location' => ['name' => 'Gunung Bromo, Indonesië', 'lat' => -7.9425, 'lng' => 112.9530],
     'trip' => 'Indonesië 2018',

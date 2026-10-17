@@ -84,8 +84,8 @@ return [
 
     // WordPress category → category here
     'categories' => [
-        'Travel' => 'Travel',
-        'Reizen' => 'Travel',
+        'Travel' => 'Reizen',
+        'Reizen' => 'Reizen',
         'Food' => 'Food',
         'Familie' => 'Lifestyle',
         'Sam' => 'Lifestyle',

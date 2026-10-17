@@ -5,7 +5,7 @@ return [
     'slug' => 'taj-mahal-bij-zonsopkomst',
     'excerpt' => 'Om half zes in de rij, en dan opeens staat hij daar: de Taj Mahal, roze in het eerste licht. Zo haal je het meeste uit je bezoek aan Agra.',
     'published_at' => '2016-10-15 21:10',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['India'],
     'location' => ['name' => 'Agra, India', 'lat' => 27.1751, 'lng' => 78.0421],
     'trip' => 'India & Nepal 2016',

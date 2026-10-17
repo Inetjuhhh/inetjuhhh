@@ -5,7 +5,7 @@ return [
     'slug' => 'phnom-penh-moeilijkste-dag',
     'excerpt' => 'Phnom Penh is een levendige, rommelige stad aan de Mekong. Maar het is ook de plek waar je de geschiedenis van de Rode Khmer niet kunt ontlopen. En dat moet je ook niet willen.',
     'published_at' => '2017-11-21 09:30',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Cambodja'],
     'location' => ['name' => 'Phnom Penh, Cambodja', 'lat' => 11.5564, 'lng' => 104.9282],
     'trip' => 'Thailand & Cambodja 2017',

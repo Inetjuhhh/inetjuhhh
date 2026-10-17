@@ -5,7 +5,7 @@ return [
     'slug' => 'ubud-rijstvelden-en-tempels',
     'excerpt' => 'Ubud is het culturele hart van Bali, en tegelijk de plek met de meeste yogastudio\'s per vierkante meter. Hoe je er allebei van geniet.',
     'published_at' => '2018-07-26 18:00',
-    'categories' => ['Travel', 'Lifestyle'],
+    'categories' => ['Reizen', 'Lifestyle'],
     'countries' => ['Indonesië'],
     'location' => ['name' => 'Ubud, Bali, Indonesië', 'lat' => -8.5069, 'lng' => 115.2625],
     'trip' => 'Indonesië 2018',

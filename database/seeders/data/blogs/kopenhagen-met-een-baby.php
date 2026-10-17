@@ -5,7 +5,7 @@ return [
     'slug' => 'kopenhagen-met-een-baby',
     'excerpt' => 'Kopenhagen is een van de meest kindvriendelijke steden ter wereld. Dat merk je al als je met een kinderwagen het eerste café binnenloopt. Drie dagen Kopenhagen met Sam van acht weken.',
     'published_at' => '2021-11-06 10:00',
-    'categories' => ['Travel', 'Lifestyle'],
+    'categories' => ['Reizen', 'Lifestyle'],
     'countries' => ['Denemarken'],
     'location' => ['name' => 'Kopenhagen, Denemarken', 'lat' => 55.6761, 'lng' => 12.5683],
     'trip' => 'Denemarken 2021',

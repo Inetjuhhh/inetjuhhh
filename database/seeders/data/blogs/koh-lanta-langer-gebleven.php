@@ -5,7 +5,7 @@ return [
     'slug' => 'koh-lanta-langer-gebleven',
     'excerpt' => 'We zouden vier nachten blijven en daarna door naar Koh Lipe. Het werden er acht. Waarom Koh Lanta het perfecte Thaise eiland is voor gezinnen die rust zoeken.',
     'published_at' => '2025-02-07 11:40',
-    'categories' => ['Travel', 'Lifestyle'],
+    'categories' => ['Reizen', 'Lifestyle'],
     'countries' => ['Thailand'],
     'location' => ['name' => 'Koh Lanta, Thailand', 'lat' => 7.5840, 'lng' => 99.0400],
     'trip' => 'Thailand 2025',

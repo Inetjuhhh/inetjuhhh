@@ -5,7 +5,7 @@ return [
     'slug' => 'titicacameer-amantani',
     'excerpt' => 'Op het hoogst bevaarbare meer ter wereld bezochten we drijvende rieteilanden, en sliepen we bij een familie op een eiland zonder auto\'s, zonder wegen en met heel veel sterren.',
     'published_at' => '2019-05-05 17:10',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Peru'],
     'location' => ['name' => 'Amantaní, Peru', 'lat' => -15.6600, 'lng' => -69.7200],
     'trip' => 'Peru 2019',

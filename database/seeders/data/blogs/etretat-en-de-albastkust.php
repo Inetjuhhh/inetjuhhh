@@ -5,7 +5,7 @@ return [
     'slug' => 'etretat-en-de-albastkust',
     'excerpt' => 'Witte kliffen met een natuurlijke boog, een naald van krijt in zee en een wandelpad langs de rand. De laatste dagen van onze huwelijksreis brachten we door aan de kust van Étretat.',
     'published_at' => '2020-08-23 12:40',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Frankrijk'],
     'location' => ['name' => 'Étretat, Frankrijk', 'lat' => 49.7075, 'lng' => 0.2036],
     'trip' => 'Normandië 2020',

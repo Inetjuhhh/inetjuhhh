@@ -5,7 +5,7 @@ return [
     'slug' => 'cabo-de-gata',
     'excerpt' => 'In het droogste puntje van Europa ligt een natuurpark met vulkanische kliffen, verlaten baaien en geen enkele hoogbouw. De perfecte afsluiter van onze reis door Andalusië.',
     'published_at' => '2024-05-19 10:15',
-    'categories' => ['Travel', 'Lifestyle'],
+    'categories' => ['Reizen', 'Lifestyle'],
     'countries' => ['Spanje'],
     'location' => ['name' => 'San José, Cabo de Gata, Spanje', 'lat' => 36.7640, 'lng' => -2.1060],
     'trip' => 'Spanje 2024',

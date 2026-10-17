@@ -5,7 +5,7 @@ return [
     'slug' => 'hoi-an-lampionnen',
     'excerpt' => 'Een oud handelsstadje met gele huizen, duizenden lampionnen aan de rivier en een kleermaker die in twee dagen een pak maakte. Hoi An is het mooiste stadje van Vietnam.',
     'published_at' => '2022-11-26 21:15',
-    'categories' => ['Travel', 'Lifestyle', 'Food'],
+    'categories' => ['Reizen', 'Lifestyle', 'Food'],
     'countries' => ['Vietnam'],
     'location' => ['name' => 'Hoi An, Vietnam', 'lat' => 15.8801, 'lng' => 108.3380],
     'trip' => 'Vietnam 2022',

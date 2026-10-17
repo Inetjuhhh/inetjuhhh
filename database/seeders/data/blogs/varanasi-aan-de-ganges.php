@@ -5,7 +5,7 @@ return [
     'slug' => 'varanasi-aan-de-ganges',
     'excerpt' => 'In Varanasi wordt aan de oever van de Ganges gebaad, gebeden, gewassen en gecremeerd. Het is de meest indrukwekkende plek waar ik ooit ben geweest.',
     'published_at' => '2016-10-22 16:35',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['India'],
     'location' => ['name' => 'Varanasi, India', 'lat' => 25.3176, 'lng' => 82.9739],
     'trip' => 'India & Nepal 2016',

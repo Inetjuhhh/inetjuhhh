@@ -5,7 +5,7 @@ return [
     'slug' => 'preikestolen-met-een-peuter',
     'excerpt' => 'Vier kilometer omhoog, 330 hoogtemeters, en dan een rotsplateau dat 604 meter boven het Lysefjord hangt. Kan dat met een kind van bijna twee? Ja. Zo deden wij het.',
     'published_at' => '2023-07-06 21:40',
-    'categories' => ['Travel', 'Lifestyle'],
+    'categories' => ['Reizen', 'Lifestyle'],
     'countries' => ['Noorwegen'],
     'location' => ['name' => 'Preikestolen, Noorwegen', 'lat' => 58.9864, 'lng' => 6.1903],
     'trip' => 'Noorwegen & Zweden 2023',

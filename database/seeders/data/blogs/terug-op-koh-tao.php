@@ -5,7 +5,7 @@ return [
     'slug' => 'terug-op-koh-tao',
     'excerpt' => 'In 2015 haalden Bas en ik ons duikbrevet op Koh Tao. Nu kwamen we terug, en zag Sam met zijn eigen snorkel voor het eerst een rif. Over een eiland dat veranderd is, en toch niet.',
     'published_at' => '2025-01-28 18:15',
-    'categories' => ['Travel', 'Lifestyle'],
+    'categories' => ['Reizen', 'Lifestyle'],
     'countries' => ['Thailand'],
     'location' => ['name' => 'Koh Tao, Thailand', 'lat' => 10.0956, 'lng' => 99.8404],
     'trip' => 'Thailand 2025',

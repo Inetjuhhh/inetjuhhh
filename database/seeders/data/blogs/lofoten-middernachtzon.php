@@ -5,7 +5,7 @@ return [
     'slug' => 'lofoten-middernachtzon',
     'excerpt' => 'Rode vissershuisjes op palen, bergen die recht uit zee omhoog schieten en witte stranden met turquoise water, boven de poolcirkel. En een zon die gewoon nooit ondergaat.',
     'published_at' => '2023-07-18 23:55',
-    'categories' => ['Travel', 'Lifestyle'],
+    'categories' => ['Reizen', 'Lifestyle'],
     'countries' => ['Noorwegen'],
     'location' => ['name' => 'Reine, Lofoten, Noorwegen', 'lat' => 67.9320, 'lng' => 13.0890],
     'trip' => 'Noorwegen & Zweden 2023',

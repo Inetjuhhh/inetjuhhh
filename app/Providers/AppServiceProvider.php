@@ -34,17 +34,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Countries in the menu and footer: only those with at least one story visitors can read
-        View::composer(['layouts.navigation', 'layouts.app'], function ($view) {
+        // Countries in the footer: only those with at least one story visitors can read
+        View::composer('layouts.app', function ($view) {
             $view->with('countries', SiteCache::menuCountries());
-        });
-
-        // Trips in the menu, journeys and city trips apart: only those with a story visitors can read
-        View::composer('layouts.navigation', function ($view) {
-            $trips = SiteCache::menuTrips();
-
-            $view->with('navTrips', $trips->where('kind', '!=', Trip::KIND_CITY)->values())
-                ->with('navCityTrips', $trips->where('kind', Trip::KIND_CITY)->values());
         });
 
         // The remembered menu and map are out of date as soon as a blog, trip or country changes

@@ -5,7 +5,7 @@ return [
     'slug' => 'zweden-rode-huisjes-en-stockholm',
     'excerpt' => 'Na de spectaculaire fjorden van Noorwegen was Zweden een verademing: eindeloze bossen, stille meren, rode huisjes, kaneelbroodjes en een hoofdstad op veertien eilanden.',
     'published_at' => '2023-07-27 15:10',
-    'categories' => ['Travel', 'Lifestyle', 'Food'],
+    'categories' => ['Reizen', 'Lifestyle', 'Food'],
     'countries' => ['Zweden'],
     'location' => ['name' => 'Stockholm, Zweden', 'lat' => 59.3293, 'lng' => 18.0686],
     'trip' => 'Noorwegen & Zweden 2023',

@@ -5,7 +5,7 @@ return [
     'slug' => 'ijsland-zuidkust',
     'excerpt' => 'Van Seljalandsfoss tot Jökulsárlón: vijf dagen langs de zuidkust van IJsland. Met een waterval waar je achter kunt lopen, een zwart strand en zeehonden tussen de ijsbergen.',
     'published_at' => '2021-06-30 20:35',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['IJsland'],
     'location' => ['name' => 'Vík, IJsland', 'lat' => 63.4186, 'lng' => -19.0060],
     'trip' => 'IJsland 2021',

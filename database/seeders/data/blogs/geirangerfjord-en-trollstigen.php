@@ -5,7 +5,7 @@ return [
     'slug' => 'geirangerfjord-en-trollstigen',
     'excerpt' => 'Het mooiste fjord van Noorwegen, de Zeven Zussen-waterval en een weg met elf haarspeldbochten tegen een loodrechte bergwand. Met een camper van zeven meter.',
     'published_at' => '2023-07-11 19:25',
-    'categories' => ['Travel', 'Lifestyle'],
+    'categories' => ['Reizen', 'Lifestyle'],
     'countries' => ['Noorwegen'],
     'location' => ['name' => 'Geiranger, Noorwegen', 'lat' => 62.1015, 'lng' => 7.2059],
     'trip' => 'Noorwegen & Zweden 2023',

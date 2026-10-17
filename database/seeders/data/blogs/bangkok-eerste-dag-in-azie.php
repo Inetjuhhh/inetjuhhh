@@ -5,7 +5,7 @@ return [
     'slug' => 'bangkok-eerste-dag-in-azie',
     'excerpt' => 'Jetlag, 34 graden, een tuktukchauffeur met een "speciale aanbieding" en de mooiste tempel die we ooit zagen. Onze eerste 24 uur in Bangkok.',
     'published_at' => '2015-02-05 14:20',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Thailand'],
     'location' => ['name' => 'Bangkok, Thailand', 'lat' => 13.7563, 'lng' => 100.5018],
     'trip' => 'Thailand 2015',

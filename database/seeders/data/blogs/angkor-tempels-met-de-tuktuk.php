@@ -5,7 +5,7 @@ return [
     'slug' => 'angkor-tempels-met-de-tuktuk',
     'excerpt' => 'De grensovergang bij Poipet, een tuktukchauffeur die onze vriend werd en drie dagen tussen de tempels van Angkor. Zo bezoek je Angkor zonder de drukte.',
     'published_at' => '2017-11-15 22:15',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Cambodja'],
     'location' => ['name' => 'Siem Reap, Cambodja', 'lat' => 13.4125, 'lng' => 103.8670],
     'trip' => 'Thailand & Cambodja 2017',

@@ -5,7 +5,7 @@ return [
     'slug' => 'ronda-en-de-witte-dorpen',
     'excerpt' => 'Een brug over een kloof van honderd meter diep, een dorp dat onder een rots is gebouwd en een kasteel boven een turquoise meer. Een roadtrip langs de pueblos blancos van Andalusië.',
     'published_at' => '2024-05-12 12:30',
-    'categories' => ['Travel', 'Lifestyle'],
+    'categories' => ['Reizen', 'Lifestyle'],
     'countries' => ['Spanje'],
     'location' => ['name' => 'Ronda, Spanje', 'lat' => 36.7423, 'lng' => -5.1671],
     'trip' => 'Spanje 2024',

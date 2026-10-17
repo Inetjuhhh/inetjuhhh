@@ -47,6 +47,26 @@ class SiteCache
     }
 
     /**
+     * The trips as cards on the Reizen page, newest first, each with its photo (see Trip::coverMedia).
+     *
+     * @return Collection<int, array{name: string, url: string, city: bool, period: ?string, cover: string}>
+     */
+    public static function tripCards(): Collection
+    {
+        return static::remember('trip-cards', fn () => static::menuTrips()->load('coverImage')->map(function (Trip $trip) {
+            $photo = $trip->coverMedia();
+
+            return [
+                'name' => $trip->name,
+                'url' => $trip->filterUrl(),
+                'city' => $trip->kind === Trip::KIND_CITY,
+                'period' => $trip->period(),
+                'cover' => $photo ? BlogImages::mediaUrl($photo, 600) : asset('images/cover-placeholder.svg'),
+            ];
+        })->values());
+    }
+
+    /**
      * Every pin of the travel map.
      *
      * @return Collection<int, array<string, mixed>>

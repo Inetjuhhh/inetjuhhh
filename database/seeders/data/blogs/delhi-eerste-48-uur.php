@@ -5,7 +5,7 @@ return [
     'slug' => 'delhi-eerste-48-uur',
     'excerpt' => 'Iedereen had ons gewaarschuwd voor Delhi. Te druk, te vies, te veel. Het was inderdaad allemaal te veel, en toch gingen we er met een glimlach weer weg.',
     'published_at' => '2016-10-11 08:50',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['India'],
     'location' => ['name' => 'Delhi, India', 'lat' => 28.6139, 'lng' => 77.2090],
     'trip' => 'India & Nepal 2016',

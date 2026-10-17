@@ -5,7 +5,7 @@ return [
     'slug' => 'langs-de-d-day-stranden',
     'excerpt' => 'Op 6 juni 1944 landden hier 156.000 soldaten op vijf stranden. Nu spelen er kinderen in het zand. Een dag langs Omaha Beach, Pointe du Hoc en de Amerikaanse begraafplaats.',
     'published_at' => '2020-08-15 21:30',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Frankrijk'],
     'location' => ['name' => 'Omaha Beach, Frankrijk', 'lat' => 49.3690, 'lng' => -0.8730],
     'trip' => 'Normandië 2020',

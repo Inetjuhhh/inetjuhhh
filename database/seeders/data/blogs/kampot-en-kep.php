@@ -5,7 +5,7 @@ return [
     'slug' => 'kampot-en-kep',
     'excerpt' => 'Na de tempels en de geschiedenis wilden we vooral even niks. Dat vonden we in het slaperige Kampot, met de beste peper ter wereld en verse krab in Kep.',
     'published_at' => '2017-11-29 15:55',
-    'categories' => ['Travel', 'Food'],
+    'categories' => ['Reizen', 'Food'],
     'countries' => ['Cambodja'],
     'location' => ['name' => 'Kampot, Cambodja', 'lat' => 10.6104, 'lng' => 104.1815],
     'trip' => 'Thailand & Cambodja 2017',

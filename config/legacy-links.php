@@ -25,8 +25,8 @@ return [
     // Not listed: a country goes to its country page, anything else to the search for that word.
     'categories' => [
         'blog' => '/',
-        'travel' => '/kaart',
-        'reizen' => '/kaart',
+        'travel' => '/categorie/reizen',
+        'reizen' => '/categorie/reizen',
         'familie' => '/categorie/lifestyle',
         'sam' => '/categorie/lifestyle',
         'lifestyle' => '/categorie/lifestyle',

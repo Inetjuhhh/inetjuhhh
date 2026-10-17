@@ -5,7 +5,7 @@ return [
     'slug' => 'huwelijksreis-normandie',
     'excerpt' => 'We zouden in juni trouwen met honderd gasten en daarna naar Japan. Het werd een bruiloft met tien gasten, en een huwelijksreis met de auto naar Normandië. Het was perfect.',
     'published_at' => '2020-08-11 16:00',
-    'categories' => ['Travel', 'Lifestyle', 'Food'],
+    'categories' => ['Reizen', 'Lifestyle', 'Food'],
     'countries' => ['Frankrijk'],
     'location' => ['name' => 'Honfleur, Frankrijk', 'lat' => 49.4190, 'lng' => 0.2330],
     'trip' => 'Normandië 2020',

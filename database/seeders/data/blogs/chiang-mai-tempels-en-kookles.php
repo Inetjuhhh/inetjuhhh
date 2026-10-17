@@ -5,7 +5,7 @@ return [
     'slug' => 'chiang-mai-tempels-en-kookles',
     'excerpt' => 'Na de chaos van Bangkok was Chiang Mai precies wat we nodig hadden: een rustige stad vol tempels, de lekkerste khao soi en een kookles waar Bas zijn roeping vond.',
     'published_at' => '2015-02-11 19:05',
-    'categories' => ['Travel', 'Food'],
+    'categories' => ['Reizen', 'Food'],
     'countries' => ['Thailand'],
     'location' => ['name' => 'Chiang Mai, Thailand', 'lat' => 18.7883, 'lng' => 98.9853],
     'trip' => 'Thailand 2015',

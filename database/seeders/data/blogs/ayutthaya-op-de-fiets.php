@@ -5,7 +5,7 @@ return [
     'slug' => 'ayutthaya-op-de-fiets',
     'excerpt' => 'Terug in Thailand, maar nu wilden we iets zien wat we de eerste keer hadden overgeslagen: de oude hoofdstad Ayutthaya, met een Boeddhahoofd dat door boomwortels wordt omarmd.',
     'published_at' => '2017-11-08 20:40',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Thailand'],
     'location' => ['name' => 'Ayutthaya, Thailand', 'lat' => 14.3532, 'lng' => 100.5689],
     'trip' => 'Thailand & Cambodja 2017',

@@ -5,7 +5,7 @@ return [
     'slug' => 'kathmandu-na-de-aardbeving',
     'excerpt' => 'In april 2015 werd Nepal getroffen door een zware aardbeving. Anderhalf jaar later liepen we door Kathmandu, tussen de stutpalen en de steigers, en zagen we een stad die doorgaat.',
     'published_at' => '2016-10-29 12:00',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Nepal'],
     'location' => ['name' => 'Kathmandu, Nepal', 'lat' => 27.7172, 'lng' => 85.3240],
     'trip' => 'India & Nepal 2016',

@@ -5,7 +5,7 @@ return [
     'slug' => 'alhambra-met-een-driejarige',
     'excerpt' => 'Het Alhambra in Granada is een van de mooiste gebouwen ter wereld. Maar is het ook leuk voor een peuter? Met een paar trucs wel. Hoe we het aanpakten.',
     'published_at' => '2024-05-07 20:20',
-    'categories' => ['Travel', 'Lifestyle'],
+    'categories' => ['Reizen', 'Lifestyle'],
     'countries' => ['Spanje'],
     'location' => ['name' => 'Alhambra, Granada, Spanje', 'lat' => 37.1761, 'lng' => -3.5881],
     'trip' => 'Spanje 2024',

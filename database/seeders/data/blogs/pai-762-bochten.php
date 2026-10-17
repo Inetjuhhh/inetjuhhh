@@ -5,7 +5,7 @@ return [
     'slug' => 'pai-762-bochten',
     'excerpt' => 'De weg naar Pai heeft 762 bochten, en ik heb ze allemaal gevoeld. Maar eenmaal in het hippiedorpje in de bergen wilden we eigenlijk niet meer weg.',
     'published_at' => '2015-02-17 10:30',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Thailand'],
     'location' => ['name' => 'Pai, Thailand', 'lat' => 19.3583, 'lng' => 98.4400],
     'trip' => 'Thailand 2015',

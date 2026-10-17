@@ -5,7 +5,7 @@ return [
     'slug' => 'borobudur-en-prambanan',
     'excerpt' => 'Op Java liggen twee van de indrukwekkendste tempels van Zuidoost-Azië op een uur rijden van elkaar. De ene boeddhistisch, de andere hindoeïstisch. Wij deden ze op één dag.',
     'published_at' => '2018-07-12 13:25',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Indonesië'],
     'location' => ['name' => 'Borobudur, Indonesië', 'lat' => -7.6079, 'lng' => 110.2038],
     'trip' => 'Indonesië 2018',

@@ -5,7 +5,7 @@ return [
     'slug' => 'cusco-en-de-heilige-vallei',
     'excerpt' => 'De oude hoofdstad van de Inca\'s is een van de mooiste steden van Zuid-Amerika. En de vallei eronder, met zoutpannen en cirkelvormige terrassen, is een openluchtmuseum.',
     'published_at' => '2019-05-09 20:45',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['Peru'],
     'location' => ['name' => 'Cusco, Peru', 'lat' => -13.5320, 'lng' => -71.9675],
     'trip' => 'Peru 2019',

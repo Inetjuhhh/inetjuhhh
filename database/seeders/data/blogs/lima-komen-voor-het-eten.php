@@ -5,7 +5,7 @@ return [
     'slug' => 'lima-komen-voor-het-eten',
     'excerpt' => 'De meeste reizigers slaan Lima over of blijven er één nacht. Grote fout: de Peruaanse hoofdstad is een van de beste eetsteden ter wereld. Onze culinaire tour in drie dagen.',
     'published_at' => '2019-04-24 19:30',
-    'categories' => ['Travel', 'Food'],
+    'categories' => ['Reizen', 'Food'],
     'countries' => ['Peru'],
     'location' => ['name' => 'Lima, Peru', 'lat' => -12.0464, 'lng' => -77.0428],
     'trip' => 'Peru 2019',

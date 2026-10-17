@@ -5,7 +5,7 @@ return [
     'slug' => 'chiang-mai-met-een-kleuter',
     'excerpt' => 'Een tempel in een tunnel, een kookles waar Sam zijn eigen loempia\'s rolde, en de vraag die iedereen ons stelt: gaan jullie ook naar de olifanten? Chiang Mai, tien jaar later.',
     'published_at' => '2025-01-21 19:50',
-    'categories' => ['Travel', 'Lifestyle', 'Food'],
+    'categories' => ['Reizen', 'Lifestyle', 'Food'],
     'countries' => ['Thailand'],
     'location' => ['name' => 'Chiang Mai, Thailand', 'lat' => 18.7883, 'lng' => 98.9853],
     'trip' => 'Thailand 2025',

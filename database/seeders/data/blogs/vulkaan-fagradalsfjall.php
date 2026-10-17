@@ -5,7 +5,7 @@ return [
     'slug' => 'vulkaan-fagradalsfjall',
     'excerpt' => 'In maart 2021 barstte op het schiereiland Reykjanes voor het eerst in achthonderd jaar een vulkaan uit. Drie maanden later stonden we aan de rand van een lavaveld dat nog gloeide.',
     'published_at' => '2021-06-24 23:10',
-    'categories' => ['Travel'],
+    'categories' => ['Reizen'],
     'countries' => ['IJsland'],
     'location' => ['name' => 'Fagradalsfjall, IJsland', 'lat' => 63.8890, 'lng' => -22.2710],
     'trip' => 'IJsland 2021',
