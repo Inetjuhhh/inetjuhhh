@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\InitialsAvatar;
 use Filament\Pages\BasePage;
 use Filament\Pages\Dashboard;
 use Filament\Http\Middleware\Authenticate;
@@ -36,6 +37,8 @@ class AdminPanelProvider extends PanelProvider
                 'gray' => Color::Stone,
             ])
             ->font('Figtree')
+            // Initials made here, instead of a picture from ui-avatars.com on every page
+            ->defaultAvatarProvider(InitialsAvatar::class)
             // On an iPad the menu can be folded away, so lists and the editor get the full width
             ->sidebarCollapsibleOnDesktop()
             ->sidebarWidth('16rem')

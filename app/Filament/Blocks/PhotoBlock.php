@@ -61,7 +61,8 @@ class PhotoBlock extends BlogBlock
         $media = BlogImages::media($config['media'] ?? null)->first();
 
         return view('filament.blocks.photo-preview', [
-            'src' => $media ? BlogImages::url($media->path, BlogImages::WIDTH_THUMB * 2) : null,
+            // The preview in the editor is at most 288px high: 800px wide is sharp enough and loads fast
+            'src' => $media ? BlogImages::mediaUrl($media, 800) : null,
             'caption' => $config['caption'] ?? null,
         ])->render();
     }

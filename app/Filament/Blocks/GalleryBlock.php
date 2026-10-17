@@ -68,9 +68,12 @@ class GalleryBlock extends BlogBlock
 
     public static function toPreviewHtml(array $config): string
     {
+        $media = BlogImages::media($config['media'] ?? []);
+
+        // Small squares in the editor (8 in a row): 240px is enough, instead of the 600px of the website
         return view('filament.blocks.gallery-preview', [
-            'images' => BlogImages::gallery($config)->take(8),
-            'total' => BlogImages::gallery($config)->count(),
+            'images' => $media->take(8)->map(fn ($photo) => ['thumb' => BlogImages::mediaUrl($photo, 240)]),
+            'total' => $media->count(),
         ])->render();
     }
 
