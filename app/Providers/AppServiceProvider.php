@@ -52,7 +52,11 @@ class AppServiceProvider extends ServiceProvider
 
         // Phone photos are resized in the browser before uploading (max 2400px, never enlarged),
         // which keeps uploads fast on holiday wifi and the storage small.
-        Curator::imageResizeMode('contain')
+        // Stored on the public disk, like all photos: since Curator 5.6 the default follows FILESYSTEM_DISK,
+        // which is the private "local" disk, so new photos showed up as an empty placeholder
+        Curator::disk('public')
+            ->visibility('public')
+            ->imageResizeMode('contain')
             ->imageResizeTargetWidth('2400')
             ->imageResizeTargetHeight('2400')
             ->maxSize(30 * 1024)

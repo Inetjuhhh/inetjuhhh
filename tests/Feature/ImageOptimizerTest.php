@@ -1,6 +1,8 @@
 <?php
 
 use App\Support\ImageOptimizer;
+use Awcodes\Curator\Components\Forms\CuratorPicker;
+use Awcodes\Curator\Facades\Curator;
 use Awcodes\Curator\Models\Media;
 use Illuminate\Support\Facades\Storage;
 
@@ -50,6 +52,15 @@ function upload(string $contents, string $name, string $ext, string $type, ?stri
         'type' => $type, 'ext' => $ext,
     ]);
 }
+
+it('stores uploads where the browser can show them, whatever FILESYSTEM_DISK says', function () {
+    // Curator 5.6 started following FILESYSTEM_DISK ("local", private): photos became placeholders
+    config(['filesystems.default' => 'local', 'curator.default_disk' => 'local']);
+
+    expect(Curator::getDiskName())->toBe('public')
+        ->and(Curator::getVisibility())->toBe('public')
+        ->and(CuratorPicker::make('featured_image_id')->getDiskName())->toBe('public');
+});
 
 it('shrinks a photo in a story to at most 250 KB', function () {
     $photo = bigPhoto();
