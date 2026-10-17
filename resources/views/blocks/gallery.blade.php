@@ -44,40 +44,37 @@
             </div>
         </div>
     @else
-        <div @class([
-            'grid gap-2 sm:gap-3',
-            'grid-cols-1' => $count === 1,
-            'grid-cols-2' => $count === 2 || $count === 4,
-            'grid-cols-2 sm:grid-cols-3' => $count === 3 || $count >= 5,
-        ])>
-            @foreach($visible as $i => $image)
-                @php
-                    $featured = $count >= 5 && $i === 0;
-                    // How wide the photo is on screen: the text column (768px) or the phone, split over the columns
-                    $sizes = match (true) {
-                        $count === 1 => '(min-width: 768px) 768px, 100vw',
-                        $featured => '(min-width: 768px) 512px, 100vw',
-                        $count === 2 || $count === 4 => '(min-width: 768px) 384px, 50vw',
-                        default => '(min-width: 768px) 256px, (min-width: 640px) 33vw, 50vw',
-                    };
-                @endphp
-                <button type="button" x-on:click="$store.lightbox.show(images, {{ $i }})"
-                        @class([
-                            'group relative overflow-hidden rounded-xl bg-night-900 cursor-zoom-in',
-                            'col-span-2 row-span-2 aspect-square sm:aspect-auto' => $featured,
-                            'aspect-[3/2]' => $count <= 2,
-                            'aspect-square' => ! $featured && $count > 2,
-                        ])>
-                    <img src="{{ $featured || $count <= 2 ? $image['src'] : $image['thumb'] }}" srcset="{{ $image['srcset'] }}" sizes="{{ $sizes }}" alt="{{ $image['alt'] }}" loading="lazy"
-                         class="h-full w-full object-cover transition duration-700 group-hover:scale-105">
-                    @if($loop->last && $count > $visible->count())
-                        <span class="absolute inset-0 flex items-center justify-center bg-night-900/70 font-display text-3xl text-cream">
-                            +{{ $count - $visible->count() }}
-                        </span>
-                    @endif
-                </button>
-            @endforeach
-        </div>
+        @php
+            // Mixed rows (see GalleryLayout): a landscape with two portraits on a laptop, with one on a phone.
+            // Each photo keeps its own shape; the lightbox keeps the order they were chosen in.
+            $photos = $visible->values()->map(fn ($image, $i) => $image + ['index' => $i])->all();
+            $lastShown = count($photos) - 1;
+        @endphp
+        @foreach(['laptop' => [2, 'hidden sm:flex', 420, 768], 'phone' => [1, 'flex sm:hidden', 320, null]] as $screen => [$perRow, $show, $maxHeight, $width])
+            <div class="{{ $show }} flex-col gap-2 sm:gap-3">
+                @foreach(App\Support\GalleryLayout::rows($photos, $perRow) as $row)
+                    @php $sum = App\Support\GalleryLayout::ratioSum($row); @endphp
+                    {{-- A row of only one portrait would become huge at full width, so a row is at most $maxHeight high --}}
+                    <div class="flex w-full gap-2 sm:gap-3 mx-auto" style="max-width: {{ round($sum * $maxHeight) }}px">
+                        @foreach($row as $image)
+                            @php $share = $image['ratio'] / $sum; @endphp
+                            <button type="button" x-on:click="$store.lightbox.show(images, {{ $image['index'] }})"
+                                    class="group relative min-w-0 overflow-hidden rounded-xl bg-night-900 cursor-zoom-in"
+                                    style="flex: {{ $image['ratio'] }} 1 0%; aspect-ratio: {{ $image['ratio'] }}">
+                                <img src="{{ $image['src'] }}" srcset="{{ $image['srcset'] }}" alt="{{ $image['alt'] }}" loading="lazy"
+                                     sizes="{{ $width ? '(min-width: 768px) ' . round($share * $width) . 'px, ' : '' }}{{ round($share * 100) }}vw"
+                                     class="h-full w-full object-cover transition duration-700 group-hover:scale-105">
+                                @if($image['index'] === $lastShown && $count > $visible->count())
+                                    <span class="absolute inset-0 flex items-center justify-center bg-night-900/70 font-display text-3xl text-cream">
+                                        +{{ $count - $visible->count() }}
+                                    </span>
+                                @endif
+                            </button>
+                        @endforeach
+                    </div>
+                @endforeach
+            </div>
+        @endforeach
     @endif
 
     @if(filled($caption))

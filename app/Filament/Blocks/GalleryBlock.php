@@ -29,7 +29,7 @@ class GalleryBlock extends BlogBlock
     public static function getPreviewLabel(array $config): string
     {
         $count = count($config['media'] ?? []);
-        $layout = ($config['layout'] ?? 'grid') === 'slideshow' ? 'slideshow' : 'raster';
+        $layout = ($config['layout'] ?? 'grid') === 'slideshow' ? 'slideshow' : 'gemengde rijen';
 
         return "Fotogalerij · {$count} foto's · {$layout}";
     }
@@ -50,7 +50,8 @@ class GalleryBlock extends BlogBlock
                 ToggleButtons::make('layout')
                     ->label('Weergave')
                     ->options([
-                        'grid' => 'Raster',
+                        // Stored as "grid" (older galleries too); shown as mixed rows, see GalleryLayout
+                        'grid' => 'Gemengde rijen',
                         'slideshow' => 'Slideshow',
                     ])
                     ->icons([

@@ -20,7 +20,7 @@ class StoryEditor
                 ['bold', 'italic', 'link'],
                 ['h2', 'h3'],
                 ['blockquote', 'bulletList', 'orderedList', 'horizontalRule'],
-                ['attachCuratorMedia', 'customBlocks', 'grid', 'table'],
+                [InsertPhotosAction::NAME, 'customBlocks', 'grid', 'table'],
                 ['undo', 'redo'],
             ])
             ->floatingToolbars([
@@ -29,7 +29,11 @@ class StoryEditor
                 'grid' => ['gridAddColumnBefore', 'gridAddColumnAfter', 'gridDeleteColumn', 'gridDelete'],
                 'table' => ['tableAddColumnAfter', 'tableDeleteColumn', 'tableAddRowAfter', 'tableDeleteRow', 'tableDelete'],
             ])
+            // Photos are added with our own button (one photo, several, or a gallery); Curator's plugin
+            // stays for photos that are already loose in older texts
             ->plugins([AttachCuratorMediaPlugin::make()])
+            ->tools([InsertPhotosAction::tool()])
+            ->registerActions([InsertPhotosAction::make()])
             ->customBlocks(BlogBlock::all())
             ->searchableCustomBlocks(false)
             ->stickyToolbar()

@@ -76,7 +76,7 @@ class BlogImages
     /**
      * Images for a gallery, from the media library.
      *
-     * @return Collection<int, array{src: string, thumb: string, srcset: string, full: string, alt: string, landscape: bool}>
+     * @return Collection<int, array{src: string, thumb: string, srcset: string, full: string, alt: string, landscape: bool, ratio: float}>
      */
     public static function gallery(array $config): Collection
     {
@@ -87,6 +87,7 @@ class BlogImages
             'full' => static::mediaUrl($media, ImageOptimizer::MAX_EDGE),
             'alt' => $media->alt ?: ($media->title ?: ''),
             'landscape' => ($media->width ?? 0) >= ($media->height ?? 0),
+            'ratio' => $media->width && $media->height ? round($media->width / $media->height, 4) : 1.5,
         ])->values();
     }
 }
