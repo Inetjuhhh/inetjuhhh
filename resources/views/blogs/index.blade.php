@@ -58,6 +58,9 @@
             <h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">
                 {{ isset($country) ? $country->name : (isset($category) ? $category->name : 'Verhalen van onderweg') }}
             </h1>
+            @if(isset($category) && count($subjects ?? []) >= 2)
+                @include('blogs.partials.subject-bubbles', ['subjects' => $subjects, 'subject' => $subject ?? null, 'category' => $category])
+            @endif
         @endif
     </x-slot>
 

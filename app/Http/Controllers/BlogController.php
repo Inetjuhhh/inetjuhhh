@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Blog;
 use App\Models\Category;
 use App\Models\Country;
+use App\Models\Tag;
 use App\Models\Trip;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Support\SiteCache;
 use App\Support\TravelMap;
 use App\Support\ViewCounter;
@@ -102,13 +105,36 @@ class BlogController extends Controller
             ->with('country', $country);
     }
 
-    public function category(Category $category)
+    public function category(Request $request, Category $category)
     {
-        $blogs = Blog::published()->whereHas('categories', fn ($query) => $query->whereKey($category->id))
-            ->newestFirst()->with(self::CARD_RELATIONS)->paginate(10);
+        $inCategory = fn ($query) => $query->whereKey($category->id);
+
+        // What the stories in this category are about: their tags, with how many stories each
+        $subjects = Tag::query()
+            ->join('blog_tag', 'blog_tag.tag_id', '=', 'tags.id')
+            ->whereIn('blog_tag.blog_id', Blog::published()->whereHas('categories', $inCategory)->select('blogs.id'))
+            ->groupBy('tags.id', 'tags.name')
+            ->orderByDesc('count')
+            ->get(['tags.id', 'tags.name', DB::raw('count(*) as count')])
+            ->map(fn (Tag $tag) => ['id' => $tag->id, 'name' => Str::ucfirst($tag->name), 'slug' => Str::slug($tag->name), 'count' => (int) $tag->count]);
+
+        // ?onderwerp=familie: only the stories about that
+        $subject = $subjects->firstWhere('slug', (string) $request->query('onderwerp'));
+
+        $blogs = Blog::published()->whereHas('categories', $inCategory)
+            ->when($subject, fn ($query) => $query->whereHas('tags', fn ($query) => $query->whereKey($subject['id'])))
+            ->newestFirst()->with(self::CARD_RELATIONS)->paginate(10)->withQueryString();
 
         return view('blogs.index')
             ->with('blogs', $blogs)
-            ->with('category', $category);
+            ->with('category', $category)
+            ->with('subject', $subject)
+            // The 20 most written about (Travel has over 70: too many to read as bubbles), plus the chosen one
+            ->with('subjects', $subjects->take(20)->when($subject && ! $subjects->take(20)->contains('slug', $subject['slug']), fn ($top) => $top->push($subject))->map(fn (array $item) => [
+                'name' => $item['name'],
+                'count' => $item['count'],
+                'url' => route('blogs.category', [$category, 'onderwerp' => $item['slug']]),
+                'active' => $item['slug'] === ($subject['slug'] ?? null),
+            ])->values());
     }
 }

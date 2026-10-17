@@ -76,6 +76,26 @@ Alpine.data('tripMap', (markers = []) => ({
     },
 }));
 
+// What a category's stories are about, as bubbles; the list of links underneath stays for screen readers
+Alpine.data('subjectBubbles', (subjects = []) => ({
+    async init() {
+        const { drawBubbles } = await import('./subject-bubbles');
+        const draw = () => drawBubbles(this.$refs.chart, subjects);
+
+        draw();
+        this.$refs.list.classList.add('sr-only');
+
+        // Redraw when the width changes (phone turned, window resized)
+        let width = this.$refs.chart.clientWidth;
+        new ResizeObserver(() => {
+            if (this.$refs.chart.clientWidth !== width) {
+                width = this.$refs.chart.clientWidth;
+                draw();
+            }
+        }).observe(this.$refs.chart);
+    },
+}));
+
 // Search bar: asks the server for suggestions while typing (a little after the last key)
 Alpine.data('siteSearch', ({ suggestUrl, searchUrl }) => ({
     query: '',

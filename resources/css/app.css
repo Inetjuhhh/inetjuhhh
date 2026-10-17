@@ -301,3 +301,26 @@
 .leaflet-tooltip.trip-pin-label::before {
     border-top-color: var(--color-night-900);
 }
+
+/* Subject bubbles on a category page (subject-bubbles.js) */
+.subject-bubble circle {
+    transition: fill-opacity 150ms, transform 200ms;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+.subject-bubble:hover circle,
+.subject-bubble:focus-visible circle {
+    fill-opacity: 1;
+    transform: scale(1.04);
+}
+.subject-bubble:focus-visible {
+    outline: none;
+}
+.subject-bubble:focus-visible circle {
+    stroke: var(--color-cream);
+    stroke-width: 3;
+}
+@media (prefers-reduced-motion: reduce) {
+    .subject-bubble circle { transition: none; }
+    .subject-bubble:hover circle { transform: none; }
+}
