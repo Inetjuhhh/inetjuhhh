@@ -109,11 +109,14 @@ class TripResource extends Resource
                     ->label('Soort')
                     ->badge()
                     ->formatStateUsing(fn (string $state) => Trip::KINDS[$state] ?? $state),
+                // On a phone: photo, name and kind; the rest from tablet width
                 TextColumn::make('blogs_count')
                     ->label('Verhalen')
+                    ->visibleFrom('md')
                     ->numeric(),
                 TextColumn::make('cover_choice')
                     ->label('Foto')
+                    ->visibleFrom('md')
                     ->state(fn (Trip $record) => $record->cover_image_id ? 'Zelf gekozen' : 'Automatisch')
                     ->color(fn (Trip $record) => $record->cover_image_id ? 'primary' : 'gray'),
             ])

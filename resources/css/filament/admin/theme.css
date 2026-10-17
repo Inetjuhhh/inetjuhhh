@@ -16,3 +16,17 @@
         font-size: 16px !important;
     }
 }
+
+/* Blog form on a phone: "Verhaal" and "Details" tabs instead of one very long page
+   (resources/views/filament/blogs/pane-switch.blade.php). From lg up both columns show. */
+@media (max-width: 1023px) {
+    .blog-panes[data-pane="story"] [data-pane-col="details"],
+    .blog-panes[data-pane="details"] [data-pane-col="story"] {
+        display: none;
+    }
+}
+@media (min-width: 1024px) {
+    .blog-pane-switch {
+        display: none;
+    }
+}

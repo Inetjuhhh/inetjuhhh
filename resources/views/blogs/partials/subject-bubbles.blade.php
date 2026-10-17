@@ -18,12 +18,12 @@
         @endif
     </div>
 
-    <div x-ref="chart" class="mt-4" aria-hidden="true"></div>
+    <div x-ref="chart" class="mt-4 empty:hidden" aria-hidden="true"></div>
 
     <ul x-ref="list" class="mt-4 flex flex-wrap gap-2" aria-label="Onderwerpen">
         @foreach($subjects as $item)
             <li>
-                <a href="{{ $item['url'] }}" @class(['pill transition', 'bg-brand text-night-900' => $item['active'], 'bg-night-600 text-cream hover:bg-night-500' => ! $item['active']])
+                <a href="{{ $item['url'] }}" @class(['pill px-3.5 py-2 text-sm transition', 'bg-brand text-night-900' => $item['active'], 'bg-night-600 text-cream hover:bg-night-500' => ! $item['active']])
                    @if($item['active']) aria-current="true" @endif>
                     {{ $item['name'] }} <span class="opacity-70">{{ $item['count'] }}</span>
                 </a>

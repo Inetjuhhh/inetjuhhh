@@ -4,10 +4,10 @@
             Voorbeeld — {{ $blog->isPublished() ? 'deze blog is gepubliceerd' : ($blog->status === 'published' ? 'ingepland voor ' . $blog->published_at->translatedFormat('d F Y H:i') : 'dit concept is nog niet zichtbaar voor bezoekers') }}
         </div>
     @endif
-    {{-- Reading progress bar --}}
+    {{-- Reading progress bar: how far into the story itself (full at its last line, not at the bottom of the comments) --}}
     <div x-data="{ progress: 0 }"
-         x-on:scroll.window="progress = Math.min(100, window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100)"
-         class="fixed top-0 inset-x-0 z-50 h-1">
+         x-on:scroll.window.passive="const box = document.getElementById('verhaal').getBoundingClientRect(); progress = Math.min(100, Math.max(0, -box.top / Math.max(1, box.height - window.innerHeight) * 100))"
+         aria-hidden="true" class="fixed top-0 inset-x-0 z-50 h-1">
         <div class="h-full bg-gradient-to-r from-brand to-accent" :style="`width: ${progress}%`"></div>
     </div>
 
@@ -49,17 +49,17 @@
             @include('blogs.partials.trip-strip', ['trip' => $blog->trip, 'blog' => $blog])
         @endif
 
-        @if($blog->excerpt && $blog->excerpt !== 'No excerpt')
-            <p class="mt-10 text-xl leading-relaxed text-cream-muted border-l-2 border-accent pl-5">{{ $blog->excerpt }}</p>
+        @if($intro = $blog->introAboveStory())
+            <p class="mt-10 text-xl leading-relaxed text-cream-muted border-l-2 border-accent pl-5">{{ $intro }}</p>
         @endif
 
-        <article class="mt-10 max-w-none prose prose-lg prose-night prose-headings:font-display prose-a:underline-offset-4 prose-img:rounded-xl">
+        <article id="verhaal" class="mt-10 max-w-none prose prose-lg prose-night prose-headings:font-display prose-a:underline-offset-4 prose-img:rounded-xl">
             {!! $blog->renderContent() !!}
         </article>
 
-        @if($blog->trip && $tripMarkers?->isNotEmpty())
-            @include('blogs.partials.trip-map', ['trip' => $blog->trip, 'markers' => $tripMarkers])
-        @endif
+        @isset($related)
+            @include('blogs.partials.related-neighbours', ['related' => $related])
+        @endisset
 
         @php $interactive = $blog->isPublished(); @endphp
 
@@ -80,9 +80,13 @@
             </a>
         </div>
 
-        @include('blogs.partials.subscribe', ['variant' => 'blog'])
+        @if($blog->trip && $tripMarkers?->isNotEmpty())
+            @include('blogs.partials.trip-map', ['trip' => $blog->trip, 'markers' => $tripMarkers])
+        @endif
 
         @include('blogs.partials.comments',['blog' => $blog, 'comments' => $comments ?? collect(), 'disabled' => ! $interactive])
+
+        @include('blogs.partials.subscribe', ['variant' => 'blog'])
     </div>
 
     @isset($related)

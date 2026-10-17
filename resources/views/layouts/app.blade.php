@@ -39,12 +39,18 @@
                             <p class="mt-1 text-cream-muted max-w-md">Reisverhalen, familie en lifestyle. Life is short, so enjoy it!</p>
                         </div>
                     </div>
-                    <div>
-                        <p class="text-xs uppercase tracking-widest text-accent font-semibold">Reisblogs</p>
-                        <ul class="mt-3 flex flex-wrap gap-2">
+                    {{-- On a phone folded away (the list is a screen long); from tablet width always open --}}
+                    <div x-data="{ open: false }">
+                        <p class="hidden sm:block text-xs uppercase tracking-widest text-accent font-semibold">Reisblogs</p>
+                        <button type="button" x-on:click="open = ! open" x-bind:aria-expanded="open" aria-controls="footer-landen"
+                                class="sm:hidden flex w-full items-center justify-between py-2 text-xs uppercase tracking-widest text-accent font-semibold">
+                            Reisblogs per land
+                            <i class="fas fa-chevron-down transition-transform" x-bind:class="open && 'rotate-180'"></i>
+                        </button>
+                        <ul id="footer-landen" class="mt-3 hidden flex-wrap gap-2 sm:flex" x-bind:class="open && 'flex!'">
                             @foreach($countries as $footerCountry)
                                 <li>
-                                    <a href="{{ route('blogs.blogCountry', $footerCountry->id) }}" class="pill bg-night-700 text-cream-muted hover:bg-night-600 hover:text-cream transition">{{ $footerCountry->name }}</a>
+                                    <a href="{{ route('blogs.blogCountry', $footerCountry->id) }}" class="pill px-3.5 py-2 text-sm sm:px-2.5 sm:py-1 sm:text-xs bg-night-700 text-cream-muted hover:bg-night-600 hover:text-cream transition">{{ $footerCountry->name }}</a>
                                 </li>
                             @endforeach
                         </ul>

@@ -174,6 +174,25 @@ class Blog extends Model
     }
 
     /**
+     * The intro to show above the story, or null when the story itself starts with it
+     * (most blogs from WordPress do): then readers would read the same lines twice.
+     */
+    public function introAboveStory(): ?string
+    {
+        $intro = trim((string) $this->excerpt);
+
+        if ($intro === '' || $intro === 'No excerpt') {
+            return null;
+        }
+
+        $words = fn (string $text) => mb_strtolower(trim(preg_replace('/[^\p{L}\p{N}]+/u', ' ', $text)));
+        // The intro is often the story's start cut off with "…", so compare the first 60 characters
+        $start = mb_substr($words(rtrim($intro, '.… ')), 0, 60);
+
+        return str_starts_with($words(BlogSearch::plainText($this->content)), $start) ? null : $intro;
+    }
+
+    /**
      * The tags on the photo: the country with the place ("India – Varanasi"), then any other countries.
      *
      * @return list<array{label: string, country: ?Country}>

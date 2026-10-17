@@ -117,6 +117,32 @@ function addBaseTiles(map) {
 }
 
 /**
+ * On a phone the map doesn't take one-finger swipes (those scroll the page), so someone swiping on it
+ * gets a short hint that two fingers move the map. Two fingers pan and zoom (Leaflet's touch zoom).
+ */
+function twoFingerHint(map) {
+    if (!L.Browser.mobile) return;
+
+    const container = map.getContainer();
+    const hint = L.DomUtil.create('div', 'map-hint', container);
+    hint.textContent = 'Gebruik twee vingers om de kaart te bewegen';
+    let start = null;
+    let timer;
+
+    container.addEventListener('touchstart', (event) => {
+        start = event.touches.length === 1 ? event.touches[0].clientY : null;
+        if (event.touches.length > 1) hint.classList.remove('is-visible');
+    }, { passive: true });
+
+    container.addEventListener('touchmove', (event) => {
+        if (start === null || event.touches.length !== 1 || Math.abs(event.touches[0].clientY - start) < 12) return;
+        hint.classList.add('is-visible');
+        clearTimeout(timer);
+        timer = setTimeout(() => hint.classList.remove('is-visible'), 1600);
+    }, { passive: true });
+}
+
+/**
  * Creates the map inside `element`.
  *
  * mode "full": the travel map page, with clustering and a list of stories in view.
@@ -136,12 +162,14 @@ export function createTravelMap(element, markers, { mode = 'full', trip = null, 
         maxBoundsViscosity: 1,
         worldCopyJump: true,
         scrollWheelZoom: !teaser,
-        dragging: !(teaser && L.Browser.mobile),
+        // On phones one finger keeps scrolling the page; two fingers move and zoom the map
+        dragging: !L.Browser.mobile,
         zoomControl: !teaser,
         attributionControl: true,
     });
 
     addBaseTiles(map);
+    if (!teaser) twoFingerHint(map);
 
     const cluster = L.markerClusterGroup({
         showCoverageOnHover: false,
@@ -262,6 +290,7 @@ export function createTripMap(element, markers) {
     });
 
     addBaseTiles(map);
+    twoFingerHint(map);
 
     const stops = markers.map((marker) => [marker.lat, marker.lng]);
     const current = markers.findIndex((marker) => marker.current);

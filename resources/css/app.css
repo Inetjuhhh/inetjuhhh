@@ -397,3 +397,24 @@
 @media (prefers-reduced-motion: reduce) {
     .trip-forward:hover i, .trip-forward:focus-visible i { animation: none; }
 }
+
+/* "Gebruik twee vingers…" over a map on a phone (travel-map.js, twoFingerHint) */
+.map-hint {
+    position: absolute;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
+    font-weight: 600;
+    color: var(--color-cream);
+    background: rgb(22 25 28 / 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+}
+.map-hint.is-visible {
+    opacity: 1;
+}

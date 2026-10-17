@@ -33,6 +33,7 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
@@ -71,7 +72,23 @@ class BlogResource extends Resource
             ->components([
                 Grid::make(['default' => 1, 'lg' => 3])
                     ->columnSpanFull()
+                    // On a phone: tabs "Verhaal" and "Details" (pane-switch.blade.php, theme.css). A field with an
+                    // error opens its own tab, so a missing country or category is never out of sight.
+                    ->extraAttributes([
+                        'class' => 'blog-panes',
+                        'x-data' => "{ pane: 'story' }",
+                        'x-bind:data-pane' => 'pane',
+                        'x-on:form-validation-error.window' => <<<'JS'
+                            $nextTick(() => {
+                                const error = $el.querySelector('[data-validation-error]');
+                                const column = error?.closest('[data-pane-col]');
+                                if (column) { pane = column.dataset.paneCol; $nextTick(() => error.scrollIntoView({ block: 'center' })) }
+                            })
+                            JS,
+                    ])
                     ->schema([
+                        View::make('filament.blogs.pane-switch')->columnSpanFull(),
+
                         Group::make([
                             Section::make()
                                 ->schema([
@@ -106,7 +123,7 @@ class BlogResource extends Resource
                             StoryEditor::make('content')
                                 ->label('Verhaal')
                                 ->required($requiredWhenPublished),
-                        ])->columnSpan(['lg' => 2]),
+                        ])->columnSpan(['lg' => 2])->extraAttributes(['data-pane-col' => 'story']),
 
                         Group::make([
                             Section::make('Publiceren')
@@ -228,7 +245,7 @@ class BlogResource extends Resource
                                 ])
                                 ->description('De app doet een voorstel op basis van de plek; je kunt de pin altijd zelf verzetten.')
                                 ->collapsible(),
-                        ])->columnSpan(['lg' => 1]),
+                        ])->columnSpan(['lg' => 1])->extraAttributes(['data-pane-col' => 'details']),
                     ]),
             ]);
     }
