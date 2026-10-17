@@ -169,6 +169,11 @@ class ImportWordPress extends Command
             }
         }
 
+        // WordPress' own tags were just put back: turn them into the subjects of config/subjects.php again
+        $this->newLine();
+        $this->info('Subjects (config/subjects.php):');
+        $this->call('blogs:subjects');
+
         return self::SUCCESS;
     }
 

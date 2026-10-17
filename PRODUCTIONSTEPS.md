@@ -133,6 +133,7 @@ php -d memory_limit=1G artisan wordpress:import --photos --author=ine@inetjuhhh.
 - ~2.5 hours (locally it was 1.4 seconds per photo; a server is often faster)
 - **Stopped halfway?** Run the same command again. Photos already done are skipped.
 - At the end you get the totals table; locally that was: 4,022 photos, 2,405 MB downloaded, 808 MB stored, 66% smaller.
+- The import ends with the **subjects** from `config/subjects.php` (the bubbles on the Lifestyle and Travel pages): themes per story, 51 stories moved to the right category, 3 WordPress leftovers made drafts. Locally: 249 stories changed. To run it on its own: `php artisan blogs:subjects` (add `--dry-run` to only see what it would do).
 
 Leave the session with `Ctrl+A`, then `D`; the import keeps running.
 

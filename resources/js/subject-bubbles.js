@@ -13,11 +13,31 @@ function el(name, attributes = {}, text = null) {
     return node;
 }
 
-// A name that doesn't fit its bubble is shortened; the whole name shows on hover (title)
+// How a name fits its bubble: a bit smaller, then over two lines, and only then shortened
+// (the whole name always shows on hover). Returns the lines and the font size.
 function fit(name, radius, fontSize) {
-    const room = Math.floor((radius * 1.75) / (fontSize * 0.55));
+    const room = (size) => Math.floor((radius * 1.7) / (size * 0.55));
 
-    return name.length <= room ? name : `${name.slice(0, Math.max(3, room - 1))}…`;
+    for (const size of [fontSize, fontSize * 0.85, fontSize * 0.72]) {
+        if (name.length <= room(size)) {
+            return { lines: [name], size };
+        }
+    }
+
+    const words = name.split(' ');
+    if (words.length > 1) {
+        const size = fontSize * 0.72;
+        // Split where the two lines are most even ("Huis &" / "verbouwen")
+        const splits = words.slice(1).map((_, i) => [words.slice(0, i + 1).join(' '), words.slice(i + 1).join(' ')]);
+        const [first, second] = splits.sort((a, b) => Math.max(...a.map((l) => l.length)) - Math.max(...b.map((l) => l.length)))[0];
+        if (Math.max(first.length, second.length) <= room(size)) {
+            return { lines: [first, second], size };
+        }
+    }
+
+    const size = fontSize * 0.72;
+
+    return { lines: [`${name.slice(0, Math.max(3, room(size) - 1))}…`], size };
 }
 
 /**
@@ -49,13 +69,19 @@ export function drawBubbles(container, subjects) {
             'stroke-width': active ? 3 : 0,
         }));
 
+        const showCount = leaf.r > (phone ? 30 : 36);
         if (leaf.r > (phone ? 14 : 18)) {
-            const fontSize = Math.min(leaf.r / 2.6, phone ? 22 : 30);
-            group.append(el('text', { 'text-anchor': 'middle', dy: '0.1em', fill: INK, 'font-size': fontSize, class: 'font-display' }, fit(name, leaf.r, fontSize)));
-        }
-        if (leaf.r > (phone ? 30 : 36)) {
-            group.append(el('text', { 'text-anchor': 'middle', dy: '1.6em', fill: INK, opacity: 0.7, 'font-size': Math.min(leaf.r / 4.5, 15) },
-                `${count} ${count === 1 ? 'verhaal' : 'verhalen'}`));
+            const { lines, size } = fit(name, leaf.r, Math.min(leaf.r / 2.6, phone ? 22 : 30));
+            // Centre the name (and the count under it) in the bubble
+            const top = -((lines.length - 1) * 1.05 * size) / 2 - (showCount ? size * 0.35 : 0);
+            const label = el('text', { 'text-anchor': 'middle', fill: INK, 'font-size': size, class: 'font-display' });
+            lines.forEach((line, n) => label.append(el('tspan', { x: 0, y: top + n * 1.05 * size, dy: '0.35em' }, line)));
+            group.append(label);
+
+            if (showCount) {
+                group.append(el('text', { 'text-anchor': 'middle', y: top + (lines.length - 1) * 1.05 * size + size * 1.25, dy: '0.35em', fill: INK, opacity: 0.7, 'font-size': Math.min(leaf.r / 4.5, 15) },
+                    `${count} ${count === 1 ? 'verhaal' : 'verhalen'}`));
+            }
         }
 
         link.append(group);

@@ -5,8 +5,10 @@
         <p class="text-cream-muted">
             @if($subject)
                 Verhalen over <span class="font-semibold text-cream">{{ $subject['name'] }}</span>
-            @else
+            @elseif($category->slug === 'lifestyle')
                 Buiten reisblogs schrijf ik nog over andere leuke (en minder leuke) dingen. Klik op een onderwerp om meer te lezen over...
+            @else
+                Waar gaan deze verhalen over? Klik op een onderwerp om alleen die verhalen te zien.
             @endif
         </p>
         @if($subject)

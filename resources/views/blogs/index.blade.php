@@ -125,6 +125,29 @@
         @elseif($blogs->isEmpty())
             <p class="text-center text-cream-muted py-20">Hier zijn nog geen verhalen te lezen.</p>
         @else
+            {{-- TEMPORARY (choosing a menu, option C): the trips as cards at the top of the travel page --}}
+            @if(isset($category) && $category->slug === 'travel' && request('nav') === 'c' && app()->isLocal())
+                @php $cardTrips = App\Support\SiteCache::menuTrips(); @endphp
+                <section class="mb-10">
+                    <div class="flex items-baseline justify-between">
+                        <h2 class="font-display text-2xl text-cream">Mijn reizen</h2>
+                        <a href="{{ route('blogs.map') }}" class="text-sm text-brand hover:underline underline-offset-4"><i class="fas fa-map-marked-alt me-1"></i>Bekijk ze op de kaart</a>
+                    </div>
+                    <div class="mt-4 -mx-4 px-4 flex gap-4 overflow-x-auto pb-3 snap-x">
+                        @foreach($cardTrips as $cardTrip)
+                            @php $cardBlog = $cardTrip->blogs()->published()->oldestFirst()->first(); @endphp
+                            <a href="{{ $cardTrip->filterUrl() }}" class="snap-start group relative flex-none w-56 h-36 overflow-hidden rounded-2xl bg-night-700 ring-1 ring-white/5">
+                                @if($cardBlog)
+                                    <img src="{{ $cardBlog->coverUrl(600, 400) }}" alt="" loading="lazy" class="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105">
+                                @endif
+                                <div class="absolute inset-0 bg-gradient-to-t from-night-900/90 via-night-900/20 to-transparent"></div>
+                                <span class="absolute top-2 left-2 pill bg-night-900/70 backdrop-blur text-cream text-xs">{{ $cardTrip->kind === App\Models\Trip::KIND_CITY ? '🏙️ Citytrip' : '🧭 Reis' }}</span>
+                                <span class="absolute bottom-3 left-3 right-3 font-display text-lg leading-tight text-cream">{{ $cardTrip->name }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
             @if($newest)
                 {{-- Bubbles left, the newest story large beside them --}}
                 <div class="grid lg:grid-cols-5 gap-8 mb-8">
