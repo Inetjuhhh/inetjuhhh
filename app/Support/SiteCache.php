@@ -47,23 +47,75 @@ class SiteCache
     }
 
     /**
-     * The trips as cards on the Reizen page, newest first, each with its photo (see Trip::coverMedia).
+     * The travel timeline on the Reizen page, oldest first: the trips with stories online, each with its
+     * photo (see Trip::coverMedia), then the trips still to come (no photo yet, a countdown instead).
      *
-     * @return Collection<int, array{name: string, url: string, city: bool, period: ?string, cover: string}>
+     * @return Collection<int, array{name: string, url: ?string, city: bool, month: ?string, cover: ?string, upcoming: bool, starts_on: ?string}>
      */
-    public static function tripCards(): Collection
+    public static function timeline(): Collection
     {
-        return static::remember('trip-cards', fn () => static::menuTrips()->load('coverImage')->map(function (Trip $trip) {
-            $photo = $trip->coverMedia();
+        return static::remember('timeline', function () {
+            $past = static::menuTrips()->load('coverImage')->reject(fn (Trip $trip) => $trip->isUpcoming())
+                ->sortBy(fn (Trip $trip) => $trip->starts_on?->timestamp ?? 0)
+                ->map(function (Trip $trip) {
+                    $photo = $trip->coverMedia();
 
-            return [
+                    return static::timelineItem($trip, $photo ? BlogImages::mediaUrl($photo, 300) : asset('images/cover-placeholder.svg'));
+                });
+
+            // A coming trip links to its stories once there are any (a "we're packing" story, say)
+            $hasStories = static::menuTrips()->pluck('id');
+            $coming = Trip::upcoming()->get()->map(fn (Trip $trip) => static::timelineItem($trip, null, $hasStories->contains($trip->id)));
+
+            return $past->concat($coming)->values();
+        });
+    }
+
+    private static function timelineItem(Trip $trip, ?string $cover, bool $linked = true): array
+    {
+        return [
+            'name' => $trip->name,
+            'url' => $linked ? $trip->filterUrl() : null,
+            'city' => $trip->kind === Trip::KIND_CITY,
+            'month' => $trip->starts_on?->translatedFormat('M Y'),
+            'cover' => $cover,
+            'upcoming' => $trip->isUpcoming(),
+            'starts_on' => $trip->starts_on?->toDateString(),
+        ];
+    }
+
+    /**
+     * The next trip to count down to: the first one still to come that has no story online yet
+     * (the countdown stops once the first story of the trip is published).
+     *
+     * @return array{name: string, description: ?string, starts_on: string, counting_since: string}|null
+     */
+    public static function comingTrip(): ?array
+    {
+        return static::remember('coming-trip', function () {
+            $trip = Trip::upcoming()->whereDoesntHave('blogs', fn ($query) => $query->published())->first();
+
+            return $trip ? [
                 'name' => $trip->name,
-                'url' => $trip->filterUrl(),
-                'city' => $trip->kind === Trip::KIND_CITY,
-                'period' => $trip->period(),
-                'cover' => $photo ? BlogImages::mediaUrl($photo, 600) : asset('images/cover-placeholder.svg'),
-            ];
-        })->values());
+                'description' => $trip->description,
+                'starts_on' => $trip->starts_on->toDateString(),
+                // Where the dashed line starts: the day the trip was added
+                'counting_since' => $trip->created_at->toDateString(),
+            ] : null;
+        });
+    }
+
+    /**
+     * The routes of trips still to come, for the dashed lines on the travel map.
+     *
+     * @return Collection<int, array{name: string, when: ?string, stops: list<array{name: string, lat: float, lng: float}>}>
+     */
+    public static function plannedRoutes(): Collection
+    {
+        return static::remember('planned-routes', fn () => Trip::upcoming()->get()
+            ->map(fn (Trip $trip) => ['name' => $trip->name, 'when' => $trip->period(), 'stops' => $trip->plannedStops()])
+            ->filter(fn (array $trip) => count($trip['stops']) >= 2)
+            ->values());
     }
 
     /**

@@ -122,7 +122,7 @@ function addBaseTiles(map) {
  * mode "full": the travel map page, with clustering and a list of stories in view.
  * mode "teaser": the small map on the homepage, without scroll zoom so the page keeps scrolling.
  */
-export function createTravelMap(element, markers, { mode = 'full', trip = null, onVisibleChange = () => {} } = {}) {
+export function createTravelMap(element, markers, { mode = 'full', trip = null, planned = [], onVisibleChange = () => {} } = {}) {
     const teaser = mode === 'teaser';
     const canHover = window.matchMedia('(hover: hover)').matches;
 
@@ -159,6 +159,30 @@ export function createTravelMap(element, markers, { mode = 'full', trip = null, 
     });
 
     map.addLayer(cluster);
+
+    // Trips still to come: their planned route as a dashed line with open circles for the stops
+    planned.forEach((plannedTrip) => {
+        const stops = plannedTrip.stops.map((stop) => [stop.lat, stop.lng]);
+        const label = `✈️ ${plannedTrip.name}${plannedTrip.when ? ` · ${plannedTrip.when}` : ''}`;
+
+        const line = L.polyline(stops, { className: 'planned-route', interactive: false }).addTo(map);
+        plannedTrip.stops.forEach((stop, i) => {
+            const circle = L.circleMarker([stop.lat, stop.lng], { radius: 6, className: 'planned-stop', interactive: !teaser }).addTo(map);
+
+            if (i > 0) {
+                circle.bindTooltip(`gepland: ${stop.name}`, { direction: 'top', className: 'planned-label' });
+                return;
+            }
+
+            // The name of the trip always stays next to its first stop, so it is found on a world map too;
+            // on the big map a click on it zooms in on the route
+            circle.bindTooltip(label, { permanent: true, direction: 'right', offset: [8, 0], className: 'planned-label', interactive: !teaser });
+            if (!teaser) {
+                circle.on('click', () => map.fitBounds(line.getBounds(), { padding: [60, 60], maxZoom: 8 }));
+                circle.getTooltip().on('click', () => map.fitBounds(line.getBounds(), { padding: [60, 60], maxZoom: 8 }));
+            }
+        });
+    });
 
     // The pins currently on the map: all stories, or the stories of one trip
     let shown = markers;

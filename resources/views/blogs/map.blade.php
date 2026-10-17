@@ -7,7 +7,7 @@
         </p>
     </x-slot>
 
-    <div x-data="travelMap({ markers: @js($markers), mode: 'full', trip: @js($activeTrip) })"
+    <div x-data="travelMap({ markers: @js($markers), mode: 'full', trip: @js($activeTrip), planned: @js(App\Support\SiteCache::plannedRoutes()) })"
          class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid gap-6 lg:grid-cols-3">
 
         {{-- Filter the map on one trip --}}

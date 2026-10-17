@@ -12,7 +12,7 @@
         </span>
     </div>
     {{-- The map's credit line (required by the tiles) stays visible --}}
-    <div x-data="travelMap({ markers: @js($markers), mode: 'teaser' })" class="pointer-events-none relative isolate z-0 h-44 sm:col-span-3 sm:h-auto sm:min-h-[11rem]" aria-hidden="true">
+    <div x-data="travelMap({ markers: @js($markers), mode: 'teaser', planned: @js(App\Support\SiteCache::plannedRoutes()) })" class="pointer-events-none relative isolate z-0 h-44 sm:col-span-3 sm:h-auto sm:min-h-[11rem]" aria-hidden="true">
         <div x-ref="map" class="absolute inset-0"></div>
     </div>
 </a>

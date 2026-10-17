@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Support\Geocoder;
 use Awcodes\Curator\Models\Media;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -24,10 +26,26 @@ class Trip extends Model
     protected $casts = [
         'starts_on' => 'date',
         'ends_on' => 'date',
+        'route' => 'array',
     ];
 
     protected static function booted(): void
     {
+        // The planned stops are looked up on the map by their name, like the place of a story
+        static::saving(function (Trip $trip) {
+            $trip->route = collect($trip->route ?? [])
+                ->filter(fn ($stop) => filled($stop['name'] ?? null))
+                ->map(function (array $stop) {
+                    $name = trim($stop['name']);
+                    $known = filled($stop['lat'] ?? null) && ($stop['found_for'] ?? null) === $name;
+                    $found = $known ? [$stop['lat'], $stop['lng']] : Geocoder::find($name);
+
+                    return ['name' => $name, 'lat' => $found[0] ?? null, 'lng' => $found[1] ?? null, 'found_for' => $found ? $name : null];
+                })
+                ->values()
+                ->all() ?: null;
+        });
+
         // A stable, unique link for the filter (?reis=vietnam-cambodja-2025)
         static::saving(function (Trip $trip) {
             if (blank($trip->slug) || $trip->isDirty('name')) {
@@ -41,6 +59,31 @@ class Trip extends Model
                 $trip->slug = $slug;
             }
         });
+    }
+
+    // Trips that are still to come: they start after today
+    public function scopeUpcoming(Builder $query): void
+    {
+        $query->whereDate('starts_on', '>', today())->orderBy('starts_on');
+    }
+
+    public function isUpcoming(): bool
+    {
+        return $this->starts_on?->isAfter(today()) ?? false;
+    }
+
+    /**
+     * The planned stops that were found on the map.
+     *
+     * @return list<array{name: string, lat: float, lng: float}>
+     */
+    public function plannedStops(): array
+    {
+        return collect($this->route ?? [])
+            ->filter(fn (array $stop) => isset($stop['lat'], $stop['lng']))
+            ->map(fn (array $stop) => ['name' => $stop['name'], 'lat' => (float) $stop['lat'], 'lng' => (float) $stop['lng']])
+            ->values()
+            ->all();
     }
 
     public function getRouteKeyName(): string

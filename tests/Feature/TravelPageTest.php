@@ -116,8 +116,14 @@ it('says in the admin list whether a trip photo was chosen', function () {
         ->assertTableColumnStateSet('cover_choice', 'Zelf gekozen', $chosen);
 });
 
-it('lets you browse the trips without a scrollbar, with a > to move on', function () {
+it('lets you browse back through the trips without a scrollbar, with a < to look back', function () {
     $this->get(route('blogs.category', 'reizen'))
         ->assertSee('no-scrollbar', false)
-        ->assertSee('aria-label="Meer reizen"', false);
+        ->assertSee('aria-label="Eerdere reizen"', false);
+});
+
+it('has a < to look back and a > to come forward again on the timeline', function () {
+    $this->get(route('blogs.category', 'reizen'))
+        ->assertSee('aria-label="Eerdere reizen"', false)
+        ->assertSee('aria-label="Latere reizen"', false);
 });

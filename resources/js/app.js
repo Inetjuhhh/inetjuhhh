@@ -1,5 +1,9 @@
 import './bootstrap';
 
+// The icons. Imported here and not in app.css: Tailwind's @import wrote the paths to the icon font as
+// Windows paths in the build (../C:/laragon/...), so every icon was an empty box on the built site
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
 
@@ -33,7 +37,7 @@ Alpine.store('lightbox', {
 });
 
 // Interactive travel map. Leaflet is only downloaded on pages that show a map.
-Alpine.data('travelMap', ({ markers = [], mode = 'full', trip = null } = {}) => ({
+Alpine.data('travelMap', ({ markers = [], mode = 'full', trip = null, planned = [] } = {}) => ({
     markers,
     visibleIds: markers.map((marker) => marker.id),
     activeTrip: trip,
@@ -45,6 +49,7 @@ Alpine.data('travelMap', ({ markers = [], mode = 'full', trip = null } = {}) => 
         this.map = createTravelMap(this.$refs.map, markers, {
             mode,
             trip,
+            planned,
             onVisibleChange: (ids) => (this.visibleIds = ids),
         });
     },

@@ -41,7 +41,9 @@ class BlogController extends Controller
         return view('blogs.index')
             ->with('blogs', $blogs)
             // The travel map teaser is only shown on the first page of the homepage
-            ->with('mapMarkers', $blogs->onFirstPage() ? SiteCache::mapMarkers() : null);
+            ->with('mapMarkers', $blogs->onFirstPage() ? SiteCache::mapMarkers() : null)
+            // ...and so is the countdown to the next trip, near the bottom
+            ->with('comingTrip', $blogs->onFirstPage() ? SiteCache::comingTrip() : null);
     }
 
     public function map(Request $request)
@@ -129,8 +131,9 @@ class BlogController extends Controller
             ->with('blogs', $blogs)
             ->with('category', $category)
             ->with('subject', $subject)
-            ->with('tripCards', $category->slug === 'reizen' ? SiteCache::tripCards() : collect())
+            ->with('timeline', $category->slug === 'reizen' ? SiteCache::timeline() : collect())
             ->with('mapMarkers', $category->slug === 'reizen' ? SiteCache::mapMarkers() : null)
+            ->with('comingTrip', $category->slug === 'reizen' ? SiteCache::comingTrip() : null)
             // The 20 most written about (Travel has over 70: too many to read as bubbles), plus the chosen one
             ->with('subjects', $subjects->take(20)->when($subject && ! $subjects->take(20)->contains('slug', $subject['slug']), fn ($top) => $top->push($subject))->map(fn (array $item) => [
                 'name' => $item['name'],

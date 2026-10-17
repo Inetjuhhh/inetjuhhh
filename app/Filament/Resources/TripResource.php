@@ -6,7 +6,10 @@ use App\Filament\Resources\TripResource\Pages\ManageTrips;
 use App\Models\Trip;
 use App\Support\BlogImages;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -43,6 +46,29 @@ class TripResource extends Resource
                 ->native(false)
                 ->searchable()
                 ->visible(fn (?Trip $record): bool => $record && $record->coverChoices()->isNotEmpty())
+                ->columnSpanFull(),
+            Repeater::make('route')
+                ->label('Geplande route')
+                ->helperText('Voor een reis die nog komt: de plaatsen waar jullie naartoe gaan, in volgorde. Ze komen als stippellijn op de reiskaart. Schrijf plaats en land, bijv. "La Fortuna, Costa Rica".')
+                ->schema([
+                    TextInput::make('name')
+                        ->hiddenLabel()
+                        ->placeholder('Plaats, land')
+                        ->required()
+                        ->maxLength(120),
+                    Hidden::make('lat'),
+                    Hidden::make('lng'),
+                    Hidden::make('found_for'),
+                ])
+                ->itemLabel(fn (array $state): ?string => filled($state['name'] ?? null)
+                    ? $state['name'] . (filled($state['lat'] ?? null) && ($state['found_for'] ?? null) === $state['name'] ? ' · 📍 op de kaart' : ' · wordt opgezocht bij opslaan')
+                    : null)
+                ->addActionLabel('Stop toevoegen')
+                ->reorderable()
+                // A short list of names (with whether each was found); click a stop to change it
+                ->collapsible()
+                ->collapsed()
+                ->defaultItems(0)
                 ->columnSpanFull(),
         ]);
     }

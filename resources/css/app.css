@@ -1,4 +1,3 @@
-@import '@fortawesome/fontawesome-free/css/all.min.css';
 @import "tailwindcss";
 @import "flowbite/src/themes/default";
 
@@ -30,6 +29,9 @@
 
     /* Soft sage green for highlights and categories */
     --color-accent: #9DB894;
+
+    /* Warm sand for what is still to come: planned trips, their route, the countdown (always dashed) */
+    --color-sand: #D9B98C;
 
     --font-sans: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
     --font-display: Delius, ui-rounded, "Nunito Sans", system-ui, sans-serif;
@@ -329,15 +331,69 @@
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* The faint > on the trip row nudges to the right while you point at it */
-@keyframes trip-nudge {
+/* The faint < on the travel timeline nudges back in time while you point at it */
+@keyframes trip-nudge-back {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-6px); }
+}
+.trip-back:hover i,
+.trip-back:focus-visible i {
+    animation: trip-nudge-back 0.9s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+    .trip-back:hover i, .trip-back:focus-visible i { animation: none; }
+}
+
+/* A trip still to come on the travel map: dashed sand line, open circles for the planned stops */
+.planned-route {
+    fill: none;
+    stroke: var(--color-sand);
+    stroke-width: 3;
+    stroke-dasharray: 9 9;
+    stroke-linecap: round;
+    opacity: 0.95;
+}
+.planned-stop {
+    fill: var(--color-night-800);
+    fill-opacity: 1;
+    stroke: var(--color-sand);
+    stroke-width: 2.5;
+    stroke-dasharray: 3 3;
+}
+.leaflet-tooltip.planned-label {
+    padding: 0.3rem 0.65rem;
+    border: 1px dashed var(--color-sand);
+    border-radius: 0.75rem;
+    background: var(--color-night-900);
+    color: var(--color-cream);
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-soft);
+}
+.leaflet-tooltip.planned-label span {
+    color: var(--color-sand);
+    font-weight: 400;
+}
+.leaflet-tooltip.planned-label::before {
+    border-top-color: var(--color-sand);
+}
+.leaflet-tooltip.planned-label.leaflet-interactive {
+    cursor: zoom-in;
+}
+.leaflet-tooltip-right.planned-label::before {
+    border-right-color: var(--color-sand);
+    border-top-color: transparent;
+}
+
+/* ...and the faint > nudges forward, towards now */
+@keyframes trip-nudge-forward {
     0%, 100% { transform: translateX(0); }
     50% { transform: translateX(6px); }
 }
-.trip-next:hover i,
-.trip-next:focus-visible i {
-    animation: trip-nudge 0.9s ease-in-out infinite;
+.trip-forward:hover i,
+.trip-forward:focus-visible i {
+    animation: trip-nudge-forward 0.9s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-    .trip-next:hover i, .trip-next:focus-visible i { animation: none; }
+    .trip-forward:hover i, .trip-forward:focus-visible i { animation: none; }
 }

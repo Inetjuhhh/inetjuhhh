@@ -9,6 +9,10 @@
 
 {{-- Sign up for a mail about every new blog. Closed until someone asks for it. --}}
 <div id="nieuwsbrief-{{ $variant }}" x-data="{ open: @js($errorBag->any()), sending: false }"
+     @if($footer)
+         {{-- The countdown banner's "Mail me" opens this form (coming-trip.blade.php) --}}
+         x-on:open-newsletter.window="open = true; $nextTick(() => { $el.scrollIntoView({ behavior: 'smooth' }); $refs.name?.focus({ preventScroll: true }) })"
+     @endif
      @class([
          'scroll-mt-28',
          'mt-10 rounded-3xl bg-night-700 p-6 ring-1 ring-white/5 sm:p-8' => ! $footer,

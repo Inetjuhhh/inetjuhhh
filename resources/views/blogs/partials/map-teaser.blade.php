@@ -37,7 +37,7 @@
         </a>
     </div>
 
-    <div x-data="travelMap({ markers: @js($markers), mode: 'teaser' })"
+    <div x-data="travelMap({ markers: @js($markers), mode: 'teaser', planned: @js(App\Support\SiteCache::plannedRoutes()) })"
          class="relative isolate h-72 sm:h-80 lg:col-span-3 lg:h-auto lg:min-h-[24rem]">
         <div x-ref="map" class="absolute inset-0"></div>
     </div>
