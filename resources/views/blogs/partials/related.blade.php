@@ -17,7 +17,7 @@
                                    'group relative isolate flex min-h-56 overflow-hidden rounded-3xl shadow-soft ring-1 ring-white/5 hover:shadow-lift transition duration-300',
                                    'md:col-start-2' => $item['next'] && ! $related->previous,
                                ])>
-                                <img src="{{ $item['blog']->coverUrl(900, 600) }}" alt="" loading="lazy"
+                                <img src="{{ $item['blog']->coverUrl(900, 600) }}" srcset="{{ $item['blog']->coverSrcset([400, 900]) }}" sizes="(min-width: 768px) 50vw, 100vw" alt="" loading="lazy"
                                      class="absolute inset-0 -z-10 h-full w-full object-cover transition duration-700 group-hover:scale-105">
                                 <span class="absolute inset-0 -z-10 bg-gradient-to-t from-night-900 via-night-900/70 to-night-900/20"></span>
 

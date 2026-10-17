@@ -75,8 +75,9 @@ class PhotoBlock extends BlogBlock
         }
 
         return view('blocks.photo', [
-            'src' => BlogImages::url($media->path),
-            'full' => BlogImages::url($media->path, 2400),
+            'src' => BlogImages::mediaUrl($media),
+            'srcset' => BlogImages::srcset($media),
+            'full' => BlogImages::mediaUrl($media, 2400),
             'alt' => $media->alt ?: ($config['caption'] ?? ''),
             'caption' => $config['caption'] ?? null,
             'wide' => ($config['width'] ?? 'normal') === 'wide',

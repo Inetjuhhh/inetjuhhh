@@ -229,8 +229,16 @@ class Blog extends Model
         $photo = $this->coverMedia();
 
         return $photo
-            ? BlogImages::url($photo->path, $width, $format)
+            ? ($format === 'webp' ? BlogImages::mediaUrl($photo, $width) : BlogImages::url($photo->path, $width, $format))
             : asset('images/cover-placeholder.svg');
+    }
+
+    // The cover in several widths, for a srcset (empty without a photo of its own)
+    public function coverSrcset(array $widths): string
+    {
+        $photo = $this->coverMedia();
+
+        return $photo ? BlogImages::srcset($photo, $widths) : '';
     }
 
     // Whether the blog has a photo of its own to show (a mail leaves the placeholder out)

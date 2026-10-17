@@ -67,7 +67,7 @@
                 <a href="{{ route('blogs.show', $featured) }}"
                    class="group grid lg:grid-cols-5 rounded-3xl overflow-hidden bg-night-700 shadow-soft ring-1 ring-white/5 hover:shadow-lift transition duration-300">
                     <div class="relative lg:col-span-3 aspect-[16/10] lg:aspect-auto lg:min-h-[26rem] overflow-hidden">
-                        <img src="{{ $featured->coverUrl(1400, 900) }}" alt="{{ $featured->title }}"
+                        <img src="{{ $featured->coverUrl(1400, 900) }}" srcset="{{ $featured->coverSrcset([800, 1200, 1600]) }}" sizes="(min-width: 1024px) 60vw, 100vw" alt="{{ $featured->title }}"
                              class="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-105" />
                         <span class="absolute top-4 left-4 pill bg-accent text-night-900">Nieuwste verhaal</span>
                     </div>

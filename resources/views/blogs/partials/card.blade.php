@@ -3,7 +3,7 @@
        class="group flex flex-col h-full rounded-2xl overflow-hidden bg-night-700 shadow-soft ring-1 ring-white/5
               hover:shadow-lift hover:-translate-y-1 transition duration-300">
         <div class="relative aspect-[4/3] overflow-hidden">
-            <img src="{{ $blog->coverUrl(800, 600) }}" alt="{{ $blog->title }}" loading="lazy"
+            <img src="{{ $blog->coverUrl(800, 600) }}" srcset="{{ $blog->coverSrcset([400, 800]) }}" sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw" alt="{{ $blog->title }}" loading="lazy"
                  class="w-full h-full object-cover transition duration-700 group-hover:scale-105" />
             <div class="absolute inset-0 bg-gradient-to-t from-night-900/60 via-transparent to-transparent"></div>
             {{-- Where the story is: "India – Varanasi" --}}

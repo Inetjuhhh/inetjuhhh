@@ -13,7 +13,7 @@
 
     {{-- Hero --}}
     <section class="relative h-[60vh] min-h-[22rem] max-h-[40rem] overflow-hidden">
-        <img src="{{ $blog->coverUrl(1800, 1200) }}" alt="{{ $blog->title }}" class="absolute inset-0 w-full h-full object-cover" />
+        <img src="{{ $blog->coverUrl(1800, 1200) }}" srcset="{{ $blog->coverSrcset([800, 1200, 1800, 2400]) }}" sizes="100vw" alt="{{ $blog->title }}" class="absolute inset-0 w-full h-full object-cover" />
         <div class="absolute inset-0 bg-gradient-to-t from-night-800 via-night-800/50 to-night-900/20"></div>
 
         <div class="relative h-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-10">

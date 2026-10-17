@@ -5,7 +5,9 @@ namespace App\Providers;
 use App\Models\Blog;
 use App\Models\Country;
 use App\Models\Trip;
+use App\Livewire\CuratorPanel;
 use App\Support\ImageOptimizer;
+use App\Support\PhotoFingerprint;
 use App\Support\SiteCache;
 use Awcodes\Curator\Facades\Curator;
 use Awcodes\Curator\Models\Media;
@@ -15,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -62,10 +65,15 @@ class AppServiceProvider extends ServiceProvider
             ->maxSize(30 * 1024)
             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 
+        // Curator's media window, with a question when an upload is already in the library (replaces Curator's own)
+        Livewire::component('curator-panel', CuratorPanel::class);
+
         // ...and shrunk to a file size budget on the server when they are stored (see ImageOptimizer)
         config('curator.model')::saving(function (Media $media) {
             if ($media->isDirty('path')) {
                 ImageOptimizer::optimizeMedia($media);
+                // To notice the same photo when it is uploaded again (see CuratorPanel)
+                $media->fingerprint = PhotoFingerprint::forMedia($media);
             }
         });
 

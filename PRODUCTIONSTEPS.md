@@ -142,6 +142,11 @@ php artisan wordpress:import-about
 ```
 It does nothing when the page already has text, so it is safe to run again. Afterwards, update the text in the admin under **Ik & wij** (age, Sam's age, trips).
 
+Then give every imported photo a fingerprint, so uploading a photo that is already in the library is noticed (~7 minutes for 4,000 photos; stopped halfway? run it again):
+```bash
+php artisan media:fingerprint
+```
+
 ### B5. What the import leaves behind, and must stay
 In `storage/app/wordpress/`:
 - (The old links are stored in the database, table `legacy_links`, so every database backup includes them.)

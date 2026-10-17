@@ -20,7 +20,7 @@
              x-on:touchend.passive="const dx = $event.changedTouches[0].clientX - $el.dataset.x; if (Math.abs(dx) > 40) go(index + (dx < 0 ? 1 : -1))"
              class="group relative aspect-[3/2] overflow-hidden rounded-2xl bg-night-900 shadow-soft">
             @foreach($images as $i => $image)
-                <img src="{{ $image['src'] }}" alt="{{ $image['alt'] }}" loading="lazy"
+                <img src="{{ $image['src'] }}" srcset="{{ $image['srcset'] }}" sizes="(min-width: 768px) 768px, 100vw" alt="{{ $image['alt'] }}" loading="lazy"
                      x-show="index === {{ $i }}" x-transition.opacity.duration.700ms
                      x-on:click="$store.lightbox.show(images, {{ $i }})"
                      class="absolute inset-0 h-full w-full cursor-zoom-in object-cover" @if($i > 0) style="display: none" @endif>
@@ -51,7 +51,16 @@
             'grid-cols-2 sm:grid-cols-3' => $count === 3 || $count >= 5,
         ])>
             @foreach($visible as $i => $image)
-                @php $featured = $count >= 5 && $i === 0; @endphp
+                @php
+                    $featured = $count >= 5 && $i === 0;
+                    // How wide the photo is on screen: the text column (768px) or the phone, split over the columns
+                    $sizes = match (true) {
+                        $count === 1 => '(min-width: 768px) 768px, 100vw',
+                        $featured => '(min-width: 768px) 512px, 100vw',
+                        $count === 2 || $count === 4 => '(min-width: 768px) 384px, 50vw',
+                        default => '(min-width: 768px) 256px, (min-width: 640px) 33vw, 50vw',
+                    };
+                @endphp
                 <button type="button" x-on:click="$store.lightbox.show(images, {{ $i }})"
                         @class([
                             'group relative overflow-hidden rounded-xl bg-night-900 cursor-zoom-in',
@@ -59,7 +68,7 @@
                             'aspect-[3/2]' => $count <= 2,
                             'aspect-square' => ! $featured && $count > 2,
                         ])>
-                    <img src="{{ $featured || $count <= 2 ? $image['src'] : $image['thumb'] }}" alt="{{ $image['alt'] }}" loading="lazy"
+                    <img src="{{ $featured || $count <= 2 ? $image['src'] : $image['thumb'] }}" srcset="{{ $image['srcset'] }}" sizes="{{ $sizes }}" alt="{{ $image['alt'] }}" loading="lazy"
                          class="h-full w-full object-cover transition duration-700 group-hover:scale-105">
                     @if($loop->last && $count > $visible->count())
                         <span class="absolute inset-0 flex items-center justify-center bg-night-900/70 font-display text-3xl text-cream">

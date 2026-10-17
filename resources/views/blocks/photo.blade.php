@@ -2,7 +2,7 @@
         x-data="{ images: @js([['src' => $full, 'alt' => $alt]]) }">
     <button type="button" x-on:click="$store.lightbox.show(images, 0)"
             class="group block w-full overflow-hidden rounded-2xl bg-night-900 shadow-soft cursor-zoom-in">
-        <img src="{{ $src }}" alt="{{ $alt }}" loading="lazy"
+        <img src="{{ $src }}" srcset="{{ $srcset }}" sizes="(min-width: 1024px) {{ $wide ? '960px' : '768px' }}, 100vw" alt="{{ $alt }}" loading="lazy"
              class="w-full transition duration-700 group-hover:scale-[1.02]">
     </button>
     @if(filled($caption))
