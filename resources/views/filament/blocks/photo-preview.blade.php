@@ -1,6 +1,6 @@
 <div>
     @if($src)
-        <img src="{{ $src }}" alt="" class="max-h-72 w-full rounded-lg object-cover">
+        <img src="{{ $src }}" alt="" loading="lazy" class="max-h-72 w-full rounded-lg object-cover">
     @else
         <p class="text-sm text-gray-500 dark:text-gray-400">Nog geen foto gekozen.</p>
     @endif

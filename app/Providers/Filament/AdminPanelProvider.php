@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\InitialsAvatar;
+use Filament\FontProviders\LocalFontProvider;
 use Filament\Pages\BasePage;
 use Filament\Pages\Dashboard;
 use Filament\Http\Middleware\Authenticate;
@@ -36,7 +37,8 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::hex('#3E8F86'),
                 'gray' => Color::Stone,
             ])
-            ->font('Figtree')
+            // Hosted here (public/fonts/figtree), not loaded from fonts.bunny.net on every page
+            ->font('Figtree', url: asset('fonts/figtree/figtree.css'), provider: LocalFontProvider::class)
             // Initials made here, instead of a picture from ui-avatars.com on every page
             ->defaultAvatarProvider(InitialsAvatar::class)
             // On an iPad the menu can be folded away, so lists and the editor get the full width
