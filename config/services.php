@@ -42,4 +42,10 @@ return [
         'secret_key' => env('TURNSTILE_SECRET_KEY'),
     ],
 
+    // Claude, for suggesting subjects in the blog form (App\Support\TagSuggester)
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('ANTHROPIC_MODEL', 'claude-opus-5-5'),
+    ],
+
 ];

@@ -57,6 +57,8 @@ CACHE_STORE=database
 QUEUE_CONNECTION=database
 
 ADMIN_EMAILS=ine@inetjuhhh.nl
+
+ANTHROPIC_API_KEY=...                   # for "Stel voor" next to Tags; empty = button explains it is off
 ```
 Plus the mail settings from **EMAILSTEPS.md** (step 3 there). Remember: a value with spaces needs "quotes".
 

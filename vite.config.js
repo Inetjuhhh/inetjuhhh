@@ -16,4 +16,11 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    build: {
+        rollupOptions: {
+            // The blog form imports location-picker.js by URL and calls its mountLocationPicker(); without
+            // this the build drops the exports of entry files (the dev server keeps them, so it only broke built)
+            preserveEntrySignatures: 'exports-only',
+        },
+    },
 });

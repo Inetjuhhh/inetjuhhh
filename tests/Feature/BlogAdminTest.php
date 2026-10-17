@@ -37,7 +37,10 @@ it('renders the blog pages in the admin', function () {
         'content' => doc(paragraph('Hallo'), block('tip', ['type' => 'tip', 'text' => 'Neem water mee'])),
     ]);
 
-    Livewire::test(ListBlogs::class)->assertOk()->assertCanSeeTableRecords([$blog]);
+    // The list opens on the published blogs; drafts after choosing them (or clearing the filter)
+    Livewire::test(ListBlogs::class)->assertOk()->assertCanNotSeeTableRecords([$blog])
+        ->filterTable('status', 'draft')->assertCanSeeTableRecords([$blog])
+        ->removeTableFilters()->assertCanSeeTableRecords([$blog]);
     Livewire::test(CreateBlog::class)->assertOk();
     Livewire::test(EditBlog::class, ['record' => $blog->id])->assertOk();
 });
@@ -166,4 +169,18 @@ it('renders blocks on the website and keeps the text safe', function () {
         ->toContain('maps.google.com/maps?q=Ghorepani')
         ->toContain('€40 per dag')
         ->not->toContain('renderedblock');
+});
+
+it('lists the published blogs first, newest publication on top', function () {
+    $make = fn (string $title, string $when) => Blog::create([
+        'title' => $title, 'slug' => str($title)->slug(), 'excerpt' => 'Intro', 'status' => 'published', 'published_at' => $when,
+        'placed_by_id' => $this->user->id, 'content' => doc(paragraph('Hallo')),
+    ]);
+    $old = $make('Oud verhaal', '2020-05-01');
+    $new = $make('Nieuw verhaal', '2026-05-01');
+    $middle = $make('Middelste verhaal', '2023-05-01');
+    // Edited just now, but published long ago: still low in the list
+    $old->touch();
+
+    Livewire::test(ListBlogs::class)->assertCanSeeTableRecords([$new, $middle, $old], inOrder: true);
 });

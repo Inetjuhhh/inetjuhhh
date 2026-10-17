@@ -8,9 +8,13 @@ use App\Filament\Resources\BlogResource\Pages\ListBlogs;
 use App\Filament\Forms\LocationPicker;
 use App\Filament\Forms\StoryEditor;
 use App\Models\Blog;
+use App\Models\Category;
+use App\Models\Tag;
 use App\Models\Trip;
+use App\Support\BlogSearch;
 use App\Support\Geocoder;
 use App\Support\ImageOptimizer;
+use App\Support\TagSuggester;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -178,7 +182,14 @@ class BlogResource extends Resource
                                         ->searchable()
                                         ->createOptionForm([
                                             TextInput::make('name')->label('Tag')->required(),
-                                        ]),
+                                        ])
+                                        ->hintAction(
+                                            Action::make('suggestTags')
+                                                ->label('Stel voor')
+                                                ->icon(Heroicon::OutlinedSparkles)
+                                                ->tooltip('Laat Claude passende onderwerpen kiezen uit je bestaande tags')
+                                                ->action(fn (Get $get, Set $set) => self::suggestTags($get, $set))
+                                        ),
                                 ]),
                             Section::make('Op de reiskaart')
                                 ->icon(Heroicon::OutlinedMap)
@@ -288,6 +299,66 @@ class BlogResource extends Resource
         $set('longitude', round($found[1], 6));
     }
 
+    // Adds Claude's picks to the tags already chosen; it only picks from the existing tags
+    public static function suggestTags(Get $get, Set $set): void
+    {
+        $suggester = app(TagSuggester::class);
+
+        if (! $suggester->isConfigured()) {
+            Notification::make()
+                ->danger()
+                ->title('Geen AI-sleutel ingesteld')
+                ->body('Zet ANTHROPIC_API_KEY in het .env-bestand om onderwerpen te laten voorstellen.')
+                ->send();
+
+            return;
+        }
+
+        $title = (string) $get('title');
+        $text = BlogSearch::plainText($get('content'));
+
+        if (blank($title) && blank($text)) {
+            Notification::make()->warning()->title('Schrijf eerst een titel of een stukje verhaal')->send();
+
+            return;
+        }
+
+        try {
+            $names = $suggester->suggest(
+                title: $title,
+                intro: (string) $get('excerpt'),
+                // The start of a long story says enough, and keeps the request small
+                text: Str::limit($text, 12000),
+                categories: Category::whereKey($get('categories') ?? [])->pluck('name')->all(),
+            );
+        } catch (\Throwable $e) {
+            report($e);
+            Notification::make()
+                ->danger()
+                ->title('Onderwerpen voorstellen lukte niet')
+                ->body($e instanceof \RuntimeException ? $e->getMessage() : 'Probeer het zo nog eens.')
+                ->send();
+
+            return;
+        }
+
+        if ($names === []) {
+            Notification::make()->warning()->title('Geen passend onderwerp gevonden')->send();
+
+            return;
+        }
+
+        $chosen = array_map('strval', $get('tags') ?? []);
+        $suggested = Tag::whereIn('name', $names)->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $set('tags', array_values(array_unique([...$chosen, ...$suggested])));
+
+        Notification::make()
+            ->success()
+            ->title('Voorgesteld: ' . implode(', ', $names))
+            ->body('Klopt er een niet? Haal hem gewoon weg.')
+            ->send();
+    }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -347,10 +418,13 @@ class BlogResource extends Resource
                     ->visibleFrom('xl'),
             ])
             ->modifyQueryUsing(fn ($query) => $query->with(['countries', 'trip', 'featuredImage']))
-            ->defaultSort('updated_at', 'desc')
+            // Newest publication first (drafts without a date at the end)
+            ->defaultSort('published_at', 'desc')
             ->filters([
+                // Opens on the published blogs (scheduled ones included); pick "Concept" or clear the filter for drafts
                 SelectFilter::make('status')
-                    ->options(self::STATUSES),
+                    ->options(self::STATUSES)
+                    ->default('published'),
                 SelectFilter::make('countries')
                     ->label('Land')
                     ->relationship('countries', 'name')
