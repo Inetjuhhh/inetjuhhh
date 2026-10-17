@@ -130,6 +130,7 @@ class BlogController extends Controller
             ->with('category', $category)
             ->with('subject', $subject)
             ->with('tripCards', $category->slug === 'reizen' ? SiteCache::tripCards() : collect())
+            ->with('mapMarkers', $category->slug === 'reizen' ? SiteCache::mapMarkers() : null)
             // The 20 most written about (Travel has over 70: too many to read as bubbles), plus the chosen one
             ->with('subjects', $subjects->take(20)->when($subject && ! $subjects->take(20)->contains('slug', $subject['slug']), fn ($top) => $top->push($subject))->map(fn (array $item) => [
                 'name' => $item['name'],

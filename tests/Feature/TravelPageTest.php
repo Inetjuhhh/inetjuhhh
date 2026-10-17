@@ -29,15 +29,26 @@ it('has Reizen in the menu instead of the trip, city trip and country lists', fu
         ->assertDontSee('dropdownCountries', false);
 });
 
-it('shows the trips as cards with the way to the map on the Reizen page', function () {
+it('shows the trips as cards on the Reizen page', function () {
     $this->get(route('blogs.category', 'reizen'))
         ->assertOk()
         ->assertSee('<h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">', false)
         ->assertSee('Reizen')
         ->assertSee('Mijn reizen')
         ->assertSee('Vietnam 2022')
-        ->assertSee($this->trip->filterUrl(), false)
-        ->assertSee(route('blogs.map'), false);
+        ->assertSee($this->trip->filterUrl(), false);
+});
+
+it('invites to search on the map with a small map of all pins', function () {
+    // Without places there is nothing to show on a map yet
+    $this->get(route('blogs.category', 'reizen'))->assertDontSee('Zoeken op de kaart?');
+
+    Blog::first()->update(['latitude' => 16.05, 'longitude' => 108.2, 'location_name' => 'Hoi An']);
+    App\Support\SiteCache::forget();
+
+    $this->get(route('blogs.category', 'reizen'))
+        ->assertSee('Zoeken op de kaart?')
+        ->assertSee('travelMap({ markers:', false);
 });
 
 it('lights up Reizen in the menu on a trip', function () {

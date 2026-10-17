@@ -8,6 +8,8 @@
     // (on the first page that is the newest story)
     $bubbles = isset($category) && count($subjects ?? []) >= 2;
     $newest = $bubbles ? $blogs->first() : null;
+    // On the Reizen page: a small example of the travel map that leads to the real one
+    $mapCard = isset($category) && $category->slug === 'reizen' && filled($mapMarkers ?? null);
     if ($newest) {
         $gridBlogs = $blogs->slice(1);
     }
@@ -108,7 +110,7 @@
             </article>
         @endif
 
-        @if(! isset($country) && ! $trip && $search === null && filled($mapMarkers ?? null))
+        @if(! isset($country) && ! isset($category) && ! $trip && $search === null && filled($mapMarkers ?? null))
             @include('blogs.partials.map-teaser', ['markers' => $mapMarkers])
         @endif
 
@@ -158,6 +160,9 @@
                         </div>
                     </a>
                 </div>
+            @endif
+            @if($mapCard)
+                <div class="mb-8">@include('blogs.partials.map-card', ['markers' => $mapMarkers])</div>
             @endif
             <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach($gridBlogs as $blog)
