@@ -1,98 +1,91 @@
 <p align="center"><img src="ine.jpg" alt="ine-avatar" width="50px" class="rounded-xl"></p>
 
-<p align="center">
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Inetjuhhh
 
-# Inetjuhhh 
-After all this years of no priority I decided to try and make my own blog instead of using the easy Wordpress template. If you like to get on this road on developing my blog with a Filament admin panel and a Tailwind frontend application. 
-Go get along on my journey. Will probably take a while, but already have a basic, so no reason to hurry.
+After all these years of no priority I decided to make my own blog instead of using the easy WordPress template. Travel stories with Bas and Sam, family and lifestyle, on inetjuhhh.nl. A Laravel site with a Filament admin panel, moved over from WordPress with all its stories, photos, comments and old links.
+
+## What's in it
+- **Blogs** with a block editor: photos, galleries (mixed portrait/landscape rows), tips and maps
+- **Reizen**: a timeline of trips, a countdown for the next trip and its planned route on the map
+- **Kaart**: every story on a travel map
+- **Lifestyle**: stories by subject, as bubbles
+- **Comments and hearts** without an account, with approval and spam protection (Cloudflare Turnstile)
+- **A mail for every new blog**, with confirmation and one-click unsubscribe
+- **Admin**: photo library (Curator) with duplicate check, AI tag suggestions (Claude), drafts and planned posts
+- **Old WordPress links** (posts, photos, categories) keep working via redirects
 
 ## Documentation
-In this 'README.md`:
-* [🔰Getting started] 
-* [🔧Technologies and packages]
-* [😵‍💫Issues] 
-* [🤗Contributing] (docs/github-flow.md)
+| File | For |
+|---|---|
+| [PRODUCTIONSTEPS.md](PRODUCTIONSTEPS.md) | Going live: my steps, explained |
+| [HOSTING.md](HOSTING.md) | Going live: the server admin's steps (Cloudways) |
+| [EMAILSTEPS.md](EMAILSTEPS.md) | Mail in production: provider, DNS, queue worker, scheduler |
 
+## 🔰 Getting started (local)
 
-## 🔰 Getting started
-### 1. Install prerequisites
+### 1. Prerequisites
+- [Laragon](https://laragon.org) with **PHP 8.4** (8.3 is the minimum) and **MySQL 8**
+- [Composer](https://getcomposer.org/) and **Node 20+**
+- [Git for Windows](https://gitforwindows.org/); the commands below assume Git Bash
 
-Ensure you have installed:
+### 2. Code and dependencies
+```bash
+git clone https://github.com/Inetjuhhh/inetjuhhh.git
+cd inetjuhhh
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+```
 
-* PHP 8.2 or higher *(for example, through [Laragon](https://laragon.org/index.html), [if necessary find how to update PHP here](https://pen-y-fan.github.io/2023/01/15/how-to-update-the-php-version-in-laragon/))*
+### 3. `.env`
+- **Database**: `DB_DATABASE=inetjuhhh`, `DB_USERNAME=root`, `DB_PASSWORD=` (Laragon's defaults); create the `inetjuhhh` database first
+- **Mail** goes to Mailpit: `MAIL_MAILER=smtp`, `MAIL_HOST=127.0.0.1`, `MAIL_PORT=1025`. Read the mails at http://localhost:8025
+- **Robot check**: Cloudflare's test keys, which always pass:
+  ```env
+  TURNSTILE_SITE_KEY=1x00000000000000000000AA
+  TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+  ```
+- **AI tag suggestions** (optional): `ANTHROPIC_API_KEY=` from console.anthropic.com. Only ever in `.env`, never in a committed file
 
-* [Composer](https://getcomposer.org/)
+### 4. Content
+Either example content:
+```bash
+php artisan migrate --seed
+```
+or the real blog from a WordPress export (`storage/app/wordpress/*.xml`), see `php artisan wordpress:import --help`.
 
-* [Git (for Windows)](https://gitforwindows.org/) - *In the next steps we'll assume you'll use Git Bash as your choice of terminal.*
+Log in at `/admin` with **inetjuhhh@gmail.com** (password `password` after seeding). Forgot it? "Wachtwoord vergeten?" on the login page; the mail lands in Mailpit. Change it under your name → Profiel.
 
-* MySQL 8.0 or higher
+### 5. Run it
+- The site: http://inetjuhhh.test (Laragon) or `php artisan serve`
+- Styles and scripts: `npm run build`, or `npm run dev` while working on them. **Stop `npm run dev` when you're done**: as long as `public/hot` exists, every page waits for it (that made the admin slow once)
+- Mails, newsletter and planned posts need the queue worker and the scheduler. `C:\laragon\usr\Procfile` starts them with Laragon (plus Mailpit). By hand: `php artisan queue:work` and `php artisan schedule:work`
 
-### 2. Download the project and dependencies
+### 6. Tests
+```bash
+php artisan test
+```
 
-- Clone the repository: `git clone https://github.com/quizit
+## Handy commands
+| Command | What it does |
+|---|---|
+| `php artisan site:export` | Database + photos as two files for the production server |
+| `php artisan blogs:subjects` | Subjects (bubbles) per story from `config/subjects.php` |
+| `php artisan media:fingerprint` | Fingerprints for the duplicate-photo check |
+| `php artisan blogs:notify-subscribers` | Mails subscribers about new blogs (the scheduler runs it every 5 minutes) |
+| `php artisan wordpress:import` / `wordpress:import-about` / `wordpress:keep-places` | The WordPress move; not needed after going live |
 
-- Enter the project directory: `cd inetjuhhh`
-
-- Run `composer install` *(to install PHP dependencies)*
-
-- Run `npm install` *(to install JavaScript dependencies needed for building the front-end)*
-
-### 3. Fill the environment file
-
-- Copy `.env.example` to `.env`
-
-- Fill the following fields in the `.env`:
-
-    - The database credentials for the application, e.g:
-        ```
-        DB_CONNECTION=mysql
-        DB_HOST=127.0.0.1
-        DB_PORT=3306
-        DB_DATABASE=inetjuhhh
-        DB_USERNAME=root
-        DB_PASSWORD=
-        ```
-
-    - The Google Maps API Key (ask another developer for this), e.g:
-        ```
-        GOOGLE_MAPS_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        ```
-
-- Generate an application key into `APP_KEY` by running `php artisan key:generate`
-
-### 4. Run the migrations and seed the database
-
-- Create a database named `inetjuhhh` for the application
-
-- Run `php artisan migrate --seed` to create the database tables and seed them with data.
-
-### 5. Get ready to run the application
-
-- Run `npm run dev` to build the front-end assets *(leave this terminal running so changes are automatically compiled)*
-
-- Run `php artisan serve` to start the application *(leave this terminal running so the application is served)*
-
-- Open the application in your browser at [`http://127.0.0.1:8000`](http://127.0.0.1:8000)
-
-- Login with any of the credentials found in the [seeder file](database/seeders/DatabaseSeeder.php)
-
-
-## 🔧Technologies and Packages
-In this application I am using the following software, frameworks and packages:
-- php 8.2.17
-- MySQL 8.0
-- Vue
-- Laravel 11.21.0
-- Vite 5.0
-- Tailwind 3.4.11
-- Alpine js 3.4.2
+## 🔧 Technologies and packages
+- PHP 8.4, MySQL 8
+- Laravel 13, Filament 5 (admin), Livewire, Curator (photo library)
+- Vite 6, Tailwind 4, Alpine.js 3
+- Leaflet (maps), Font Awesome 5
+- Pest (tests)
+- Cloudflare Turnstile (spam), Anthropic Claude (tag suggestions)
 
 ## 😵‍💫 Issues
-In my repository you can see what issues I am working on. Feel free to add issues if you think there is a feature you wouldn't want to miss in this application.
+In my repository you can see what I'm working on. Feel free to add an issue if you think there's a feature you wouldn't want to miss.
 
 ## 🤗 Contributing
-Do you want to contribute to my project, feel free to contact me and give suggestions to make it a wicked quiz application.
-Use the steps in our <a href="docs/images/github-flow.md">Github flow</a> to check how to commit.
-
+Want to contribute or have a suggestion? Feel free to contact me.

@@ -31,6 +31,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            // "Wachtwoord vergeten?" on the login page (a mail with a link), and a profile page to change it
+            ->passwordReset()
+            ->profile(isSimple: false)
             ->favicon(asset('storage/img/avatar.ico'))
             ->brandName('Inetjuhhh')
             ->colors([

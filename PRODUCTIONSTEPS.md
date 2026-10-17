@@ -21,15 +21,11 @@ The new blog goes from your laptop to the server of your host (Cloudways). **He*
 
 ## 1. Clean up test content
 
-Things that exist only for testing should not go online:
+Things that exist only for testing should not go online. Already done on 17 October: the Costa Rica test trip with its three "Test:" blogs, and the `test@example.com` account. Your only account is now **inetjuhhh@gmail.com**.
 
-- **Admin → Blogs** (filter "Concept" and "Gepubliceerd"): delete the three blogs that start with **"Test:"** (Costa Rica).
-- **Admin → Reizen**: delete **Costa Rica 2027** (the test trip; its description starts with "TESTREIS"). Planning a real trip? Add it again on the server later.
-- **The test account** `test@example.com`, from the Breeze starter kit:
-  ```bash
-  php artisan tinker --execute "App\Models\User::where('email', 'test@example.com')->delete();"
-  ```
+Before exporting, still:
 - Glance through **Admin → Abonnees** and **Reacties** for anything you made yourself while testing.
+- Made new test content since? `site:export` (step 2) warns about trips with "TESTREIS" in the description, blogs whose title starts with "Test:" and `@example.` accounts.
 
 You don't have to clean up the drafts: they stay invisible to readers, and you can finish them online.
 
@@ -43,7 +39,7 @@ What happens:
 - It first checks for test content (step 1). Finds some? It stops and lists it. Nothing has been exported then.
 - **Database** → `storage/app/export/inetjuhhh-database.sql.gz` (~1.6 MB). Every table, with all rows except things that only matter on your laptop: login sessions, the cache and queued jobs (these go along empty).
 - **Photos** → `storage/app/export/inetjuhhh-photos.tar` (~820 MB). Every photo in the media library, in every size.
-- At the end a table with the totals. Write them down; you check them in step 6. Locally it was about 274 blogs (254 published), 4,076 photos, 340 comments, 4,053 old links.
+- At the end a table with the totals. Write them down; you check them in step 6. On 17 October it was 271 blogs (254 published), 4,076 photos, 340 comments, 23 trips, 4,053 old links.
 
 Both files are ignored by git, so they never end up on GitHub. After sending them (step 4) you can delete the `export` folder.
 
@@ -56,9 +52,32 @@ He needs these for the server's `.env`. Never put them in a file in the project 
 | `ADMIN_EMAILS` | Your admin login: **inetjuhhh@gmail.com**. Only this address gets into `/admin` on the server, and the "new comment" mails go here too. More addresses: separate them with a comma. |
 | `MAIL_…` (host, username, password, from address) | Your mail provider. Choose one and set the DNS records (SPF/DKIM) for inetjuhhh.nl: **EMAILSTEPS.md steps 1 and 2**. You manage the domain, so this one is yours. |
 | `ANTHROPIC_API_KEY` | console.anthropic.com → API keys (the one in your local `.env`, or a new one). Optional: without it the "Stel voor" button explains it is off. |
-| `TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` | Cloudflare dashboard → *Turnstile* → *Add widget*, mode *Managed*. Hostnames: `inetjuhhh.nl` **and the temporary Cloudways address** (ask him for it). Free. Without them the robot check is off and only the lighter spam checks run, so you want these. |
+| `TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` | Cloudflare, see **3.1** below. Without them the robot check is off and only the lighter spam checks run, so you want these. |
 
 He makes the database password and the app key himself.
+
+### 3.1 The Cloudflare Turnstile widget (spam protection)
+
+Turnstile is the "I'm not a robot" check under the comment form and the newsletter form. Most readers see only a small green tick, and only suspicious visitors get a puzzle. It's free, and inetjuhhh.nl does **not** have to move to Cloudflare: your domain and DNS stay where they are.
+
+1. You can make the widget **now**, with only `inetjuhhh.nl`. HOSTING.md asks the host to send you the **temporary Cloudways address** (something like `phpstack-123456-789012.cloudwaysapps.com`) as soon as he has it. Then add it under the widget's **Settings → Hostnames** (no new keys needed) and send him the keys. Until then he leaves the keys empty: the site works, only the robot check is off.
+2. Go to **dash.cloudflare.com** and sign up (free plan) or log in. Cloudflare asks you to add a website: skip it, Turnstile doesn't need it.
+3. In the menu on the left: **Turnstile** (in some versions under *Application security* or *Protect & connect*). Click **Add widget**.
+4. Fill in:
+   - **Widget name:** `Inetjuhhh blog`
+   - **Hostnames:** add `inetjuhhh.nl` (and the temporary address once you have it). Without `https://` and without a slash. Subdomains such as `www.inetjuhhh.nl` are covered by `inetjuhhh.nl`.
+   - **Widget mode:** **Managed** (Cloudflare decides when a puzzle is needed)
+   - **Pre-clearance:** **No**
+5. Click **Create**. You see two keys:
+   - **Site key**: public, it's visible in the page source. → `TURNSTILE_SITE_KEY`
+   - **Secret key**: treat it like a password. → `TURNSTILE_SECRET_KEY`
+6. Send both with the other secrets (step 4).
+
+What is different from your laptop:
+- **Locally** you keep Cloudflare's **test keys** (in your local `.env`): they always pass and show "Alleen voor testen". Don't put `inetjuhhh.test` in the real widget; keeping them apart means a local test can never use up or leak the real keys.
+- **On the server** the real keys check every comment and sign-up with Cloudflare. A form sent from an address that isn't in the hostname list fails with "We konden niet controleren dat je geen robot bent". If you see that, check the hostnames (step 4 above).
+- **Later**, once inetjuhhh.nl is live (step 7), remove the temporary address from the widget (step 8).
+- In the widget's page in Cloudflare you can see how many checks were solved and how many bots were stopped.
 
 ## 4. Send everything
 
@@ -77,7 +96,8 @@ What you need to know about it:
 
 ## 6. Check on the temporary address
 
-- [ ] Log in at `/admin` with inetjuhhh@gmail.com and your local password (the database came along, so your password did too)
+- [ ] Log in at `/admin` with inetjuhhh@gmail.com and your local password (the database came along, so your password did too). Forgotten? **Wachtwoord vergeten?** on the login page sends a link (once mail works). Change your password under your name → **Profiel**. Changing your email address there too? Ask him to change `ADMIN_EMAILS` first, otherwise you lock yourself out
+- [ ] The robot check shows under the comment form and in the newsletter form (once opened), with a green tick and **without** "Alleen voor testen" (that text means the test keys are on the server)
 - [ ] **Admin → Blogs**: the counts from step 2 (filter on Gepubliceerd and Concept)
 - [ ] Open a few blogs from different years: text, photos, galleries, featured image, the place on the photo
 - [ ] **Reizen**: the timeline and trip cards; **Kaart**: pins in the right countries
@@ -148,3 +168,5 @@ The old links from step 6, now on `https://inetjuhhh.nl/…`. Also try `www.inet
 | Mails don't arrive | Queue worker not running, or mail settings (EMAILSTEPS.md "When something goes wrong") |
 | Links in mails point to the temporary address | Step 7.4 |
 | You see an old version of a page when logged out | Varnish is on (his side) |
+| "We konden niet controleren dat je geen robot bent" for everyone | The address isn't in the widget's hostnames (3.1), or site key and secret key are swapped/from different widgets |
+| "Alleen voor testen" under the forms on the server | The server has the test keys; the real ones from 3.1 belong there |

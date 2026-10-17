@@ -2,6 +2,8 @@
 
 Laravel 13 + Filament 5 blog. You get two files from Ine: `inetjuhhh-database.sql.gz` (full database) and `inetjuhhh-photos.tar` (the photo library, ~820 MB), plus the secret `.env` values. Run on the **temporary Cloudways address**; Ine connects the real domain later herself.
 
+> **First: send Ine the temporary address** as soon as the Cloudways app exists (e.g. `phpstack-123456-789012.cloudwaysapps.com`). She adds it to her Cloudflare Turnstile widget (spam check on comments and newsletter) and then sends you `TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY`. Until then leave both empty: the site works, only the robot check is off. Once you have them: fill them in and run `php artisan optimize`.
+
 ## Requirements
 - PHP **8.3+** (developed on 8.4). Extensions: `gd` with **WebP + JPEG**, `exif`, `intl`, `zip`, `fileinfo`, `mbstring`
 - MySQL 8 or MariaDB 10.6+ (dump is `utf8mb4_unicode_ci`)
@@ -53,8 +55,8 @@ MAIL_FROM_ADDRESS=...
 MAIL_FROM_NAME="${APP_NAME}"
 
 ANTHROPIC_API_KEY=...       # optional (AI tag suggestions in the admin)
-TURNSTILE_SITE_KEY=...      # optional but wanted (robot check on comments + newsletter)
-TURNSTILE_SECRET_KEY=...
+TURNSTILE_SITE_KEY=         # from Ine after she has your temporary address (see top);
+TURNSTILE_SECRET_KEY=       # real keys, not the 1x000… test keys
 ```
 
 Database and photos:
@@ -80,7 +82,8 @@ php artisan filament:optimize
   curl -I https://<address>/wp-content/uploads/2019/01/Foto-04-01-19-20-43-16-768x1024.jpg
   ```
 - Mail: `php artisan tinker --execute="Mail::raw('Test', fn (\$m) => \$m->to('<Ine>')->subject('Test'));"`
-- Queue: `php artisan queue:work --once` gives no error; `failed_jobs` stays empty
+- Queue: `php artisan queue:work --once` gives no error; `failed_jobs` stays empty (admin password-reset mails go through the queue too)
+- Turnstile: the server must reach `challenges.cloudflare.com` (outbound HTTPS); a blog's comment form shows the widget
 
 ## Every deploy
 ```bash

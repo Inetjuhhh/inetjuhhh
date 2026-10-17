@@ -41,3 +41,10 @@ it('uses the admin font from this site, not from an outside font service', funct
 
     expect(public_path('fonts/figtree/figtree-latin-400-normal.woff2'))->toBeFile();
 });
+
+it('lets the admin change their password on the profile page and reset it from the login page', function () {
+    $this->actingAs(adminUser())->get('/admin/profile')->assertOk()->assertSee('Wachtwoord');
+
+    auth()->logout();
+    $this->get('/admin/login')->assertOk()->assertSee('/admin/password-reset/request', false);
+});
