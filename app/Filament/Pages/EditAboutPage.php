@@ -12,13 +12,16 @@ class EditAboutPage extends EditSitePage
 {
     protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedUserGroup;
 
+    protected static string | \UnitEnum | null $navigationGroup = 'Schrijven';
+
+    protected static ?int $navigationSort = 4;
+
     protected static ?string $navigationLabel = 'Ik & wij';
 
     protected static ?string $title = 'Ik & wij';
 
     protected static ?string $slug = 'ik-en-wij';
 
-    protected static ?int $navigationSort = 2;
 
     protected static function sitePage(): SitePage
     {

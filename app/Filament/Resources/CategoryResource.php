@@ -17,6 +17,7 @@ use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,7 +27,15 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedFolder;
+
+    protected static string | \UnitEnum | null $navigationGroup = 'Beheer';
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $modelLabel = 'categorie';
+
+    protected static ?string $pluralModelLabel = 'categorieën';
 
     public static function form(Schema $schema): Schema
     {

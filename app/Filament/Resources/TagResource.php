@@ -16,6 +16,7 @@ use App\Models\Tag;
 use Filament\Forms;
 use Filament\Forms\Components\TagsInput;
 use Filament\Resources\Resource;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,7 +26,15 @@ class TagResource extends Resource
 {
     protected static ?string $model = Tag::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedTag;
+
+    protected static string | \UnitEnum | null $navigationGroup = 'Beheer';
+
+    protected static ?int $navigationSort = 2;
+
+    protected static ?string $modelLabel = 'tag';
+
+    protected static ?string $pluralModelLabel = 'tags';
 
     public static function form(Schema $schema): Schema
     {

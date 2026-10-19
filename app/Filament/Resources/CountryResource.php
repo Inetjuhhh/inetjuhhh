@@ -15,6 +15,7 @@ use App\Models\Country;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -25,7 +26,15 @@ class CountryResource extends Resource
 {
     protected static ?string $model = Country::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedFlag;
+
+    protected static string | \UnitEnum | null $navigationGroup = 'Beheer';
+
+    protected static ?int $navigationSort = 3;
+
+    protected static ?string $modelLabel = 'land';
+
+    protected static ?string $pluralModelLabel = 'landen';
 
     public static function form(Schema $schema): Schema
     {

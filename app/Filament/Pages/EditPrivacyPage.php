@@ -12,13 +12,16 @@ class EditPrivacyPage extends EditSitePage
 {
     protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedShieldCheck;
 
+    protected static string | \UnitEnum | null $navigationGroup = 'Schrijven';
+
+    protected static ?int $navigationSort = 5;
+
     protected static ?string $navigationLabel = 'Privacy';
 
     protected static ?string $title = 'Privacy';
 
     protected static ?string $slug = 'privacy';
 
-    protected static ?int $navigationSort = 3;
 
     protected static function sitePage(): SitePage
     {

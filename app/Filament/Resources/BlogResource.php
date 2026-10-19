@@ -51,11 +51,14 @@ class BlogResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedPencilSquare;
 
+    protected static string | \UnitEnum | null $navigationGroup = 'Schrijven';
+
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $modelLabel = 'blog';
 
     protected static ?string $pluralModelLabel = 'blogs';
 
-    protected static ?int $navigationSort = -1;
 
     // Admin URLs use the id: the slug can change while editing
     protected static ?string $recordRouteKeyName = 'id';

@@ -12,6 +12,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Awcodes\Curator\CuratorPlugin;
 use Filament\Support\Icons\Heroicon;
+use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -53,7 +54,16 @@ class AdminPanelProvider extends PanelProvider
                 CuratorPlugin::make()
                     ->label('Foto')
                     ->pluralLabel('Mediabibliotheek')
-                    ->navigationIcon(Heroicon::OutlinedPhoto),
+                    ->navigationIcon(Heroicon::OutlinedPhoto)
+                    ->navigationGroup('Schrijven')
+                    ->navigationSort(3),
+            ])
+            // The menu in three parts: what you use while writing, what readers send, and the lists you
+            // set up once. Each group folds open and closed; the admin remembers how you left it.
+            ->navigationGroups([
+                NavigationGroup::make('Schrijven'),
+                NavigationGroup::make('Lezers'),
+                NavigationGroup::make('Beheer'),
             ])
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')

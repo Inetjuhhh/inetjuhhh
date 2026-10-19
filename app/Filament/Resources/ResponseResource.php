@@ -35,11 +35,14 @@ class ResponseResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
+    protected static string | \UnitEnum | null $navigationGroup = 'Lezers';
+
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $modelLabel = 'reactie';
 
     protected static ?string $pluralModelLabel = 'reacties';
 
-    protected static ?int $navigationSort = 0;
 
     // Waiting comments, shown as a counter in the menu
     public static function getNavigationBadge(): ?string

@@ -27,11 +27,14 @@ class TripResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedGlobeEuropeAfrica;
 
+    protected static string | \UnitEnum | null $navigationGroup = 'Schrijven';
+
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $modelLabel = 'reis';
 
     protected static ?string $pluralModelLabel = 'reizen';
 
-    protected static ?int $navigationSort = 0;
 
     public static function form(Schema $schema): Schema
     {
