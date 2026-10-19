@@ -133,10 +133,10 @@
             {{-- On the Reizen page (first page, all subjects): the travel timeline; on a phone, where only a few
                  trips fit on the line, the countdown to the next trip instead (when there is one) --}}
             @if(isset($category) && $category->slug === 'reizen' && $blogs->onFirstPage() && ! ($subject ?? null) && ($timeline ?? collect())->isNotEmpty())
-                @if($comingTrip ?? null)
-                    @include('blogs.partials.coming-trip', ['trip' => $comingTrip, 'class' => 'mb-10 sm:hidden'])
+                @if($comingTrips ?? [])
+                    @include('blogs.partials.coming-trip', ['trips' => $comingTrips, 'class' => 'mb-10 sm:hidden'])
                 @endif
-                @include('blogs.partials.trip-timeline', ['items' => $timeline, 'class' => ($comingTrip ?? null) ? 'hidden sm:block' : ''])
+                @include('blogs.partials.trip-timeline', ['items' => $timeline, 'class' => ($comingTrips ?? []) ? 'hidden sm:block' : ''])
             @endif
             @if($newest)
                 {{-- Bubbles left, the newest story large beside them --}}
@@ -187,8 +187,8 @@
         </div>
 
         {{-- The homepage ends with the countdown to the next trip --}}
-        @if(! isset($category) && ($comingTrip ?? null))
-            @include('blogs.partials.coming-trip', ['trip' => $comingTrip, 'class' => 'mt-14'])
+        @if(! isset($category) && ($comingTrips ?? []))
+            @include('blogs.partials.coming-trip', ['trips' => $comingTrips, 'class' => 'mt-14'])
         @endif
     </div>
 </x-app-layout>

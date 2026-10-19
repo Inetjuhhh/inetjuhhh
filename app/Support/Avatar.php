@@ -23,6 +23,10 @@ class Avatar
     // 32: browser tab, 180: phone home screen, 512: menu, footer and comments (sharp on every screen)
     public const SIZES = [32, 180, 512];
 
+    // Round, with see-through corners: the tab icon, and the big one (shown round on the site anyway).
+    // The home screen icon stays square: phones round it themselves and turn see-through corners black.
+    public const ROUND = [32, 512];
+
     private const DIRECTORY = 'avatar';
 
     public static function url(int $size): string

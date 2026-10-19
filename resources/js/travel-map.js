@@ -204,7 +204,8 @@ export function createTravelMap(element, markers, { mode = 'full', trip = null, 
 
             // The name of the trip always stays next to its first stop, so it is found on a world map too;
             // on the big map a click on it zooms in on the route
-            circle.bindTooltip(label, { permanent: true, direction: 'right', offset: [8, 0], className: 'planned-label', interactive: !teaser });
+            // "auto": to the right of a stop on the left half of the map, to the left on the right half (Japan, …)
+            circle.bindTooltip(label, { permanent: true, direction: 'auto', offset: [8, 0], className: 'planned-label', interactive: !teaser });
             if (!teaser) {
                 circle.on('click', () => map.fitBounds(line.getBounds(), { padding: [60, 60], maxZoom: 8 }));
                 circle.getTooltip().on('click', () => map.fitBounds(line.getBounds(), { padding: [60, 60], maxZoom: 8 }));
@@ -216,13 +217,22 @@ export function createTravelMap(element, markers, { mode = 'full', trip = null, 
     let shown = markers;
     let route = null;
 
+    // The stops of the trips still to come: with all stories in view, they are kept in view too
+    const plannedPoints = planned.flatMap((plannedTrip) => plannedTrip.stops.map((stop) => [stop.lat, stop.lng]));
+    let showingOneTrip = false;
+
     const showAll = () => {
-        if (shown.length === 0) {
+        const points = [
+            ...shown.map((marker) => [marker.lat, marker.lng]),
+            ...(showingOneTrip ? [] : plannedPoints),
+        ];
+
+        if (points.length === 0) {
             map.setView([20, 10], 2);
-        } else if (shown.length === 1) {
-            map.setView([shown[0].lat, shown[0].lng], 6);
+        } else if (points.length === 1) {
+            map.setView(points[0], 6);
         } else {
-            map.fitBounds(cluster.getBounds(), { padding: [40, 40], maxZoom: 7 });
+            map.fitBounds(L.latLngBounds(points), { padding: [40, 40], maxZoom: 7 });
         }
     };
 
@@ -234,6 +244,7 @@ export function createTravelMap(element, markers, { mode = 'full', trip = null, 
     // Show only one trip (or all stories with null), with a dotted line along its stops
     const showTrip = (slug) => {
         shown = slug ? markers.filter((marker) => marker.trip?.slug === slug) : markers;
+        showingOneTrip = Boolean(slug);
 
         cluster.clearLayers();
         cluster.addLayers(shown.map((marker) => layers.get(marker.id).layer));

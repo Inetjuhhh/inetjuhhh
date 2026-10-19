@@ -90,19 +90,25 @@ class SiteCache
      *
      * @return array{name: string, description: ?string, starts_on: string, counting_since: string}|null
      */
-    public static function comingTrip(): ?array
+    /**
+     * All trips still to come, the first one first: the countdown banner shows the first one big,
+     * and the others underneath. A trip leaves the list once its first story is online.
+     *
+     * @return list<array{name: string, description: ?string, starts_on: string, counting_since: string}>
+     */
+    public static function comingTrips(): array
     {
-        return static::remember('coming-trip', function () {
-            $trip = Trip::upcoming()->whereDoesntHave('blogs', fn ($query) => $query->published())->first();
-
-            return $trip ? [
+        return static::remember('coming-trips', fn () => Trip::upcoming()
+            ->whereDoesntHave('blogs', fn ($query) => $query->published())
+            ->get()
+            ->map(fn (Trip $trip) => [
                 'name' => $trip->name,
                 'description' => $trip->description,
                 'starts_on' => $trip->starts_on->toDateString(),
                 // Where the dashed line starts: the day the trip was added
                 'counting_since' => $trip->created_at->toDateString(),
-            ] : null;
-        });
+            ])
+            ->all());
     }
 
     /**
@@ -112,9 +118,11 @@ class SiteCache
      */
     public static function plannedRoutes(): Collection
     {
+        // Every trip with at least one place found on the map: one stop is a dashed circle with the
+        // trip's name, two or more also get the dashed line between them
         return static::remember('planned-routes', fn () => Trip::upcoming()->get()
             ->map(fn (Trip $trip) => ['name' => $trip->name, 'when' => $trip->period(), 'stops' => $trip->plannedStops()])
-            ->filter(fn (array $trip) => count($trip['stops']) >= 2)
+            ->filter(fn (array $trip) => count($trip['stops']) >= 1)
             ->values());
     }
 

@@ -93,3 +93,29 @@ it('shows the trips on a timeline, oldest first, with the coming one after "nu"'
         ->assertSee('mb-10 sm:hidden', false)
         ->assertSee('hidden sm:block', false);
 });
+
+it('counts down to every coming trip: the next one big, the ones after it underneath', function () {
+    comingTrip(starts: '+40 days');
+    Trip::create(['name' => 'Japan 2028', 'kind' => Trip::KIND_TRIP, 'starts_on' => now()->addDays(412)]);
+    Trip::create(['name' => 'IJsland 2028', 'kind' => Trip::KIND_TRIP, 'starts_on' => now()->addDays(200)]);
+
+    expect(collect(SiteCache::comingTrips())->pluck('name')->all())->toBe(['Costa Rica 2027', 'IJsland 2028', 'Japan 2028']);
+
+    $this->get('/')
+        ->assertOk()
+        ->assertSeeInOrder(['Binnenkort', 'Costa Rica 2027', '40', 'tot we vertrekken', 'Daarna', 'IJsland 2028', '200', 'Japan 2028', '412']);
+});
+
+it('shows no "Daarna" when only one trip is coming', function () {
+    comingTrip(starts: '+40 days');
+
+    $this->get('/')->assertSee('Costa Rica 2027')->assertDontSee('Daarna');
+});
+
+it('puts a coming trip with one stop on the map too, as a circle with its name', function () {
+    comingTrip([['name' => 'San José, Costa Rica']]);
+    Trip::create(['name' => 'Japan 2028', 'kind' => Trip::KIND_TRIP, 'starts_on' => now()->addYear(), 'route' => [['name' => 'Tokio'], ['name' => 'Kyoto']]]);
+    Trip::create(['name' => 'Nog geen plan', 'kind' => Trip::KIND_TRIP, 'starts_on' => now()->addYears(2)]);
+
+    expect(SiteCache::plannedRoutes()->pluck('name')->all())->toBe(['Costa Rica 2027', 'Japan 2028']);
+});
