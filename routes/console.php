@@ -138,3 +138,9 @@ Artisan::command('site:test-alert', function () {
     \App\Support\ErrorAlert::send(new RuntimeException('Dit is een test van de foutmelding. Niets aan de hand!'));
     $this->info('Verstuurd naar ' . implode(', ', config('blog.admin_emails')) . ' (of al eens in het afgelopen uur: dan wacht hij een uur).');
 })->purpose('Send a pretend error mail, to check that error alerts arrive');
+
+// The backup outside Hetzner (OffsiteBackup): after the nightly copy on the server, only when it is set up
+Schedule::command('site:offsite-backup')
+    ->dailyAt('04:00')
+    ->when(fn () => \App\Console\Commands\OffsiteBackup::isConfigured())
+    ->withoutOverlapping();

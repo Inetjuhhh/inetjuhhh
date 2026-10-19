@@ -60,6 +60,21 @@ return [
             'report' => false,
         ],
 
+        // The backup outside Hetzner (OffsiteBackup): any S3-compatible storage, such as Cloudflare R2
+        // or Backblaze B2. Empty OFFSITE_BUCKET = switched off.
+        'offsite' => [
+            'driver' => 's3',
+            'key' => env('OFFSITE_ACCESS_KEY_ID'),
+            'secret' => env('OFFSITE_SECRET_ACCESS_KEY'),
+            'region' => env('OFFSITE_REGION', 'auto'),
+            'bucket' => env('OFFSITE_BUCKET'),
+            'endpoint' => env('OFFSITE_ENDPOINT'),
+            'use_path_style_endpoint' => true,
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
     ],
 
     /*

@@ -18,6 +18,12 @@ class DatabaseDump
      */
     public static function to(string $file, ?callable $onWarning = null): void
     {
+        // Through the container, so a test can put a stand-in in its place (the tests have no MySQL)
+        app(static::class)->dump($file, $onWarning);
+    }
+
+    public function dump(string $file, ?callable $onWarning = null): void
+    {
         $db = config('database.connections.mysql');
         $base = [
             self::mysqldump(), '--host=' . $db['host'], '--port=' . $db['port'], '--user=' . $db['username'],

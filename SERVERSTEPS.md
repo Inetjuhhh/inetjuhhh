@@ -357,6 +357,7 @@ cd /var/www/inetjuhhh && ./deploy.sh
 
 - **Hetzner backups** (step 1): the whole server every day, 7 days back. Restore in the Cloud Console → your server → Backups.
 - **A copy of the database every night** at 03:30, made by the scheduler (step 9), in `storage/app/backups/`, kept 14 days (`php artisan site:backup` makes one by hand). For getting back one blog or comment deleted by accident: UPDATESTEPS.md chapter 6.
+- **A copy outside Hetzner every night** at 04:00 (database and photos) to Cloudflare R2, once it is set up: UPDATESTEPS.md chapter 8.
 - **An extra copy of the content now and then**, on your own computer (for example once a month, and before big changes):
   ```bash
   ssh ine@<IP> "cd /var/www/inetjuhhh && php artisan site:export"

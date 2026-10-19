@@ -124,7 +124,7 @@ Console → je server → tab **Backups** → kies een dag → **Restore**. Dat 
 - [ ] SSH-app op je telefoon getest via mobiel internet (hoofdstuk 3).
 - [ ] **Foutmeldingen per mail** komen aan: op de server `php artisan site:test-alert`. Binnen een minuut krijg je "Foutje op …" in je Gmail (kijk ook even in Spam, en markeer hem als "geen spam").
 - [ ] Een gratis **uptime-monitor** die je mailt als de site plat ligt, bijvoorbeeld **UptimeRobot** (uptimerobot.com): monitor-type *HTTP(s)*, adres `https://inetjuhhh.nl/up`, controle elke 5 minuten. Dan weet je het vóór je lezers het merken.
-- [ ] Controleer in de Hetzner Console dat er **Backups** van de afgelopen dagen staan.
+- [ ] Controleer in de Hetzner Console dat er **Backups** van de afgelopen dagen staan, en in het R2-dashboard dat er een database-kopie van vannacht is (hoofdstuk 8).
 
 ---
 
@@ -216,3 +216,63 @@ php artisan media:describe --batch         # de rest, als batch: de helft van de
 - Foto's die al een beschrijving hebben (ook zelfgeschreven) worden nooit aangeraakt. Lukt een foto niet, dan gaat hij mee met de volgende `--batch`.
 - **De kosten** gaan van je **API-tegoed** op console.anthropic.com, niet van je Claude-abonnement. De fotobeschrijvingen gebruiken het kleinere, veel goedkopere model **Claude Haiku**; de tag-suggesties blijven op Opus. Reken de schatting van `--dry-run` om met de prijzen op anthropic.com/pricing (per miljoen tokens, met batch de helft), of meet het echt: draai `--limit=10` en kijk bij *Usage* in de console wat die tien kostten. Er gaat nooit iets vanzelf: alleen als jij op de knop klikt of het commando draait.
 - Ander model nodig? Zet in `.env` op de server `ANTHROPIC_ALT_MODEL=…`, en daarna `php artisan optimize`.
+
+---
+
+## 8. De backup buiten Hetzner (Cloudflare R2)
+
+Je andere backups staan allemaal bij Hetzner. Gaat er iets mis met je Hetzner-account, dan ben je die in één keer kwijt. Daarom staat er elke nacht om 04:00 ook een kopie bij **Cloudflare R2**:
+- de **database** (de laatste **30 dagen**);
+- al je **foto's**. Alleen nieuwe gaan erheen, dus na de eerste nacht duurt het seconden. Een foto die je van de site haalt, blijft in de backup staan.
+
+### Eenmalig instellen (± 15 minuten)
+
+1. **dash.cloudflare.com** → links **R2 Object Storage**. De eerste keer vraagt Cloudflare om een **betaalmethode** (creditcard of PayPal). Tot 10 GB is het gratis; jij gebruikt ongeveer 1 GB.
+2. **Create bucket**:
+   - **Naam:** `inetjuhhh-backup`
+   - **Location:** kies **Europe (EU)**, zodat de gegevens van je lezers binnen de EU blijven (AVG)
+   - Laat **Public access** uit: niemand anders mag hierbij.
+3. **Manage R2 API Tokens** (rechts op de R2-pagina) → **Create API token**:
+   - **Naam:** `inetjuhhh server`
+   - **Permissions:** *Object Read & Write*
+   - **Specify bucket:** alleen `inetjuhhh-backup`
+4. Je krijgt drie dingen te zien. Kopieer ze meteen naar je wachtwoordmanager, want Cloudflare laat ze maar één keer zien:
+   - **Access Key ID**
+   - **Secret Access Key**
+   - **Endpoint** (iets als `https://1a2b3c….r2.cloudflarestorage.com`)
+5. Op de server: `nano /var/www/inetjuhhh/.env` en voeg toe:
+   ```env
+   OFFSITE_ACCESS_KEY_ID=de-access-key-id
+   OFFSITE_SECRET_ACCESS_KEY=de-secret-access-key
+   OFFSITE_BUCKET=inetjuhhh-backup
+   OFFSITE_ENDPOINT=https://1a2b3c….r2.cloudflarestorage.com
+   OFFSITE_REGION=auto
+   ```
+   Daarna `php artisan optimize`.
+6. **De eerste keer zelf starten** (dan zie je meteen of het werkt; de foto's duren nu even, zo'n 850 MB):
+   ```bash
+   cd /var/www/inetjuhhh && php artisan site:offsite-backup
+   ```
+   Je ziet *Database: gekopieerd* en *Foto's: … nieuw gekopieerd*. In het R2-dashboard staan nu de mappen `database` en `photos` in je bucket.
+
+Gaat het 's nachts ooit mis, dan krijg je een **foutmail** (hoofdstuk 2).
+
+### Terughalen
+
+**Foto's die op de server ontbreken:**
+```bash
+cd /var/www/inetjuhhh && php artisan site:offsite-backup --restore-photos
+```
+Dit haalt alleen foto's terug die er **niet** meer zijn. Foto's die er nog wel zijn, worden nooit overschreven.
+
+**De database van een bepaalde dag:**
+1. In het R2-dashboard: je bucket → map `database` → klik op het bestand van de dag die je wilt → **Download**.
+2. Zet het op de server (vanaf je laptop): `scp database-2026-10-18.sql.gz ine@<IP>:/var/www/inetjuhhh/storage/app/backups/`
+3. Wil je **één blog** terug? Dan volg je hoofdstuk 6, met dit bestand. Wil je de **hele database** terug? Doe dat alleen in een echte noodsituatie, want alles van daarna is dan weg:
+   ```bash
+   cd /var/www/inetjuhhh
+   php artisan down
+   gunzip -c storage/app/backups/database-2026-10-18.sql.gz | mysql -u inetjuhhh -p inetjuhhh
+   php artisan cache:clear && php artisan up
+   ```
+   (Het databasewachtwoord staat in je wachtwoordmanager. `down` laat bezoekers even een onderhoudspagina zien.)
