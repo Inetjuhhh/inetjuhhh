@@ -94,3 +94,33 @@ it('says so when the file is not a photo it can use', function () {
 
     expect(Avatar::mediaId())->toBeNull();
 });
+
+it('makes the tab icon round, with see-through corners, and keeps the home screen icon square', function () {
+    Livewire::test(EditSiteSettings::class)->set('data.avatar', chosen(photoForAvatar()))->call('save');
+
+    $read = fn (int $size) => imagecreatefromstring(Storage::disk('public')->get(str_replace(asset('storage') . '/', '', Avatar::url($size))));
+    $alpha = fn ($image, int $x, int $y) => imagecolorsforindex($image, imagecolorat($image, $x, $y))['alpha'];
+
+    $tab = $read(32);
+    expect($alpha($tab, 0, 0))->toBe(127)          // corner: see-through
+        ->and($alpha($tab, 16, 16))->toBe(0);        // middle: solid
+
+    $homeScreen = $read(180);
+    expect($alpha($homeScreen, 0, 0))->toBe(0);      // phones round it themselves
+});
+
+it('makes the icons anew when the same photo is saved again', function () {
+    $media = photoForAvatar();
+    Livewire::test(EditSiteSettings::class)->set('data.avatar', chosen($media))->call('save');
+    $before = Avatar::url(32);
+
+    Livewire::test(EditSiteSettings::class)->set('data.avatar', chosen($media))->call('save')->assertNotified('Je nieuwe avatar staat erop');
+
+    expect(Avatar::url(32))->not->toBe($before);
+});
+
+it('has a round default tab icon', function () {
+    $icon = imagecreatefromstring(file_get_contents(public_path('favicon-32.png')));
+
+    expect(imagecolorsforindex($icon, imagecolorat($icon, 0, 0))['alpha'])->toBe(127);
+});

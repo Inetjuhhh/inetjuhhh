@@ -85,6 +85,10 @@ class Avatar
             imagesavealpha($icon, true);
             imagecopyresampled($icon, $image, 0, 0, $x, $y, $size, $size, $side, $side);
 
+            if (in_array($size, self::ROUND, true)) {
+                static::makeRound($icon);
+            }
+
             ob_start();
             imagepng($icon, null, 9);
             $disk->put("{$path}-{$size}.png", ob_get_clean());
@@ -103,6 +107,46 @@ class Avatar
         $old = Setting::get(self::SETTING);
         Setting::put(self::SETTING, null);
         static::removeFiles($old);
+    }
+
+    /**
+     * Makes a square image round: the corners see-through, with a soft edge (each edge pixel is
+     * measured at 4×4 points), so a 16-pixel circle in a browser tab doesn't look jagged.
+     */
+    public static function makeRound(\GdImage $image): void
+    {
+        $size = imagesx($image);
+        $radius = $size / 2;
+        imagealphablending($image, false);
+        imagesavealpha($image, true);
+
+        for ($y = 0; $y < $size; $y++) {
+            for ($x = 0; $x < $size; $x++) {
+                // Far inside the circle: stays as it is. Only the pixels near the edge are measured.
+                $distance = sqrt(($x + 0.5 - $radius) ** 2 + ($y + 0.5 - $radius) ** 2);
+                if ($distance < $radius - 1) {
+                    continue;
+                }
+
+                $inside = 0;
+                for ($sy = 0; $sy < 4; $sy++) {
+                    for ($sx = 0; $sx < 4; $sx++) {
+                        $dx = $x + ($sx + 0.5) / 4 - $radius;
+                        $dy = $y + ($sy + 0.5) / 4 - $radius;
+                        $inside += ($dx * $dx + $dy * $dy) <= $radius * $radius ? 1 : 0;
+                    }
+                }
+
+                if ($inside === 16) {
+                    continue;
+                }
+
+                $colour = imagecolorsforindex($image, imagecolorat($image, $x, $y));
+                // 0 = solid, 127 = see-through; mix the pixel's own transparency with how much is outside
+                $alpha = (int) round(127 - (127 - $colour['alpha']) * $inside / 16);
+                imagesetpixel($image, $x, $y, imagecolorallocatealpha($image, $colour['red'], $colour['green'], $colour['blue'], $alpha));
+            }
+        }
     }
 
     private static function removeFiles(?array $setting): void

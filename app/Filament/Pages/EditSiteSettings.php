@@ -87,7 +87,9 @@ class EditSiteSettings extends Page
     {
         $mediaId = $this->form->getState()['avatar'] ?? null;
 
-        if ($mediaId === Avatar::mediaId()) {
+        // Nothing chosen, and nothing was: nothing to do. (The same photo again does make the icons
+        // anew, so an improvement in how they are made reaches an avatar chosen earlier.)
+        if (! $mediaId && ! Avatar::mediaId()) {
             Notification::make()->success()->title('Opgeslagen')->send();
 
             return;
