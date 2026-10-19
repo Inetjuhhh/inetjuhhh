@@ -184,3 +184,29 @@ it('lists the published blogs first, newest publication on top', function () {
 
     Livewire::test(ListBlogs::class)->assertCanSeeTableRecords([$new, $middle, $old], inOrder: true);
 });
+
+it('deletes a blog with its countries, tags and comments, from the editor and from the list', function () {
+    $country = Country::create(['name' => 'Italië']);
+    $make = function (string $slug) use ($country) {
+        $blog = Blog::create([
+            'title' => ucfirst($slug), 'slug' => $slug, 'excerpt' => 'Intro', 'status' => 'published',
+            'placed_by_id' => $this->user->id, 'content' => doc(paragraph('Hallo')),
+        ]);
+        $blog->countries()->attach($country);
+        $blog->tags()->create(['name' => "Tag {$slug}"]);
+        $blog->responses()->create(['name' => 'Femke', 'email' => 'femke@example.com', 'response' => 'Mooi!', 'status' => 'approved']);
+
+        return $blog;
+    };
+
+    $first = $make('weg-via-editor');
+    Livewire::test(EditBlog::class, ['record' => $first->id])->callAction('delete');
+
+    $second = $make('weg-via-lijst');
+    Livewire::test(ListBlogs::class)->callTableBulkAction('delete', [$second]);
+
+    expect(Blog::count())->toBe(0)
+        ->and(\Illuminate\Support\Facades\DB::table('blog_country')->count())->toBe(0)
+        ->and(\App\Models\Response::count())->toBe(0)
+        ->and(Country::find($country->id))->not->toBeNull();
+});
