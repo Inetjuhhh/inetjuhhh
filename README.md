@@ -19,6 +19,7 @@ After all these years of no priority I decided to make my own blog instead of us
 |---|---|
 | [PRODUCTIONSTEPS.md](PRODUCTIONSTEPS.md) | Going live: the whole route, from export to switching inetjuhhh.nl over |
 | [SERVERSTEPS.md](SERVERSTEPS.md) | My own server at Hetzner: setting it up, updates (`deploy.sh`), backups |
+| [UPDATESTEPS.md](UPDATESTEPS.md) | Elke update van laptop naar server, en wat te doen als de server moeilijk doet (ook vanaf je telefoon) |
 | [EMAILSTEPS.md](EMAILSTEPS.md) | Mail in production with Brevo: account, DNS, settings, testing |
 
 ## 🔰 Getting started (local)
