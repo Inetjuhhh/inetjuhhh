@@ -33,10 +33,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            // "Wachtwoord vergeten?" on the login page (a mail with a link), and a profile page to change it
             ->passwordReset()
             ->profile(isSimple: false)
-            // The same avatar as in the site's tab (Beheer → Website)
             ->favicon(fn () => Avatar::faviconUrl())
             ->brandName('Inetjuhhh')
             ->colors([
@@ -60,8 +58,6 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationGroup('Schrijven')
                     ->navigationSort(3),
             ])
-            // The menu in three parts: what you use while writing, what readers send, and the lists you
-            // set up once. Each group folds open and closed; the admin remembers how you left it.
             ->navigationGroups([
                 NavigationGroup::make('Schrijven'),
                 NavigationGroup::make('Lezers'),
@@ -73,7 +69,6 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-            // The dashboard: the statistics in app/Filament/Widgets (logging out is in the account menu)
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->middleware([
                 EncryptCookies::class,
@@ -93,8 +88,6 @@ class AdminPanelProvider extends PanelProvider
 
     public function boot(): void
     {
-        // Save and cancel stay at the bottom of the screen, so on a phone you don't have to
-        // scroll past the whole story to save
         BasePage::stickyFormActions();
     }
 }

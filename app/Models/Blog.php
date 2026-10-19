@@ -49,9 +49,6 @@ class Blog extends Model
                 $blog->search_text = BlogSearch::plainText($blog->content);
             }
         });
-
-        // The mail to subscribers is never sent on saving: Ine sends it with the button "Mail abonnees"
-        // in the admin, when she wants (NewBlogNotifier)
     }
 
     public function placed_by()

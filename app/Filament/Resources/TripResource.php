@@ -61,7 +61,6 @@ class TripResource extends Resource
                 ->label('Geplande route')
                 ->helperText('Voor een reis die nog komt: de plaatsen waar jullie naartoe gaan, in volgorde. Ze komen als stippellijn op de reiskaart. Schrijf plaats en land (bijv. "La Fortuna, Costa Rica") en druk op Enter: de pin komt op het kaartje ernaast. Verkeerde plek? Sleep de pin, of klik op het kaartje.')
                 ->schema([
-                    // Two columns: the place on the left, a small map with its pin on the right (stacked on a phone)
                     Grid::make(['default' => 1, 'md' => 2])
                         ->schema([
                             TextInput::make('name')
@@ -69,7 +68,6 @@ class TripResource extends Resource
                                 ->placeholder('Plaats, land')
                                 ->required()
                                 ->maxLength(120)
-                                // Looked up as soon as you leave the field (or press Enter), so the pin is on the map right away
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(fn (Get $get, Set $set) => static::findStop($get, $set))
                                 // Enter looks the place up instead of saving the whole trip
@@ -84,10 +82,8 @@ class TripResource extends Resource
                                 ->hiddenLabel()
                                 ->coordinates('lat', 'lng')
                                 ->remembersPlaceIn('found_for', 'name')
-                                // A stop that isn't found starts near the stop before it, not at the whole world
                                 ->startsNearOtherItems()
                                 ->compact()
-                                // High enough, and zoomed out to the region, so you see where the place lies
                                 ->mapHeight('h-56')
                                 ->zoom(6)
                                 ->emptyText('Nog geen pin: klik op het kaartje.'),
@@ -101,7 +97,6 @@ class TripResource extends Resource
                     : null)
                 ->addActionLabel('Stop toevoegen')
                 ->reorderable()
-                // A short list of names (with whether each was found); click a stop to change it
                 ->collapsible()
                 ->collapsed()
                 ->defaultItems(0)
@@ -172,7 +167,6 @@ class TripResource extends Resource
                     ->label('Soort')
                     ->badge()
                     ->formatStateUsing(fn (string $state) => Trip::KINDS[$state] ?? $state),
-                // On a phone: photo, name and kind; the rest from tablet width
                 TextColumn::make('blogs_count')
                     ->label('Verhalen')
                     ->visibleFrom('md')

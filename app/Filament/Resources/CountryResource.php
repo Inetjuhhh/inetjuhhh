@@ -65,7 +65,6 @@ class CountryResource extends Resource
                     ->label('Name'),
             ])
             ->filters([
-                //
             ])
             ->recordActions([
                 EditAction::make(),
@@ -80,7 +79,6 @@ class CountryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
         ];
     }
 

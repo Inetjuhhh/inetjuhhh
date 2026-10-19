@@ -39,7 +39,6 @@ class SubcategoriesRelationManager extends RelationManager
                 TextColumn::make('name'),
             ])
             ->filters([
-                //
             ])
             ->headerActions([
                 CreateAction::make(),

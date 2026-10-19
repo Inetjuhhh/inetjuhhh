@@ -33,7 +33,6 @@ use Illuminate\Support\Str;
  */
 class ImportWordPress extends Command
 {
-    // Refused on the live server (AppServiceProvider): an import there would overwrite the real blogs
     use Prohibitable;
 
     protected $signature = 'wordpress:import

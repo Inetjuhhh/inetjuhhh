@@ -40,9 +40,7 @@ class BlogController extends Controller
 
         return view('blogs.index')
             ->with('blogs', $blogs)
-            // The travel map teaser is only shown on the first page of the homepage
             ->with('mapMarkers', $blogs->onFirstPage() ? SiteCache::mapMarkers() : null)
-            // ...and so is the countdown to the next trip, near the bottom
             ->with('comingTrips', $blogs->onFirstPage() ? SiteCache::comingTrips() : []);
     }
 

@@ -12,10 +12,8 @@ class ListResponses extends ListRecords
 {
     protected static string $resource = ResponseResource::class;
 
-    // Short tab names, so all four fit on a phone
     private const TAB_LABELS = [Response::PENDING => 'Wacht', Response::APPROVED => 'Online', Response::SPAM => 'Spam'];
 
-    // Waiting comments first: that's usually why you open this page
     public function getTabs(): array
     {
         $tab = fn (string $status) => Tab::make(self::TAB_LABELS[$status])

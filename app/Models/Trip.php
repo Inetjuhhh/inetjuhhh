@@ -61,7 +61,6 @@ class Trip extends Model
         });
     }
 
-    // Trips that are still to come: they start after today
     public function scopeUpcoming(Builder $query): void
     {
         $query->whereDate('starts_on', '>', today())->orderBy('starts_on');

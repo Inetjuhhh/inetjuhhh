@@ -98,7 +98,7 @@ Artisan::command('block:make', function () {
 Schedule::command('model:prune', ['--model' => [Response::class]])->daily();
 
 // A planned blog goes online by itself when its date comes, without anyone saving it: then the menu
-// and the map are refreshed, so it shows up there right away. (Mailing subscribers is a button in the admin.)
+// and the map are refreshed, so it shows up there right away.
 Artisan::command('blogs:check-planned', function () {
     // Everything that went online since the previous check, also when the scheduler was off for a while
     $since = Cache::get('blogs:check-planned:last', now()->subHour());

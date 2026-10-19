@@ -54,7 +54,6 @@ class TagResource extends Resource
                     ->label('Tag')
             ])
             ->filters([
-                //
             ])
             ->recordActions([
                 EditAction::make(),
@@ -69,7 +68,6 @@ class TagResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
         ];
     }
 

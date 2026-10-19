@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\DB;
  */
 class ApplySubjects extends Command
 {
-    // Refused on the live server (AppServiceProvider): it would undo subjects and categories set in the admin
     use Prohibitable;
 
     protected $signature = 'blogs:subjects {--dry-run : Only show what would change}';

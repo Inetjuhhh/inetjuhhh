@@ -77,7 +77,6 @@ it('needs the details before publishing and sets the publish date', function () 
         ->fillForm(['title' => 'Klaar', 'slug' => 'klaar', 'status' => 'published'])
         ->call('create')
         ->assertHasFormErrors(['excerpt', 'content', 'categories'])
-        // A country is optional: not every story is a travel story
         ->assertHasNoFormErrors(['countries']);
 
     $country = Country::create(['name' => 'Nepal']);

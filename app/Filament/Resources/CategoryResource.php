@@ -54,7 +54,6 @@ class CategoryResource extends Resource
                 TextColumn::make('name')
                     ->label('Naam Categorie')            ])
             ->filters([
-                //
             ])
             ->recordActions([
                 EditAction::make(),

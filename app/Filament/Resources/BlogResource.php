@@ -187,7 +187,6 @@ class BlogResource extends Resource
                                         ->createOptionForm([
                                             TextInput::make('name')->label('Land')->required(),
                                         ])
-                                        // Not required: a lifestyle story doesn't have to be in a country
                                         ->helperText('Alleen nodig bij een reisverhaal: dan staat het land op de foto en op de kaart.'),
                                     Select::make('categories')
                                         ->label('Categorie')
@@ -295,7 +294,6 @@ class BlogResource extends Resource
                     ->label('Tot')
                     ->native(false)
                     ->displayFormat('d-m-Y')
-                    // In the calendar, the days before the start date can't be picked (the same day can: a day out)
                     ->minDate(fn (Get $get) => $get('starts_on') ?: null)
                     ->afterOrEqual('starts_on'),
             ]),
@@ -402,9 +400,7 @@ class BlogResource extends Resource
                     ->state(fn (Blog $record) => url($record->coverUrl(160, 120)))
                     ->imageWidth(64)
                     ->imageHeight(48)
-                    // On a phone the title needs the room
                     ->visibleFrom('sm'),
-                // On a phone: title, status, country and trip in one column, so the title has the width
                 TextColumn::make('title_on_phone')
                     ->label('Blog')
                     ->state(fn (Blog $record) => $record->title)
@@ -444,7 +440,6 @@ class BlogResource extends Resource
                     ->placeholder('—')
                     ->sortable()
                     ->visibleFrom('md'),
-                // Whether the subscribers got a mail about this blog (the button is "Mail abonnees")
                 IconColumn::make('subscribers_notified_at')
                     ->label('Mail')
                     ->state(fn (Blog $record) => match (true) {
@@ -466,10 +461,8 @@ class BlogResource extends Resource
                     ->visibleFrom('xl'),
             ])
             ->modifyQueryUsing(fn ($query) => $query->with(['countries', 'trip', 'featuredImage']))
-            // Newest publication first (drafts without a date at the end)
             ->defaultSort('published_at', 'desc')
             ->filters([
-                // Opens on the published blogs (scheduled ones included); pick "Concept" or clear the filter for drafts
                 SelectFilter::make('status')
                     ->options(self::STATUSES)
                     ->default('published'),
@@ -494,7 +487,6 @@ class BlogResource extends Resource
                     ->iconButton()
                     ->tooltip('Bekijk op de site'),
                 self::mailSubscribersAction()->iconButton(),
-                // Icons, so the title keeps its room on phone and iPad (clicking the row also opens the editor)
                 EditAction::make()->iconButton()->tooltip('Bewerken'),
             ])
             ->toolbarActions([
@@ -578,7 +570,6 @@ class BlogResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
         ];
     }
 

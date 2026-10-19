@@ -87,7 +87,6 @@ class ResponseResource extends Resource
             ->modifyQueryUsing(fn (Builder $query) => $query->where('is_author', false)->with(['blog', 'replies']))
             ->defaultSort('created_at', 'desc')
             ->columns([
-                // On a phone: who and what in one column, so the comment isn't cut off at the edge
                 TextColumn::make('comment_on_phone')
                     ->label('Reactie')
                     ->state(fn (Response $record) => $record->response)
@@ -155,11 +154,9 @@ class ResponseResource extends Resource
                     ->color('success')
                     ->visible(fn (Response $record) => $record->status !== Response::APPROVED)
                     ->action(fn (Response $record) => $record->approve())
-                    // A button with text on a computer, just the tick on phone and iPad
                     ->button()
                     ->size('sm')
                     ->labeledFrom('xl'),
-                // Less used actions in a menu, so the comment itself gets the room
                 ActionGroup::make([
                     Action::make('reply')
                         ->label('Antwoorden')

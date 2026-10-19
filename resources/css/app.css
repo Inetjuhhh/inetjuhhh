@@ -370,7 +370,6 @@
     font-weight: 600;
     box-shadow: var(--shadow-soft);
 }
-/* The dashed line of a planned trip: a pointer that says "click to zoom in on this route" */
 .leaflet-interactive.planned-route-grip,
 .leaflet-interactive.planned-stop {
     cursor: zoom-in;
@@ -403,7 +402,6 @@
     .trip-forward:hover i, .trip-forward:focus-visible i { animation: none; }
 }
 
-/* "Gebruik twee vingers…" over a map on a phone (travel-map.js, twoFingerHint) */
 .map-hint {
     position: absolute;
     inset: 0;

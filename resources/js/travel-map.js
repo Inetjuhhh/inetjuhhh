@@ -189,7 +189,6 @@ export function createTravelMap(element, markers, { mode = 'full', trip = null, 
     map.addLayer(cluster);
 
     // Trips still to come: their planned route as a quiet dashed line with open circles for the stops.
-    // Only its name ("Costa Rica 2027", no dates), small, when you hover over it once zoomed in a bit.
     const NAME_FROM_ZOOM = 3;
 
     planned.forEach((plannedTrip) => {
@@ -213,7 +212,6 @@ export function createTravelMap(element, markers, { mode = 'full', trip = null, 
             part.on('tooltipopen', () => {
                 if (map.getZoom() < NAME_FROM_ZOOM) part.closeTooltip();
             });
-            // A click zooms in on the whole route
             part.on('click', () => map.fitBounds(line.getBounds(), { padding: [60, 60], maxZoom: 8 }));
         });
     });

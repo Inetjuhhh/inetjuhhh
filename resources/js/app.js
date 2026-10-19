@@ -88,8 +88,6 @@ Alpine.data('tripMap', (markers = []) => ({
 Alpine.data('subjectBubbles', (subjects = []) => ({
     async init() {
         const { drawBubbles } = await import('./subject-bubbles');
-        // Bubbles from tablet width up; on a phone the small ones would be too small to read or tap,
-        // so there the list of buttons stays (the same subjects, the most stories first)
         const draw = () => {
             const roomy = this.$refs.chart.clientWidth >= 500;
             this.$refs.list.classList.toggle('sr-only', roomy);

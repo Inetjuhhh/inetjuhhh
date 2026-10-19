@@ -68,7 +68,6 @@ class BlogStats extends StatsOverviewWidget
             ->url(BlogResource::getUrl('index'));
     }
 
-    // Comments to review: orange while there are any, so it catches the eye
     private function waiting(): Stat
     {
         $waiting = Response::pending()->where('is_author', false)->count();
@@ -97,7 +96,6 @@ class BlogStats extends StatsOverviewWidget
         return Stat::make('Hartjes', BlogLike::count())
             ->description($recent ? "+{$recent} in de laatste 30 dagen" : 'Lezers geven een hartje onder een verhaal')
             ->descriptionIcon(Heroicon::Heart)
-            // Red only when there are new hearts: an explanation shouldn't look like a warning
             ->color($recent ? 'danger' : 'gray');
     }
 }
