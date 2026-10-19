@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FeedController;
 use App\Http\Controllers\LegacyLinkController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PageController;
@@ -15,6 +16,12 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/', [BlogController::class, 'index'])->name('blogs.index');
+
+// For search engines and feed readers
+Route::get('/sitemap.xml', [FeedController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [FeedController::class, 'robots'])->name('robots');
+Route::get('/feed', [FeedController::class, 'rss'])->name('feed');
+
 Route::get('/kaart', [BlogController::class, 'map'])->name('blogs.map');
 Route::get('/zoeken', [SearchController::class, 'index'])->name('search');
 Route::get('/zoeken/suggesties', [SearchController::class, 'suggest'])

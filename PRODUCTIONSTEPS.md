@@ -141,7 +141,8 @@ The old links from step 5, now on `https://inetjuhhh.nl/…`. `www.inetjuhhh.nl`
 ## 7. Afterwards
 
 - **Keep the old hosting for a few weeks**, unused, in case something turns out to be missing. Only then cancel it.
-- **Google Search Console** (if you use it): the domain stays the same, so nothing has to move. Under "Pages" you can see whether Google follows the old links to the new pages.
+- **Google Search Console** (search.google.com/search-console, free): add `inetjuhhh.nl` if it isn't there yet (Google asks for a TXT record at TransIP to prove it's yours). Then **Sitemaps** → `https://inetjuhhh.nl/sitemap.xml` → **Submit**. Google then knows all your pages at once, and the sitemap keeps itself up to date: you never have to submit it again. Under "Pages" you can see whether Google follows the old links to the new pages.
+- **Readers with a feed app** (Feedly and the like) who followed your WordPress blog keep getting your new stories: `https://inetjuhhh.nl/feed` (also the old address `/feed/`).
 - **New code:** commit and push on your laptop, then on the server `cd /var/www/inetjuhhh && ./deploy.sh` (SERVERSTEPS.md step 12). Your content on the server stays as it is.
 - **Backups:** Hetzner makes one every day; now and then an extra copy on your own computer (SERVERSTEPS.md step 13).
 - **After a few weeks**, the import code can be removed from the project (`app/Console/Commands/ImportWordPress.php` and `app/Support/WordPress`). **Keep the old links** (`LegacyLinkController`, `app/Support/LegacyLinks`, `config/legacy-links.php`, the routes and the `legacy_links` table): old links keep coming in for years.

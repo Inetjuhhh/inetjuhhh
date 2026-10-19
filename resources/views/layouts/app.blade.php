@@ -9,7 +9,10 @@
 
         {{-- For Google, and the preview when someone shares the page (WhatsApp, Facebook, LinkedIn, …) --}}
         @php
-            $pageUrl = request()->url() . (request()->integer('page') > 1 ? '?page=' . request()->integer('page') : '');
+            // The page's own address: a trip (?reis=), a subject (?onderwerp=) and a page number are part of it,
+            // anything else (tracking codes, ?q= of the search) is not
+            $pageQuery = array_filter(request()->only(['reis', 'onderwerp', 'page']), fn ($value, $key) => is_string($value) && $value !== '' && ($key !== 'page' || (int) $value > 1), ARRAY_FILTER_USE_BOTH);
+            $pageUrl = request()->url() . ($pageQuery ? '?' . http_build_query($pageQuery) : '');
         @endphp
         <meta name="description" content="{{ $description }}">
         <link rel="canonical" href="{{ $pageUrl }}">
@@ -27,6 +30,7 @@
             <meta property="article:published_time" content="{{ $publishedAt }}">
         @endif
         <meta name="twitter:card" content="summary_large_image">
+        <link rel="alternate" type="application/rss+xml" title="Inetjuhhh: nieuwe verhalen" href="{{ route('feed') }}">
 
         <!-- The avatar in the browser tab, and on a phone's home screen (chosen in the admin: Beheer → Website) -->
         <link rel="icon" href="{{ \App\Support\Avatar::faviconUrl() }}" sizes="any">
