@@ -76,7 +76,9 @@ it('needs the details before publishing and sets the publish date', function () 
     Livewire::test(CreateBlog::class)
         ->fillForm(['title' => 'Klaar', 'slug' => 'klaar', 'status' => 'published'])
         ->call('create')
-        ->assertHasFormErrors(['excerpt', 'content', 'countries', 'categories']);
+        ->assertHasFormErrors(['excerpt', 'content', 'categories'])
+        // A country is optional: not every story is a travel story
+        ->assertHasNoFormErrors(['countries']);
 
     $country = Country::create(['name' => 'Nepal']);
     $category = Category::create(['name' => 'Travel']);
@@ -209,4 +211,20 @@ it('deletes a blog with its countries, tags and comments, from the editor and fr
         ->and(\Illuminate\Support\Facades\DB::table('blog_country')->count())->toBe(0)
         ->and(\App\Models\Response::count())->toBe(0)
         ->and(Country::find($country->id))->not->toBeNull();
+});
+
+it('publishes a lifestyle story without a country', function () {
+    $category = Category::create(['name' => 'Lifestyle']);
+
+    Livewire::test(CreateBlog::class)
+        ->fillForm([
+            'title' => 'Shovel vs. Ine', 'slug' => 'shovel-vs-ine', 'status' => 'published', 'excerpt' => 'Thuis',
+            'content' => doc(paragraph('Het verhaal')), 'categories' => [$category->id],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $blog = Blog::where('slug', 'shovel-vs-ine')->first();
+    expect($blog->isPublished())->toBeTrue()->and($blog->countries)->toBeEmpty();
+    $this->get(route('blogs.show', $blog))->assertOk()->assertSee('Shovel vs. Ine');
 });

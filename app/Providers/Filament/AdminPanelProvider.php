@@ -34,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
             // "Wachtwoord vergeten?" on the login page (a mail with a link), and a profile page to change it
             ->passwordReset()
             ->profile(isSimple: false)
-            ->favicon(asset('storage/img/avatar.ico'))
+            ->favicon(asset('favicon.ico'))
             ->brandName('Inetjuhhh')
             ->colors([
                 'primary' => Color::hex('#3E8F86'),

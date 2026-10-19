@@ -184,7 +184,8 @@ class BlogResource extends Resource
                                         ->createOptionForm([
                                             TextInput::make('name')->label('Land')->required(),
                                         ])
-                                        ->required($requiredWhenPublished),
+                                        // Not required: a lifestyle story doesn't have to be in a country
+                                        ->helperText('Alleen nodig bij een reisverhaal: dan staat het land op de foto en op de kaart.'),
                                     Select::make('categories')
                                         ->label('Categorie')
                                         ->relationship('categories', 'name')

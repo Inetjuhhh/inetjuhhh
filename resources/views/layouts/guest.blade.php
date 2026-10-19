@@ -7,6 +7,11 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
+        <!-- The avatar in the browser tab, and on a phone's home screen -->
+        <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
+        <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+
         <!-- Fonts -->
         <link href="{{ asset('fonts/site/site-fonts.css') }}" rel="stylesheet" />
 
