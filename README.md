@@ -17,14 +17,14 @@ After all these years of no priority I decided to make my own blog instead of us
 ## Documentation
 | File | For |
 |---|---|
-| [PRODUCTIONSTEPS.md](PRODUCTIONSTEPS.md) | Going live: my steps, explained |
-| [HOSTING.md](HOSTING.md) | Going live: the server admin's steps (Cloudways) |
-| [EMAILSTEPS.md](EMAILSTEPS.md) | Mail in production: provider, DNS, queue worker, scheduler |
+| [PRODUCTIONSTEPS.md](PRODUCTIONSTEPS.md) | Going live: the whole route, from export to switching inetjuhhh.nl over |
+| [SERVERSTEPS.md](SERVERSTEPS.md) | My own server at Hetzner: setting it up, updates (`deploy.sh`), backups |
+| [EMAILSTEPS.md](EMAILSTEPS.md) | Mail in production with Brevo: account, DNS, settings, testing |
 
 ## 🔰 Getting started (local)
 
 ### 1. Prerequisites
-- [Laragon](https://laragon.org) with **PHP 8.4** (8.3 is the minimum) and **MySQL 8**
+- [Laragon](https://laragon.org) with **PHP 8.4** (the minimum: the packages need it) and **MySQL 8**
 - [Composer](https://getcomposer.org/) and **Node 20+**
 - [Git for Windows](https://gitforwindows.org/); the commands below assume Git Bash
 

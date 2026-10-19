@@ -1,4 +1,4 @@
-# Email in production: step by step
+# Email in production: Brevo, step by step
 
 The blog sends three kinds of email:
 
@@ -7,160 +7,129 @@ The blog sends three kinds of email:
 | **Confirm your subscription** | A reader who signs up | Right away, after the form under a blog or in the footer is sent |
 | **New story: …** | Every confirmed subscriber | When a blog goes online (or, for a planned blog, within 5 minutes of its date) |
 | New comment / reply to a comment | You, or the reader who asked for it | When someone comments, or you reply in the admin |
+| New password | You | "Wachtwoord vergeten?" on the admin login |
 
-Locally all mail goes to **Mailpit** (http://localhost:8025), so nothing reaches real people. In production you need five things:
+**How it's set up:**
+- **Brevo** delivers the mail. The Hetzner server can't send mail itself (Hetzner blocks ports 25 and 465), and mail sent straight from a web server lands in spam anyway. The blog hands every mail to Brevo on port **587**, which Hetzner allows.
+- **Sender:** `blog@inetjuhhh.nl`. It doesn't have to be a real mailbox: nobody reads it. The mail has to come from your own domain, because only for your own domain can you prove (with DNS records) that the mail is really yours. A @gmail.com sender sent through Brevo fails that proof and ends up in spam.
+- **Replies** go to **inetjuhhh@gmail.com**. A reader who hits "reply" reaches your Gmail.
 
-1. A mail provider that actually delivers the mail
-2. DNS records, so the mail doesn't land in spam
-3. The right settings in `.env`
-4. A **queue worker** (sends the "new story" mails)
-5. The **scheduler** (planned blogs, cleanups)
+Locally all mail goes to **Mailpit** (http://localhost:8025), so nothing reaches real people.
 
-No extra packages are needed: Laravel sends through SMTP, which works with every provider.
+Time: about 45 minutes, plus waiting for DNS (minutes to a few hours) and possibly for Brevo's account check (up to a day).
 
 ---
 
-## 1. Choose a mail provider
+## 1. A Brevo account
 
-Don't send from your web server itself: that mail almost always ends up in spam. Use a provider:
+1. Sign up at **brevo.com** (the free plan: 300 mails a day) with inetjuhhh@gmail.com.
+2. Brevo asks a few questions about you and what you send. Answer honestly: a personal blog, mails to readers who signed up themselves, with double opt-in. New accounts are sometimes checked by Brevo before they may send; that can take up to a day.
+3. **Data processing agreement** (*verwerkersovereenkomst*, required under the AVG/GDPR because Brevo handles your readers' email addresses): Brevo's DPA is part of their terms. Download it under your account settings (search for "DPA") and keep it with your papers.
 
-| Provider | Free | Good to know |
-|---|---|---|
-| **Brevo** (brevo.com) | 300 mails/day | European (France), Dutch-language dashboard. A good fit for a blog. |
-| Mailgun EU (mailgun.com) | 100 mails/day | Choose the **EU region** when you sign up |
-| Postmark (postmarkapp.com) | 100 mails/month | Best delivery, paid after the trial |
-| Your hosting's mailbox (e.g. blog@inetjuhhh.nl) | Included | Fine to start with; check the hourly limit with your host |
+**The daily limit:** 300 mails a day. A new blog goes to every subscriber at once, so above ~280 subscribers some would miss it. Brevo's smallest paid plan has no daily limit; switch in time. *Admin → Abonnees* shows how many you have.
 
-**Watch the daily limit:** with 300 mails a day and 400 subscribers, some of them won't get the mail. Upgrade to a paid plan in time.
+## 2. Your domain at Brevo
 
-Also sign the provider's **data processing agreement** (*verwerkersovereenkomst*), required under the GDPR (AVG): they process your readers' email addresses.
+Brevo needs to know that inetjuhhh.nl is yours. In Brevo: **Senders, Domains & Dedicated IPs → Domains → Add a domain** → `inetjuhhh.nl`. Choose to set the records **manually**.
 
-From the provider you get **SMTP details**: host, port, username and password (often called an "SMTP key"). You need these in step 3.
-
-## 2. DNS records for inetjuhhh.nl
-
-Add these records where your domain is registered. The provider shows you the exact values; they always look roughly like this:
+Brevo shows a few DNS records. Add them **exactly as shown** at your domain host. They look roughly like this:
 
 | Type | Name | What it does |
 |---|---|---|
-| TXT | `@` | **SPF**: which servers may send mail for inetjuhhh.nl, e.g. `v=spf1 include:spf.brevo.com ~all`. You can only have **one** SPF record: if one already exists, add the `include:` to it. |
-| TXT or CNAME | e.g. `brevo._domainkey` | **DKIM**: a signature that proves the mail really comes from you |
-| TXT | `_dmarc` | **DMARC**: what to do with fake mail, to start with: `v=DMARC1; p=none; rua=mailto:ine@inetjuhhh.nl` |
+| TXT | `@` | `brevo-code:…`: proves to Brevo that you own the domain |
+| CNAME | `brevo1._domainkey` and `brevo2._domainkey` | **DKIM**: every mail gets a signature that proves it really comes from inetjuhhh.nl |
+| TXT | `_dmarc` | **DMARC**: tells Gmail and Outlook what to do with mail that fails the checks. Start with `v=DMARC1; p=none` |
 
-Then click "verify" at the provider. DNS changes can take a few hours.
+Good to know:
+- **SPF** (`v=spf1 …`): if Brevo shows one, you can only have **one** SPF record per domain. If one already exists (from the old WordPress host), add Brevo's `include:` to it instead of making a second one.
+- **DMARC reports:** Brevo may suggest `rua=mailto:…`. Leave that part out. Reports to a Gmail address are not delivered (Gmail would have to give permission for that), and you'd get technical XML files you don't need.
+- **Old mail records** (MX) at your domain host: leave them alone. They're about receiving mail, which the blog doesn't do.
 
-## 3. Settings in `.env` on the server
+Then click **Authenticate this domain** in Brevo. DNS can take a few hours; try again later if it isn't green yet.
 
-```env
-APP_URL=https://inetjuhhh.nl            # the links in mails are built from this: really important
-APP_LOCALE=nl
+## 3. Sender and SMTP key
 
-MAIL_MAILER=smtp
-MAIL_HOST=smtp-relay.brevo.com          # from your provider
-MAIL_PORT=587
-MAIL_SCHEME=null                        # null for port 587; use smtps for port 465
-MAIL_USERNAME=your-login@provider
-MAIL_PASSWORD=your-smtp-key
-MAIL_FROM_ADDRESS="blog@inetjuhhh.nl"   # an address on your own domain (verified in step 2)
-MAIL_FROM_NAME="${APP_NAME}"
+1. **Senders → Add a sender:** name `Inetjuhhh - Blogs`, address `blog@inetjuhhh.nl`. Because the domain is authenticated (step 2), the address doesn't have to exist. If Brevo still wants to send a confirmation mail to it, ask your domain host for a forwarding from `blog@inetjuhhh.nl` to inetjuhhh@gmail.com, confirm, and remove the forwarding afterwards if you like.
+2. **SMTP & API → SMTP:** here you see the **SMTP server** (`smtp-relay.brevo.com`), **port** (587) and your **login** (something like `1234abc@smtp-brevo.com`). Click **Generate a new SMTP key**, name it `inetjuhhh server`, and copy it right away: Brevo shows it only once. This key is the password for step 4; treat it like one.
+3. **Tracking off** (privacy): Brevo can count opens and rewrite links to count clicks. Your readers didn't ask for that, and it makes links in the mail look odd. Look under *Transactional → Settings* (or *SMTP & API → Settings*) for open and click tracking and switch both off. Brevo moves its menus around; the search box in the dashboard finds "tracking".
 
-QUEUE_CONNECTION=database
-ADMIN_EMAILS=ine@inetjuhhh.nl           # gets the mails about new comments
-```
-
-After every change to `.env`:
+## 4. Settings in `.env` on the server
 
 ```bash
-php artisan config:cache
+ssh ine@<IP>
+cd /var/www/inetjuhhh && nano .env
+```
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp-relay.brevo.com
+MAIL_PORT=587
+MAIL_SCHEME=null
+MAIL_USERNAME=1234abc@smtp-brevo.com    # the login from step 3
+MAIL_PASSWORD=the-smtp-key-from-step-3
+MAIL_FROM_ADDRESS="blog@inetjuhhh.nl"
+MAIL_FROM_NAME="${APP_NAME}"
+MAIL_REPLY_TO_ADDRESS="inetjuhhh@gmail.com"
+
+ADMIN_EMAILS=inetjuhhh@gmail.com        # gets the "new comment" mails
+```
+- `MAIL_SCHEME=null` with port 587: the connection starts normally and is then encrypted (STARTTLS). Don't use 465: Hetzner blocks it.
+- `MAIL_REPLY_TO_ADDRESS`: where replies to any blog mail go.
+- `APP_URL` (SERVERSTEPS.md step 6) matters here too: every link in a mail is built from it.
+
+Then:
+```bash
+php artisan optimize
 php artisan queue:restart
 ```
+The queue worker that actually sends the mails is set up in SERVERSTEPS.md step 9, the scheduler for planned blogs in the same step.
 
-## 4. The queue worker
+## 5. Privacy statement
 
-The "new story" mails go through a queue, so saving a blog in the admin stays fast, even with hundreds of subscribers. Something on the server has to keep processing that queue.
+Mention on the site (for example on **Ik & wij** or a privacy page):
+- readers can leave their name and email address to get a mail about new blogs;
+- **Brevo** (France, EU) sends those mails for you;
+- every mail has an unsubscribe link, and unsubscribing deletes their details straight away;
+- people who leave a comment give a name and email address; the address is never shown.
 
-**On a VPS (with Supervisor).** Create `/etc/supervisor/conf.d/inetjuhhh-queue.conf`:
+## 6. Test it
 
-```ini
-[program:inetjuhhh-queue]
-command=php /var/www/inetjuhhh/artisan queue:work --sleep=3 --tries=3 --max-time=3600
-autostart=true
-autorestart=true
-user=www-data
-numprocs=1
-redirect_stderr=true
-stdout_logfile=/var/www/inetjuhhh/storage/logs/queue.log
-stopwaitsecs=3600
-```
-
-```bash
-sudo supervisorctl reread && sudo supervisorctl update && sudo supervisorctl start inetjuhhh-queue
-```
-
-**With Laravel Forge / Ploi:** add a "Queue worker" in the dashboard (connection `database`).
-
-**On shared hosting without Supervisor:** add a cron job that runs every minute and empties the queue:
-
-```cron
-* * * * * cd /path/to/inetjuhhh && php artisan queue:work --stop-when-empty --max-time=50 >> /dev/null 2>&1
-```
-
-## 5. The scheduler
-
-One cron job for everything that has to happen on time:
-
-- planned blogs: the mail goes out once their publish date has passed (checked every 5 minutes)
-- unconfirmed sign-ups are removed after 30 days
-- spam comments are removed after 30 days
-
-```cron
-* * * * * cd /path/to/inetjuhhh && php artisan schedule:run >> /dev/null 2>&1
-```
-
-(Forge/Ploi: switch on "Scheduler" in the dashboard.)
-
-## 6. On every deploy
-
-```bash
-php artisan migrate --force      # creates the subscribers table, among other things
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan queue:restart        # the queue worker picks up the new code
-```
-
-## 7. Test it
-
-1. Send a test mail to yourself:
+1. **A test mail** to yourself, on the server:
    ```bash
-   php artisan tinker --execute="Mail::raw('Test from inetjuhhh.nl', fn (\$m) => \$m->to('ine@inetjuhhh.nl')->subject('Test'));"
+   php artisan tinker --execute="Mail::raw('Test van inetjuhhh.nl', fn (\$m) => \$m->to('inetjuhhh@gmail.com')->subject('Test'));"
    ```
-2. Sign up with your own address through the form under a blog, and click the link in the confirmation mail.
-3. Publish a blog. Within a minute you should get "New story: …". Is the photo there, and does the button open the blog?
-4. Check your score at **mail-tester.com**: sign up with the address they give you, publish a blog, and aim for 9/10 or higher. A lower score almost always means SPF/DKIM (step 2) isn't right yet.
-5. Click "Uitschrijven" (unsubscribe) at the bottom of the mail and check that you disappear from **Admin → Abonnees**.
+   It arrives within a minute. In Gmail, open it → the three dots → **Show original**: `SPF`, `DKIM` and `DMARC` should all say **PASS**. Landed in spam the first time? Mark it "Not spam"; that helps.
+2. **Reply** to that mail: the reply should go to inetjuhhh@gmail.com.
+3. **Sign up** with your own address through the form under a blog, and click the link in the confirmation mail.
+4. **Publish a blog** (or a test draft you publish and take back). Within a minute you get "New story: …". Is the photo there, and does the button open the blog on the right address?
+5. **mail-tester.com:** sign up with the address they give you, publish a blog, and aim for 9/10 or higher. A lower score almost always means a DNS record from step 2 isn't right yet.
+6. **Unsubscribe** with the link at the bottom of the mail and check that you disappear from **Admin → Abonnees**.
+7. In Brevo under **Transactional → Logs** (or *Statistics*) you can see every mail that went out, and whether it was delivered.
 
 ## How it works (for reference)
 
 - **Double opt-in:** someone is only on the list after clicking the link in the confirmation mail (valid for 7 days). Nobody can sign up someone else, and you can show who gave permission. Unconfirmed sign-ups disappear after 30 days.
 - **Each blog is sent only once.** Fixing a typo afterwards doesn't send it again. Blogs that were already online before this feature existed are never sent.
 - **Unsubscribing:** every mail has a link at the bottom, plus a header that Gmail, Outlook and Apple Mail turn into their own "unsubscribe" button. The address is then deleted straight away.
+- **Spam protection** on the sign-up form: the robot check (Turnstile), a hidden field, and at most 5 sign-ups an hour from one internet address, so nobody can make your blog mail a list of strangers.
 - **Admin → Abonnees:** see who's on the list, remove someone, or add someone by hand (only people who asked for it themselves).
-- **Privacy statement:** mention that readers can leave their name and email address for this mail, which provider sends it, and that unsubscribing deletes their details.
 
 ## When something goes wrong
 
 | Problem | Check |
 |---|---|
-| No mail at all | `storage/logs/laravel.log`, and whether the queue worker is running (step 4) |
+| No mail at all | `sudo supervisorctl status` (queue worker RUNNING?), then `tail -50 storage/logs/laravel-$(date +%F).log` |
 | Mails stay in the queue | `php artisan queue:work --once` shows the error directly |
+| "Connection could not be established" / timeout | Port 587 in `.env` (not 25 or 465: Hetzner blocks those), host `smtp-relay.brevo.com` |
+| "Authentication failed" | `MAIL_USERNAME` is the Brevo SMTP **login** (…@smtp-brevo.com), not your Gmail; `MAIL_PASSWORD` the SMTP key; then `php artisan optimize && php artisan queue:restart` |
 | Mail failed | `php artisan queue:failed` shows failed mails; fix the cause, then `php artisan queue:retry all` |
-| Mail lands in spam | SPF/DKIM/DMARC (step 2), and a `MAIL_FROM_ADDRESS` on your own domain |
-| Links in the mail point to localhost | `APP_URL` in `.env`, then `php artisan config:cache` |
-| Planned blog was never mailed | Is the scheduler running (step 5)? Run `php artisan blogs:notify-subscribers` by hand |
+| Brevo says "sender not valid" | Step 2 (domain authenticated?) and step 3 (sender added?) |
+| Mail lands in spam | Gmail → Show original: which of SPF/DKIM/DMARC fails? Then step 2 |
+| Links in the mail point to nieuw.inetjuhhh.nl or localhost | `APP_URL` in `.env`, then `php artisan optimize && php artisan queue:restart` |
+| Planned blog was never mailed | Is the scheduler in `crontab -l` (SERVERSTEPS.md step 9)? Run `php artisan blogs:notify-subscribers` by hand |
+| Some subscribers didn't get a new blog | The 300-a-day limit (step 1); Brevo's logs show it |
 
 ## Locally (Laragon)
 
 - **Mailpit** catches all mail: http://localhost:8025
 - Laragon starts these automatically (see `C:\laragon\usr\Procfile`): Mailpit, the queue worker and the scheduler. They run from the next time you start Laragon, and are visible under Menu → Procfile.
-- No queue worker running? Then the "new story" mails wait in the queue. `php artisan queue:work --stop-when-empty` sends them anyway.
+- No queue worker running? Then mails wait in the queue. `php artisan queue:work --stop-when-empty` sends them anyway.

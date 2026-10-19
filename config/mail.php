@@ -113,4 +113,11 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    // Where replies go. Mail is sent from an address on the blog's own domain (a Gmail address
+    // can't be the sender: it would land in spam); a reader who answers a mail reaches this inbox.
+    'reply_to' => [
+        'address' => env('MAIL_REPLY_TO_ADDRESS'),
+        'name' => env('MAIL_REPLY_TO_NAME', env('MAIL_FROM_NAME')),
+    ],
+
 ];

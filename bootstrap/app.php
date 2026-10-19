@@ -11,7 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // www. and the temporary address go to the address in APP_URL (production only)
+        $middleware->prepend(\App\Http\Middleware\RedirectToMainAddress::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
