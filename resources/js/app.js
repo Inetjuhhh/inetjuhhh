@@ -4,6 +4,9 @@ import './bootstrap';
 // Windows paths in the build (../C:/laragon/...), so every icon was an empty box on the built site
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
+// The phone menu (data-collapse-toggle in navigation.blade.php); from our own build, not from a CDN
+import 'flowbite';
+
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
 
@@ -242,3 +245,18 @@ Alpine.data('siteSearch', ({ suggestUrl, searchUrl }) => ({
 window.Alpine = Alpine;
 
 Alpine.start();
+
+// Share buttons (laravel-share) open a small window instead of a new tab; without jQuery
+document.addEventListener('click', (event) => {
+    const button = event.target.closest('.social-button');
+    if (!button) return;
+
+    const width = 780;
+    const height = 550;
+    const popup = window.open(button.href, 'social', `width=${width},height=${height},left=${(screen.width - width) / 2},top=${(screen.height - height) / 2},location=0,menubar=0,toolbar=0,status=0,scrollbars=1,resizable=1`);
+
+    if (popup) {
+        popup.focus();
+        event.preventDefault();
+    }
+});

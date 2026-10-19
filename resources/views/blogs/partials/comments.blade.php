@@ -56,6 +56,8 @@
     {{-- Form: no account, email address is never shown --}}
     <form method="POST" action="{{ route('comments.store', $blog) }}"
           x-data="{ sending: false }" x-on:submit="sending = true"
+          {{-- The robot check (Cloudflare) loads only once someone starts on the form, not for every reader --}}
+          @if($turnstileKey) x-on:focusin.once="window.renderTurnstile($refs.turnstile)" @endif
           class="mt-10 rounded-3xl bg-night-700 p-6 ring-1 ring-white/5 sm:p-8">
         @csrf
         <h3 class="font-display text-2xl text-cream">Laat een reactie achter</h3>
@@ -98,13 +100,13 @@
 
             @if($turnstileKey)
                 <div class="sm:col-span-2">
-                    <div class="cf-turnstile" data-sitekey="{{ $turnstileKey }}" data-theme="dark" data-language="nl"></div>
+                    <div x-ref="turnstile" data-sitekey="{{ $turnstileKey }}"></div>
                 </div>
             @endif
 
             <div class="flex flex-col gap-4 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
                 <p class="text-xs leading-relaxed text-cream-muted sm:max-w-sm">
-                    Je e-mailadres wordt nooit getoond of gedeeld. Een eerste reactie lees ik even voordat hij online komt.
+                    Je e-mailadres wordt nooit getoond of gedeeld. Een eerste reactie lees ik even voordat hij online komt. <a href="{{ route('privacy') }}" class="underline underline-offset-2 hover:text-cream">Zo ga ik met je gegevens om</a>.
                 </p>
                 <button type="submit" x-bind:disabled="sending"
                         class="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-2.5 font-semibold text-night-900 transition hover:bg-cream disabled:opacity-60">
@@ -114,7 +116,4 @@
         </fieldset>
     </form>
 
-    @if($turnstileKey)
-        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    @endif
 </section>

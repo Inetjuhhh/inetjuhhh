@@ -1,6 +1,6 @@
 <x-app-layout :title="$page->title">
     <x-slot name="header">
-        <p class="text-xs uppercase tracking-widest font-semibold text-accent">Over deze blog</p>
+        <p class="text-xs uppercase tracking-widest font-semibold text-accent">{{ $eyebrow ?? 'Over deze blog' }}</p>
         <h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">{{ $page->title }}</h1>
     </x-slot>
 
@@ -9,6 +9,8 @@
             {!! $page->renderContent() !!}
         </article>
 
-        @include('blogs.partials.subscribe', ['variant' => 'blog'])
+        @if($subscribe ?? true)
+            @include('blogs.partials.subscribe', ['variant' => 'blog'])
+        @endif
     </div>
 </x-app-layout>

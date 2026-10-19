@@ -8,8 +8,7 @@
         <title>{{ $title ? $title . ' – ' : '' }}{{ config('app.name', 'Inetjuhhh') }}</title>
 
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=nunito-sans:400,400i,500,600,700|delius:400&display=swap" rel="stylesheet" />
+        <link href="{{ asset('fonts/site/site-fonts.css') }}" rel="stylesheet" />
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -62,6 +61,8 @@
                 </div>
                 <div class="border-t border-night-700 py-5 text-center text-xs text-cream-muted">
                     &copy; {{ date('Y') }} Inetjuhhh
+                    <span aria-hidden="true" class="mx-1.5">·</span>
+                    <a href="{{ route('privacy') }}" class="hover:text-cream underline-offset-4 hover:underline">Privacy</a>
                 </div>
             </footer>
         </div>
@@ -99,8 +100,5 @@
             </template>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
-        <script src="{{ asset('js/share.js') }}"></script>
     </body>
 </html>

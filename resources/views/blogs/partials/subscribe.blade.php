@@ -83,7 +83,7 @@
 
             <div @class(['flex flex-col gap-3', 'sm:col-span-2 sm:flex-row sm:items-center sm:justify-between' => ! $footer])>
                 <p class="text-xs leading-relaxed text-cream-muted">
-                    Je krijgt eerst een mail om je inschrijving te bevestigen. Uitschrijven kan in elke mail.
+                    Je krijgt eerst een mail om je inschrijving te bevestigen. Uitschrijven kan in elke mail. <a href="{{ route('privacy') }}" class="underline underline-offset-2 hover:text-cream">Privacy</a>
                 </p>
                 <button type="submit" x-bind:disabled="sending"
                         class="inline-flex flex-none items-center justify-center gap-2 self-start rounded-full bg-brand px-5 py-2.5 font-semibold text-night-900 transition hover:bg-cream disabled:opacity-60">
