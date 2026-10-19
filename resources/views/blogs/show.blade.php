@@ -1,4 +1,5 @@
-<x-app-layout :title="$blog->title">
+<x-app-layout :title="$blog->title" :description="$blog->shareDescription()" :image="$blog->shareImageUrl()"
+              type="article" :published-at="$blog->publishedDate()->toIso8601String()" :noindex="$isPreview ?? false">
     @if($isPreview ?? false)
         <div class="sticky top-[73px] z-30 bg-accent text-night-900 text-sm font-semibold text-center px-4 py-2">
             Voorbeeld — {{ $blog->isPublished() ? 'deze blog is gepubliceerd' : ($blog->status === 'published' ? 'ingepland voor ' . $blog->published_at->translatedFormat('d F Y H:i') : 'dit concept is nog niet zichtbaar voor bezoekers') }}

@@ -15,7 +15,10 @@
     }
 @endphp
 
-<x-app-layout :title="$search !== null ? 'Zoeken: ' . $search : ($trip?->name ?? (isset($country) ? $country->name : (isset($category) ? $category->name : null)))">
+<x-app-layout :title="$search !== null ? 'Zoeken: ' . $search : ($trip?->name ?? (isset($country) ? $country->name : (isset($category) ? $category->name : null)))"
+              :description="$trip?->description ? \Illuminate\Support\Str::limit($trip->description, 200) : null"
+              :image="($tripCover = $trip?->coverMedia()) ? url(\App\Support\BlogImages::url($tripCover->path, 1200, 'jpg')) : null"
+              :noindex="$search !== null">
     <x-slot name="header">
         @if($search !== null)
             {{-- Search results, with the typo fix when that was needed --}}

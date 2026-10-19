@@ -7,6 +7,27 @@
 
         <title>{{ $title ? $title . ' – ' : '' }}{{ config('app.name', 'Inetjuhhh') }}</title>
 
+        {{-- For Google, and the preview when someone shares the page (WhatsApp, Facebook, LinkedIn, …) --}}
+        @php
+            $pageUrl = request()->url() . (request()->integer('page') > 1 ? '?page=' . request()->integer('page') : '');
+        @endphp
+        <meta name="description" content="{{ $description }}">
+        <link rel="canonical" href="{{ $pageUrl }}">
+        @if($noindex)
+            <meta name="robots" content="noindex, nofollow">
+        @endif
+        <meta property="og:site_name" content="Inetjuhhh">
+        <meta property="og:locale" content="nl_NL">
+        <meta property="og:type" content="{{ $type }}">
+        <meta property="og:title" content="{{ $title ?? config('app.name', 'Inetjuhhh') }}">
+        <meta property="og:description" content="{{ $description }}">
+        <meta property="og:url" content="{{ $pageUrl }}">
+        <meta property="og:image" content="{{ $image }}">
+        @if($publishedAt)
+            <meta property="article:published_time" content="{{ $publishedAt }}">
+        @endif
+        <meta name="twitter:card" content="summary_large_image">
+
         <!-- The avatar in the browser tab, and on a phone's home screen (chosen in the admin: Beheer → Website) -->
         <link rel="icon" href="{{ \App\Support\Avatar::faviconUrl() }}" sizes="any">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ \App\Support\Avatar::url(32) }}">

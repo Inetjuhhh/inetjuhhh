@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 class Blog extends Model
 {
@@ -258,6 +259,25 @@ class Blog extends Model
     public function hasCover(): bool
     {
         return $this->coverMedia() !== null;
+    }
+
+    /**
+     * The photo for the preview when the blog is shared (WhatsApp, Facebook, …): the cover as JPG,
+     * which every app shows, 1200 wide, as a full address. Null without a photo of its own.
+     */
+    public function shareImageUrl(): ?string
+    {
+        return $this->hasCover() ? url($this->coverUrl(1200, 630, 'jpg')) : null;
+    }
+
+    /**
+     * One or two sentences about the blog, for search engines and share previews.
+     */
+    public function shareDescription(): string
+    {
+        $text = filled($this->excerpt) && $this->excerpt !== 'No excerpt' ? $this->excerpt : BlogSearch::plainText($this->content);
+
+        return Str::limit(trim(preg_replace('/\s+/', ' ', $text)), 200);
     }
 
     private ?CuratorMedia $coverMedia = null;
