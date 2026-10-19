@@ -244,7 +244,7 @@ php artisan migrate --force      # nothing to do now; keeps later updates in syn
 rm ~/inetjuhhh-database.sql.gz ~/inetjuhhh-photos.tar
 shred -u ~/dbpass.txt 2>/dev/null   # the temporary password file, if you made one
 ```
-`storage:link` makes `public/storage` point to the photos, so the browser can reach them. **Never** run `db:seed`, `migrate:fresh` or `wordpress:import` here: that would overwrite your real content.
+`storage:link` makes `public/storage` point to the photos, so the browser can reach them. **Never** run `db:seed`, `migrate:fresh` or `wordpress:import` here: that would overwrite your real content. On the server they refuse anyway (*This command is prohibited from running in this environment*), because `APP_ENV=production`; `migrate` for updates keeps working.
 
 ## 8. The web server and https
 
@@ -356,6 +356,7 @@ cd /var/www/inetjuhhh && ./deploy.sh
 ## 13. Backups and keeping an eye on it
 
 - **Hetzner backups** (step 1): the whole server every day, 7 days back. Restore in the Cloud Console → your server → Backups.
+- **A copy of the database every night** at 03:30, made by the scheduler (step 9), in `storage/app/backups/`, kept 14 days (`php artisan site:backup` makes one by hand). For getting back one blog or comment deleted by accident: UPDATESTEPS.md chapter 6.
 - **An extra copy of the content now and then**, on your own computer (for example once a month, and before big changes):
   ```bash
   ssh ine@<IP> "cd /var/www/inetjuhhh && php artisan site:export"

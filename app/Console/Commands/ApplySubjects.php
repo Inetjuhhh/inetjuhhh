@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Tag;
 use App\Support\SiteCache;
 use Illuminate\Console\Command;
+use Illuminate\Console\Prohibitable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -20,6 +21,9 @@ use Illuminate\Support\Facades\DB;
  */
 class ApplySubjects extends Command
 {
+    // Refused on the live server (AppServiceProvider): it would undo subjects and categories set in the admin
+    use Prohibitable;
+
     protected $signature = 'blogs:subjects {--dry-run : Only show what would change}';
 
     protected $description = 'Give the stories their subjects (themes) from config/subjects.php';
@@ -32,6 +36,10 @@ class ApplySubjects extends Command
         $stats = ['tags changed' => 0, 'categories changed' => 0, 'taken offline' => 0, 'not found' => 0];
 
         $dryRun = (bool) $this->option('dry-run');
+        if (! $dryRun && $this->isProhibited()) {
+            return self::FAILURE;
+        }
+
         DB::beginTransaction();
 
         foreach (Blog::with(['tags', 'categories'])->get() as $blog) {

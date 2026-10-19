@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\ApplySubjects;
+use App\Console\Commands\ImportWordPress;
 use App\Models\Blog;
 use App\Models\Country;
 use App\Models\Trip;
@@ -13,7 +15,9 @@ use Awcodes\Curator\Facades\Curator;
 use Awcodes\Curator\Models\Media;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Console\Seeds\SeedCommand;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -34,6 +38,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // On the live server the real blogs are in the database: commands that empty it, or overwrite
+        // it with example or WordPress content, refuse to run there (also with --force)
+        $live = $this->app->isProduction();
+        DB::prohibitDestructiveCommands($live);
+        SeedCommand::prohibit($live);
+        ImportWordPress::prohibit($live);
+        ApplySubjects::prohibit($live);
+
         // Countries in the footer: only those with at least one story visitors can read
         View::composer('layouts.app', function ($view) {
             $view->with('countries', SiteCache::menuCountries());

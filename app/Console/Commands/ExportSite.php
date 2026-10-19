@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Blog;
 use App\Models\Trip;
 use App\Models\User;
+use App\Support\DatabaseDump;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -21,9 +22,6 @@ class ExportSite extends Command
     protected $signature = 'site:export {--force : Export even when test content is still there}';
 
     protected $description = 'Export the database and the photos for the production server';
-
-    // Tables whose rows only matter on this computer: they are exported empty
-    private const EMPTY_TABLES = ['sessions', 'cache', 'cache_locks', 'jobs', 'job_batches', 'failed_jobs', 'password_reset_tokens'];
 
     public function handle(): int
     {
@@ -73,30 +71,7 @@ class ExportSite extends Command
     private function exportDatabase(string $file): void
     {
         $this->info('Database …');
-        $db = config('database.connections.mysql');
-        $base = [
-            $this->mysqldump(), '--host=' . $db['host'], '--port=' . $db['port'], '--user=' . $db['username'],
-            '--single-transaction', '--no-tablespaces', '--set-gtid-purged=OFF', '--default-character-set=utf8mb4',
-        ];
-        $env = filled($db['password']) ? ['MYSQL_PWD' => $db['password']] : [];
-
-        $gz = gzopen($file, 'wb6');
-
-        // First every table's structure, then the rows of all tables except the local-only ones
-        $runs = [
-            [...$base, '--no-data', '--routines', $db['database']],
-            [...$base, '--no-create-info', '--skip-triggers',
-                ...array_map(fn ($table) => "--ignore-table={$db['database']}.{$table}", self::EMPTY_TABLES),
-                $db['database']],
-        ];
-
-        foreach ($runs as $command) {
-            Process::env($env)->timeout(600)
-                ->run($command, fn (string $type, string $output) => $type === 'out' ? gzwrite($gz, $output) : $this->warn(trim($output)))
-                ->throw();
-        }
-
-        gzclose($gz);
+        DatabaseDump::to($file, fn (string $warning) => $this->warn($warning));
         $this->line('  ' . $this->size($file));
     }
 
@@ -111,18 +86,6 @@ class ExportSite extends Command
             ->throw();
 
         $this->line('  ' . $this->size($file));
-    }
-
-    private function mysqldump(): string
-    {
-        if ($path = env('MYSQLDUMP_PATH')) {
-            return $path;
-        }
-
-        // Laragon keeps MySQL in its own folder, not on the PATH
-        $laragon = glob('C:/laragon/bin/mysql/*/bin/mysqldump.exe') ?: [];
-
-        return end($laragon) ?: 'mysqldump';
     }
 
     private function size(string $file): string

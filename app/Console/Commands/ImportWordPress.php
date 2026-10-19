@@ -18,6 +18,7 @@ use App\Support\LegacyLinks\UploadKey;
 use Illuminate\Support\Facades\Cache;
 use App\Support\WordPress\WxrReader;
 use Illuminate\Console\Command;
+use Illuminate\Console\Prohibitable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +33,9 @@ use Illuminate\Support\Str;
  */
 class ImportWordPress extends Command
 {
+    // Refused on the live server (AppServiceProvider): an import there would overwrite the real blogs
+    use Prohibitable;
+
     protected $signature = 'wordpress:import
         {file? : The export file (default: the newest .xml in storage/app/wordpress)}
         {--dry-run : Only show what would be imported}
@@ -55,6 +59,10 @@ class ImportWordPress extends Command
     {
         $this->config = config('wordpress-import');
         $dryRun = (bool) $this->option('dry-run');
+
+        if (! $dryRun && $this->isProhibited()) {
+            return self::FAILURE;
+        }
 
         $file = $this->argument('file') ?? collect(glob(config('wordpress-import.directory') . '/*.xml'))->sortDesc()->first();
         if (! $file) {

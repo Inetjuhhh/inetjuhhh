@@ -25,6 +25,7 @@ cd /var/www/inetjuhhh && ./deploy.sh
 
 **Goed om te weten:**
 - **Een nieuwe instelling in `.env`?** Die gaat niet mee met git. Zet hem op je laptop in `.env.example` (met lege waarde), en op de server met de hand: `nano .env`, daarna `php artisan optimize && php artisan queue:restart`.
+- **Je echte blogs zijn beschermd:** op de server weigeren `migrate:fresh`, `migrate:refresh`, `migrate:reset`, `migrate:rollback`, `db:wipe`, `db:seed`, `wordpress:import` en `blogs:subjects` (ook met `--force`). Je ziet dan *This command is prohibited from running in this environment*. Op je laptop werken ze gewoon.
 - **Een wijziging aan de database** (tabel of kolom erbij) doe je alleen met een **migration** op je laptop (`php artisan make:migration …`). `deploy.sh` voert hem op de server uit. Nooit met de hand in de database op de server.
 - **Styles aangepast?** Stop daarna lokaal `npm run dev` (Ctrl+C), anders blijft `public/hot` staan en wordt je lokale admin traag.
 
@@ -82,7 +83,7 @@ Na een minuut weer online. Alles start vanzelf: nginx, PHP, MySQL, de queue work
 **Kijken wat de server doet, zonder SSH:** rechtsboven op de pagina van je server staat een **>_**-knop (**Console**). Dat is een scherm van de server in je browser, alsof je er een toetsenbord en beeldscherm op aansluit. Log in als **`ine`** met het **sudo-wachtwoord**. Handig als SSH stuk is (bijvoorbeeld door een fout in de firewall).
 
 ### Stap 5: een backup terugzetten (noodgeval)
-Console → je server → tab **Backups** → kies een dag → **Restore**. Let op: alles wat daarna veranderd is (nieuwe blogs, reacties) is dan weg. Alleen als niets anders helpt.
+Console → je server → tab **Backups** → kies een dag → **Restore**. Dat zet de **hele server** terug, ook de foto's. Let op: alles wat daarna veranderd is (nieuwe blogs, reacties) is dan weg. Alleen als niets anders helpt. Eén blog of reactie kwijt? Dan is hoofdstuk 6 handiger.
 
 ---
 
@@ -136,3 +137,58 @@ Console → je server → tab **Backups** → kies een dag → **Restore**. Let 
 | **Browser waarschuwt voor het certificaat** | `sudo certbot renew`, daarna `sudo systemctl reload nginx` |
 | **Schijf vol** (`df -h` bijna 100%) | Meestal logbestanden: `sudo journalctl --vacuum-time=7d`, en kijk met `du -sh /var/www/inetjuhhh/storage/*` wat groot is |
 | **Je komt de admin niet in** | "Wachtwoord vergeten?" op de inlogpagina; en `ADMIN_EMAILS` in `.env` moet je inlogadres bevatten |
+
+---
+
+## 6. Een blog of reactie per ongeluk weggegooid
+
+Elke nacht om 03:30 maakt de server een kopie van de **database** (zonder foto's), in `storage/app/backups/database-<datum>.sql.gz`. De kopieën van de laatste 14 dagen blijven bewaard. Zelf een kopie maken, bijvoorbeeld vóór een grote opruimactie, kan ook:
+```bash
+cd /var/www/inetjuhhh && php artisan site:backup
+ls -lh storage/app/backups/        # welke kopieën er zijn
+```
+
+Foto's staan **niet** in deze kopie. Een weggegooide blog komt dus terug met zijn tekst, maar een foto die je óók uit de mediabibliotheek hebt verwijderd niet. Die zit wel in de dagelijkse backup van Hetzner.
+
+### Eén blog terughalen
+
+Het idee: je zet de kopie van vóór het weggooien in een **aparte, tijdelijke database**, en kopieert alleen die ene blog terug. Je echte database blijft verder onaangeraakt.
+
+**1. De kopie in een tijdelijke database zetten** (kies de datum van vóór het weggooien):
+```bash
+cd /var/www/inetjuhhh
+sudo mysql -e "CREATE DATABASE inetjuhhh_herstel CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+gunzip -c storage/app/backups/database-2026-10-18.sql.gz | sudo mysql inetjuhhh_herstel
+```
+
+**2. De blog opzoeken** (een woord uit de titel):
+```bash
+sudo mysql inetjuhhh_herstel -e "SELECT id, title FROM blogs WHERE title LIKE '%Toscane%';"
+```
+Onthoud het **id**, het getal vooraan. Hieronder staat `123`: vervang dat overal door jouw id.
+
+**3. De blog terugzetten, met zijn landen, tags, reacties en hartjes:**
+```bash
+sudo mysql <<'SQL'
+INSERT INTO inetjuhhh.blogs            SELECT * FROM inetjuhhh_herstel.blogs            WHERE id = 123;
+INSERT INTO inetjuhhh.blog_country     SELECT * FROM inetjuhhh_herstel.blog_country     WHERE blog_id = 123;
+INSERT INTO inetjuhhh.blog_tag         SELECT * FROM inetjuhhh_herstel.blog_tag         WHERE blog_id = 123;
+INSERT INTO inetjuhhh.blog_subcategory SELECT * FROM inetjuhhh_herstel.blog_subcategory WHERE blog_id = 123;
+INSERT INTO inetjuhhh.responses        SELECT * FROM inetjuhhh_herstel.responses        WHERE blog_id = 123;
+INSERT INTO inetjuhhh.blog_likes       SELECT * FROM inetjuhhh_herstel.blog_likes       WHERE blog_id = 123;
+INSERT INTO inetjuhhh.blog_views       SELECT * FROM inetjuhhh_herstel.blog_views       WHERE blog_id = 123;
+SQL
+php artisan cache:clear
+```
+`INSERT … SELECT` kopieert rijen van de ene database naar de andere. Omdat een id nooit opnieuw wordt gebruikt, botst er niets. `cache:clear` zorgt dat de blog meteen weer op de kaart en in de menu's staat.
+
+**4. De tijdelijke database weer weggooien:**
+```bash
+sudo mysql -e "DROP DATABASE inetjuhhh_herstel;"
+```
+Let goed op dat hier `inetjuhhh_herstel` staat, met `_herstel` erachter.
+
+**Twijfel je?** Doe stap 1 en 2, en stuur me het id en de titel: dan lopen we stap 3 samen door.
+
+### Eén reactie terughalen
+Hetzelfde, maar in stap 2 zoek je de reactie (`SELECT id, name, response FROM responses WHERE name LIKE '%Femke%';`), en in stap 3 gebruik je alleen de regel van `responses`, met `WHERE id = …` in plaats van `WHERE blog_id = …`.
