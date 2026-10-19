@@ -8,12 +8,14 @@ use App\Filament\Resources\BlogResource\Pages\ListBlogs;
 use App\Filament\Forms\LocationPicker;
 use App\Filament\Forms\StoryEditor;
 use App\Models\Blog;
+use App\Models\Subscriber;
 use App\Models\Category;
 use App\Models\Tag;
 use App\Models\Trip;
 use App\Support\BlogSearch;
 use App\Support\Geocoder;
 use App\Support\ImageOptimizer;
+use App\Support\NewBlogNotifier;
 use App\Support\TagSuggester;
 use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Filament\Actions\Action;
@@ -36,6 +38,7 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -428,6 +431,21 @@ class BlogResource extends Resource
                     ->placeholder('—')
                     ->sortable()
                     ->visibleFrom('md'),
+                // Whether the subscribers got a mail about this blog (the button is "Mail abonnees")
+                IconColumn::make('subscribers_notified_at')
+                    ->label('Mail')
+                    ->state(fn (Blog $record) => match (true) {
+                        $record->subscribers_notified_at !== null => 'sent',
+                        $record->isPublished() => 'ready',
+                        default => null,
+                    })
+                    ->icon(fn (?string $state) => $state === 'sent' ? Heroicon::OutlinedCheckCircle : Heroicon::OutlinedEnvelope)
+                    ->color(fn (?string $state) => $state === 'sent' ? 'success' : 'gray')
+                    ->tooltip(fn (Blog $record) => $record->subscribers_notified_at
+                        ? 'Gemaild op ' . $record->subscribers_notified_at->translatedFormat('d F Y H:i')
+                        : ($record->isPublished() ? 'Nog niet gemaild' : null))
+                    ->alignCenter()
+                    ->visibleFrom('md'),
                 TextColumn::make('updated_at')
                     ->label('Laatst bewerkt')
                     ->since()
@@ -462,6 +480,7 @@ class BlogResource extends Resource
                     ->openUrlInNewTab()
                     ->iconButton()
                     ->tooltip('Bekijk op de site'),
+                self::mailSubscribersAction()->iconButton(),
                 // Icons, so the title keeps its room on phone and iPad (clicking the row also opens the editor)
                 EditAction::make()->iconButton()->tooltip('Bewerken'),
             ])
@@ -473,6 +492,69 @@ class BlogResource extends Resource
     }
 
     // "Ingepland" for a published blog whose date is still to come
+    /**
+     * "Mail abonnees": the mail about a new blog to everyone on the list. Only for a blog that is online
+     * and hasn't been sent yet; asks first, because it can only be sent once.
+     */
+    public static function mailSubscribersAction(): Action
+    {
+        return Action::make('mailSubscribers')
+            ->label('Mail abonnees')
+            ->tooltip('Mail abonnees over deze blog')
+            ->icon(Heroicon::OutlinedPaperAirplane)
+            ->color('primary')
+            ->visible(fn (Blog $record) => NewBlogNotifier::canSend($record))
+            ->requiresConfirmation()
+            ->modalIcon(Heroicon::OutlinedEnvelope)
+            ->modalHeading('Mail naar je abonnees sturen?')
+            ->modalDescription(function (Blog $record) {
+                $count = Subscriber::confirmed()->count();
+
+                return $count === 0
+                    ? 'Er staan nog geen bevestigde abonnees op de lijst. Er gaat dus niets weg; de knop blijft staan voor later.'
+                    : "\"{$record->title}\" gaat naar {$count} " . ($count === 1 ? 'abonnee' : 'abonnees') . '. Dat kan maar één keer: daarna verdwijnt deze knop.';
+            })
+            ->modalSubmitActionLabel('Ja, verstuur')
+            ->action(function (Blog $record) {
+                $count = NewBlogNotifier::send($record);
+
+                $count > 0
+                    ? Notification::make()->success()->title("Verstuurd naar {$count} " . ($count === 1 ? 'abonnee' : 'abonnees'))
+                        ->body('De mails gaan de komende minuten de deur uit.')->send()
+                    : Notification::make()->warning()->title('Er is niets verstuurd')
+                        ->body('Er zijn nog geen bevestigde abonnees, of deze blog was al verstuurd.')->send();
+            });
+    }
+
+    /**
+     * "Testmail naar mij": the same mail to yourself first, to see how it looks. Marks nothing as sent.
+     */
+    public static function testMailAction(): Action
+    {
+        return Action::make('testMail')
+            ->label('Testmail naar mij')
+            ->tooltip('Stuurt de mail voor abonnees eerst naar je eigen adres')
+            ->icon(Heroicon::OutlinedEnvelopeOpen)
+            ->color('gray')
+            ->visible(fn (Blog $record) => $record->subscribers_notified_at === null)
+            ->action(function (Blog $record) {
+                $user = auth()->user();
+
+                try {
+                    NewBlogNotifier::sendTest($record, $user->email, $user->name);
+                } catch (\Throwable $e) {
+                    report($e);
+                    Notification::make()->danger()->title('De testmail kon niet worden verstuurd')->body($e->getMessage())->send();
+
+                    return;
+                }
+
+                Notification::make()->success()->title('Testmail verstuurd naar ' . $user->email)
+                    ->body($record->isPublished() ? null : 'Let op: de blog staat nog niet online, dus de knop in de mail opent nog niets.')
+                    ->send();
+            });
+    }
+
     private static function statusLabel(Blog $record): string
     {
         return $record->status === 'published' && ! $record->isPublished()

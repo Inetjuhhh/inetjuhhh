@@ -134,7 +134,7 @@ php artisan queue:restart
 From now on, visitors on `www.inetjuhhh.nl` or `nieuw.inetjuhhh.nl` are sent on to the same page on `https://inetjuhhh.nl` (the app does that itself, as soon as `APP_URL` says so). Links in mails point to inetjuhhh.nl.
 
 ### 6.6 Check again
-The old links from step 5, now on `https://inetjuhhh.nl/…`. `www.inetjuhhh.nl` and `nieuw.inetjuhhh.nl` should end up on inetjuhhh.nl. Log in to `/admin` again (the login is tied to the address). Publish a blog (or a test draft you publish and take back) and check that the mail links to inetjuhhh.nl.
+The old links from step 5, now on `https://inetjuhhh.nl/…`. `www.inetjuhhh.nl` and `nieuw.inetjuhhh.nl` should end up on inetjuhhh.nl. Log in to `/admin` again (the login is tied to the address). Send yourself a **Testmail naar mij** from a blog in the admin, and check that the mail links to inetjuhhh.nl.
 
 ---
 

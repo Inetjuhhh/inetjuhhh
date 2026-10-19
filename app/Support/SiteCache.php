@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Cache;
  * Every key carries a version number. Forgetting everything is raising that number: the old keys are
  * never asked for again and expire by themselves, however many related-blog lists there are.
  * That happens as soon as a blog, trip or country is saved or deleted (see AppServiceProvider), and
- * when a planned blog goes online (NewBlogNotifier::sendDue, every five minutes). After an hour at
+ * when a planned blog goes online (blogs:check-planned, every five minutes). After an hour at
  * the latest everything is worked out again anyway, as a safety net.
  */
 class SiteCache

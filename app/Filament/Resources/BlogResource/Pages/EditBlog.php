@@ -29,6 +29,8 @@ class EditBlog extends EditRecord
                     ? route('blogs.show', $this->getRecord())
                     : $this->getRecord()->previewUrl())
                 ->openUrlInNewTab(),
+            BlogResource::testMailAction(),
+            BlogResource::mailSubscribersAction(),
             DeleteAction::make(),
         ];
     }

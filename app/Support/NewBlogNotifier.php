@@ -8,16 +8,32 @@ use App\Models\Subscriber;
 use Illuminate\Support\Facades\Mail;
 
 /**
- * Puts a "new blog online" mail for every confirmed subscriber on the queue, once per blog.
+ * The "new blog online" mail to every confirmed subscriber. Never automatic: Ine sends it herself with
+ * the button "Mail abonnees" in the admin (BlogResource::mailSubscribersAction), once per blog.
  */
 class NewBlogNotifier
 {
     /**
-     * @return int How many mails were queued (0 when this blog was already sent)
+     * A blog can be sent once it is online for readers and hasn't been sent before.
+     */
+    public static function canSend(Blog $blog): bool
+    {
+        return $blog->isPublished() && $blog->subscribers_notified_at === null;
+    }
+
+    /**
+     * Puts a mail for every confirmed subscriber on the queue.
+     *
+     * @return int How many mails were queued (0 when there are no subscribers, or the blog was already sent)
      */
     public static function send(Blog $blog): int
     {
-        // Claim the blog first: a save and the scheduled command at the same moment can't both send it
+        // No subscribers yet: leave the blog unsent, so the button is still there once there are some
+        if (! static::canSend($blog) || ! Subscriber::confirmed()->exists()) {
+            return 0;
+        }
+
+        // Claim the blog first: two clicks at the same moment can't both send it
         $claimed = Blog::whereKey($blog->getKey())
             ->whereNull('subscribers_notified_at')
             ->update(['subscribers_notified_at' => now()]);
@@ -40,20 +56,14 @@ class NewBlogNotifier
     }
 
     /**
-     * Blogs planned for later whose publish date has passed. Run by the scheduler.
+     * The same mail to one address, right away (not via the queue), to see how it looks before
+     * sending it to everyone. Nothing is marked as sent; the unsubscribe link in it goes nowhere.
      */
-    public static function sendDue(): int
+    public static function sendTest(Blog $blog, string $email, string $name): void
     {
-        $due = Blog::published()
-            ->whereNull('subscribers_notified_at')
-            ->oldestFirst()
-            ->get();
+        $example = new Subscriber(['name' => $name, 'email' => $email]);
+        $example->token = 'voorbeeld';
 
-        // A planned blog just went online without anyone saving it: the menu and map must show it
-        if ($due->isNotEmpty()) {
-            SiteCache::forget();
-        }
-
-        return $due->sum(fn (Blog $blog) => static::send($blog));
+        Mail::to($email, $name)->sendNow(new NewBlogPublished($blog, $example));
     }
 }

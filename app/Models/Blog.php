@@ -6,7 +6,6 @@ use App\Models\Concerns\RendersRichContent;
 use App\Support\BlogImages;
 use App\Support\BlogSearch;
 use App\Support\Geocoder;
-use App\Support\NewBlogNotifier;
 use Awcodes\Curator\Models\Media as CuratorMedia;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -50,13 +49,8 @@ class Blog extends Model
             }
         });
 
-        // Mail the subscribers the first time a blog goes online. Blogs planned for later are
-        // picked up by the blogs:notify-subscribers command once their date has come.
-        static::saved(function (Blog $blog) {
-            if ($blog->isPublished() && $blog->subscribers_notified_at === null) {
-                NewBlogNotifier::send($blog);
-            }
-        });
+        // The mail to subscribers is never sent on saving: Ine sends it with the button "Mail abonnees"
+        // in the admin, when she wants (NewBlogNotifier)
     }
 
     public function placed_by()

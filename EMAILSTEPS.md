@@ -5,7 +5,7 @@ The blog sends three kinds of email:
 | Mail | To | When |
 |---|---|---|
 | **Confirm your subscription** | A reader who signs up | Right away, after the form under a blog or in the footer is sent |
-| **New story: …** | Every confirmed subscriber | When a blog goes online (or, for a planned blog, within 5 minutes of its date) |
+| **New story: …** | Every confirmed subscriber | When **you** click **Mail abonnees** at a blog in the admin (never by itself), once per blog |
 | New comment / reply to a comment | You, or the reader who asked for it | When someone comments, or you reply in the admin |
 | New password | You | "Wachtwoord vergeten?" on the admin login |
 
@@ -101,7 +101,7 @@ Mention on the site (for example on **Ik & wij** or a privacy page):
    It arrives within a minute. In Gmail, open it → the three dots → **Show original**: `SPF`, `DKIM` and `DMARC` should all say **PASS**. Landed in spam the first time? Mark it "Not spam"; that helps.
 2. **Reply** to that mail: the reply should go to inetjuhhh@gmail.com.
 3. **Sign up** with your own address through the form under a blog, and click the link in the confirmation mail.
-4. **Publish a blog** (or a test draft you publish and take back). Within a minute you get "New story: …". Is the photo there, and does the button open the blog on the right address?
+4. **A new blog:** open a published blog in the admin and click **Testmail naar mij**: you get "Nieuw verhaal: …" straight away, and nothing is marked as sent. Is the photo there, and does the button open the blog on the right address? When you really want to send it to everyone: **Mail abonnees**.
 5. **mail-tester.com:** sign up with the address they give you, publish a blog, and aim for 9/10 or higher. A lower score almost always means a DNS record from step 2 isn't right yet.
 6. **Unsubscribe** with the link at the bottom of the mail and check that you disappear from **Admin → Abonnees**.
 7. In Brevo under **Transactional → Logs** (or *Statistics*) you can see every mail that went out, and whether it was delivered.
@@ -126,7 +126,7 @@ Mention on the site (for example on **Ik & wij** or a privacy page):
 | Brevo says "sender not valid" | Step 2 (domain authenticated?) and step 3 (sender added?) |
 | Mail lands in spam | Gmail → Show original: which of SPF/DKIM/DMARC fails? Then step 2 |
 | Links in the mail point to nieuw.inetjuhhh.nl or localhost | `APP_URL` in `.env`, then `php artisan optimize && php artisan queue:restart` |
-| Planned blog was never mailed | Is the scheduler in `crontab -l` (SERVERSTEPS.md step 9)? Run `php artisan blogs:notify-subscribers` by hand |
+| A new blog was never mailed | Mails go out only when you click **Mail abonnees** at that blog in the admin (the list, or the editor). After a click: is the queue worker running (`sudo supervisorctl status`)? |
 | Some subscribers didn't get a new blog | The 300-a-day limit (step 1); Brevo's logs show it |
 
 ## Locally (Laragon)

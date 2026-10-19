@@ -54,9 +54,7 @@ Either example content:
 ```bash
 php artisan migrate --seed
 ```
-or the real blog from a WordPress export (`storage/app/wordpress/*.xml`), see `php artisan wordpress:import --help`.
 
-Log in at `/admin` with **inetjuhhh@gmail.com** (password `password` after seeding). Forgot it? "Wachtwoord vergeten?" on the login page; the mail lands in Mailpit. Change it under your name → Profiel.
 
 ### 5. Run it
 - The site: http://inetjuhhh.test (Laragon) or `php artisan serve`
@@ -74,7 +72,8 @@ php artisan test
 | `php artisan site:export` | Database + photos as two files for the production server |
 | `php artisan blogs:subjects` | Subjects (bubbles) per story from `config/subjects.php` |
 | `php artisan media:fingerprint` | Fingerprints for the duplicate-photo check |
-| `php artisan blogs:notify-subscribers` | Mails subscribers about new blogs (the scheduler runs it every 5 minutes) |
+| `php artisan site:backup` | A copy of the database in `storage/app/backups` (the scheduler makes one every night, kept 14 days) |
+| `php artisan blogs:check-planned` | Refreshes the menu and map when a planned blog goes online (the scheduler, every 5 minutes). Subscribers are mailed with the button **Mail abonnees** in the admin |
 | `php artisan wordpress:import` / `wordpress:import-about` / `wordpress:keep-places` | The WordPress move; not needed after going live |
 
 ## 🔧 Technologies and packages

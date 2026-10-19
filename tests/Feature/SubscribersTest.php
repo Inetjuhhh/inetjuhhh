@@ -1,11 +1,14 @@
 <?php
 
+use App\Filament\Resources\BlogResource\Pages\EditBlog;
+use App\Filament\Resources\BlogResource\Pages\ListBlogs;
 use App\Filament\Resources\SubscriberResource\Pages\ManageSubscribers;
 use App\Mail\ConfirmSubscription;
 use App\Mail\NewBlogPublished;
 use App\Models\Blog;
 use App\Models\Subscriber;
 use App\Models\User;
+use App\Support\NewBlogNotifier;
 use App\Support\SpamGuard;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Livewire;
@@ -117,42 +120,79 @@ it('shows mistakes at the form that was used', function () {
         ->assertSessionHasErrors(['email'], null, 'newsletter_footer');
 });
 
-it('mails confirmed subscribers once when a blog goes online', function () {
+it('never mails subscribers by itself, not on publishing and not when a planned date comes', function () {
+    confirmed();
+
+    $blog = newBlog(['status' => 'draft']);
+    $blog->update(['status' => 'published']);
+    newBlog(['slug' => 'later', 'published_at' => now()->addDay()]);
+
+    $this->travel(25)->hours();
+    $this->artisan('blogs:check-planned')->assertSuccessful();
+
+    Mail::assertNothingQueued();
+    expect(Blog::whereNotNull('subscribers_notified_at')->count())->toBe(0);
+});
+
+it('mails the confirmed subscribers once, with the button in the list', function () {
+    $this->actingAs($this->author);
     confirmed();
     Subscriber::create(['name' => 'Niet bevestigd', 'email' => 'wacht@example.com']);
-
     $blog = newBlog();
+
+    Livewire::test(ListBlogs::class)
+        ->assertTableActionVisible('mailSubscribers', $blog)
+        ->callTableAction('mailSubscribers', $blog)
+        ->assertNotified('Verstuurd naar 1 abonnee');
 
     Mail::assertQueued(NewBlogPublished::class, 1);
     Mail::assertQueued(NewBlogPublished::class, fn ($mail) => $mail->hasTo('femke@example.com') && $mail->blog->is($blog));
 
-    // Fixing a typo later doesn't send it again
+    // Sent once: the button is gone, and saving again (a typo fixed) sends nothing
+    Livewire::test(ListBlogs::class)->assertTableActionHidden('mailSubscribers', $blog->fresh());
     $blog->update(['title' => 'Poon Hill bij zonsopgang']);
+    expect(NewBlogNotifier::send($blog->fresh()))->toBe(0);
     Mail::assertQueued(NewBlogPublished::class, 1);
 });
 
-it('waits with drafts until they are published', function () {
+it('shows the button only for blogs that are online and not sent yet', function () {
+    $this->actingAs($this->author);
+    $draft = newBlog(['slug' => 'concept', 'status' => 'draft']);
+    $planned = newBlog(['slug' => 'later', 'published_at' => now()->addDay()]);
+    $sent = newBlog(['slug' => 'al-gemaild', 'subscribers_notified_at' => now()]);
+
+    Livewire::test(ListBlogs::class)
+        ->removeTableFilters()
+        ->assertTableActionHidden('mailSubscribers', $draft)
+        ->assertTableActionHidden('mailSubscribers', $planned)
+        ->assertTableActionHidden('mailSubscribers', $sent);
+});
+
+it('keeps the button when there are no subscribers yet', function () {
+    $this->actingAs($this->author);
+    $blog = newBlog();
+
+    Livewire::test(EditBlog::class, ['record' => $blog->id])
+        ->callAction('mailSubscribers')
+        ->assertNotified('Er is niets verstuurd');
+
+    expect($blog->fresh()->subscribers_notified_at)->toBeNull();
+});
+
+it('sends a test mail to yourself first, without marking the blog as sent', function () {
+    $this->actingAs($this->author);
     confirmed();
+    $blog = newBlog();
 
-    $blog = newBlog(['status' => 'draft']);
+    Livewire::test(EditBlog::class, ['record' => $blog->id])
+        ->callAction('testMail')
+        ->assertNotified('Testmail verstuurd naar ' . $this->author->email);
+
+    Mail::assertSent(NewBlogPublished::class, fn ($mail) => $mail->hasTo($this->author->email));
     Mail::assertNothingQueued();
-
-    $blog->update(['status' => 'published']);
-    Mail::assertQueued(NewBlogPublished::class, 1);
+    expect($blog->fresh()->subscribers_notified_at)->toBeNull();
 });
 
-it('mails about a planned blog once its date has come', function () {
-    confirmed();
-    newBlog(['published_at' => now()->addDay()]);
-
-    $this->artisan('blogs:notify-subscribers');
-    Mail::assertNothingQueued();
-
-    $this->travel(25)->hours();
-    $this->artisan('blogs:notify-subscribers');
-    $this->artisan('blogs:notify-subscribers');
-    Mail::assertQueued(NewBlogPublished::class, 1);
-});
 
 it('has a link to the blog and an unsubscribe link in the mail', function () {
     $subscriber = confirmed();

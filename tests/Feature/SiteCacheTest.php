@@ -4,7 +4,6 @@ use App\Models\Blog;
 use App\Models\Country;
 use App\Models\Trip;
 use App\Models\User;
-use App\Support\NewBlogNotifier;
 use App\Support\SiteCache;
 use Illuminate\Support\Facades\Mail;
 
@@ -40,10 +39,11 @@ it('shows a new blog in the menu and on the map straight away', function () {
 it('shows a planned blog once its time has come', function () {
     cachedBlog(['published_at' => now()->addHour()]);
     expect(SiteCache::mapMarkers())->toBeEmpty();
+    $this->artisan('blogs:check-planned');
 
     // Nobody saves anything: the scheduler's check every five minutes notices the blog went online
     $this->travel(2)->hours();
-    NewBlogNotifier::sendDue();
+    $this->artisan('blogs:check-planned')->expectsOutput('Menu and map refreshed');
 
     expect(SiteCache::mapMarkers())->toHaveCount(1);
 });
