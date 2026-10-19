@@ -35,7 +35,7 @@
 
                     @foreach($comment->replies as $reply)
                         <article id="reactie-{{ $reply->id }}" class="mt-3 ms-8 flex gap-4 scroll-mt-28 sm:ms-16">
-                            <img src="{{ asset('storage/img/avatar.ico') }}" alt="" class="h-11 w-11 flex-none rounded-full ring-2 ring-brand/60">
+                            <img src="{{ \App\Support\Avatar::url(512) }}" alt="" class="h-11 w-11 flex-none rounded-full ring-2 ring-brand/60">
                             <div class="min-w-0 flex-1 rounded-2xl bg-night-600/60 p-5 ring-1 ring-brand/20">
                                 <p class="text-sm">
                                     <span class="font-semibold text-cream">{{ $reply->name }}</span>

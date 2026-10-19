@@ -14,6 +14,6 @@ it('splits the admin menu into writing, readers and the lists you set up once', 
     expect($menu->only(['Schrijven', 'Lezers', 'Beheer'])->all())->toBe([
         'Schrijven' => ['Blogs', 'Reizen', 'Mediabibliotheek', 'Ik & wij', 'Privacy'],
         'Lezers' => ['Reacties', 'Abonnees'],
-        'Beheer' => ['Categorieën', 'Tags', 'Landen'],
+        'Beheer' => ['Categorieën', 'Tags', 'Landen', 'Website'],
     ]);
 });

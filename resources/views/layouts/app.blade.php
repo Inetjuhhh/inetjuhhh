@@ -7,10 +7,10 @@
 
         <title>{{ $title ? $title . ' – ' : '' }}{{ config('app.name', 'Inetjuhhh') }}</title>
 
-        <!-- The avatar in the browser tab, and on a phone's home screen -->
-        <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
-        <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+        <!-- The avatar in the browser tab, and on a phone's home screen (chosen in the admin: Beheer → Website) -->
+        <link rel="icon" href="{{ \App\Support\Avatar::faviconUrl() }}" sizes="any">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ \App\Support\Avatar::url(32) }}">
+        <link rel="apple-touch-icon" href="{{ \App\Support\Avatar::url(180) }}">
 
         <!-- Fonts -->
         <link href="{{ asset('fonts/site/site-fonts.css') }}" rel="stylesheet" />
@@ -37,7 +37,7 @@
             <footer class="mt-24 border-t border-night-600 bg-night-900">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid gap-10 md:grid-cols-3">
                     <div class="flex items-start gap-4">
-                        <img src="{{ asset('storage/img/avatar.ico') }}" class="w-14 h-14 rounded-full ring-2 ring-brand/60" alt="Ine" />
+                        <img src="{{ \App\Support\Avatar::url(512) }}" class="w-14 h-14 rounded-full ring-2 ring-brand/60" alt="Ine" />
                         <div>
                             <p class="font-display text-xl text-cream">Inetjuhhh</p>
                             <p class="mt-1 text-cream-muted max-w-md">Reisverhalen, familie en lifestyle. Life is short, so enjoy it!</p>

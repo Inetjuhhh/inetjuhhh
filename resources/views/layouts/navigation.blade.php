@@ -7,7 +7,7 @@
     <nav>
         <div class="max-w-7xl flex flex-wrap items-center justify-between mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <a href="{{ route('blogs.index') }}" class="group flex items-center gap-3">
-                <img src="{{ asset('storage/img/avatar.ico') }}" class="h-9 w-9 rounded-full ring-2 ring-brand/50 group-hover:ring-brand transition" alt="Ine avatar" />
+                <img src="{{ \App\Support\Avatar::url(512) }}" class="h-9 w-9 rounded-full ring-2 ring-brand/50 group-hover:ring-brand transition" alt="Ine avatar" />
                 <span class="flex flex-col leading-tight">
                     <span class="font-display text-2xl font-semibold text-cream">Inetjuhhh</span>
                     <span class="hidden sm:block text-xs italic text-cream-muted">Life is short, so enjoy it!</span>

@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\InitialsAvatar;
+use App\Support\Avatar;
 use Filament\FontProviders\LocalFontProvider;
 use Filament\Pages\BasePage;
 use Filament\Pages\Dashboard;
@@ -35,7 +36,8 @@ class AdminPanelProvider extends PanelProvider
             // "Wachtwoord vergeten?" on the login page (a mail with a link), and a profile page to change it
             ->passwordReset()
             ->profile(isSimple: false)
-            ->favicon(asset('favicon.ico'))
+            // The same avatar as in the site's tab (Beheer → Website)
+            ->favicon(fn () => Avatar::faviconUrl())
             ->brandName('Inetjuhhh')
             ->colors([
                 'primary' => Color::hex('#3E8F86'),
