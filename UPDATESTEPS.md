@@ -41,6 +41,8 @@ En op de server weer `./deploy.sh`. Ging er iets mis met de database zelf? Dan i
 
 ## 2. De server doet moeilijk: van licht naar zwaar
 
+**Een mail "Foutje op inetjuhhh.nl"?** Daarin staat wat er misging, op welke pagina, en waar het in het logboek staat. Dezelfde fout krijg je hooguit één keer per uur, en hooguit 10 mails per uur in totaal. Eén zo'n mail is meestal een eenmalig foutje van één bezoeker; krijg je er meerdere, begin dan hieronder bij stap 2.
+
 Begin bovenaan, en ga pas een stap verder als het niet helpt.
 
 ### Stap 1: is het de site, of de hele server?
@@ -120,6 +122,7 @@ Console → je server → tab **Backups** → kies een dag → **Restore**. Dat 
 - [ ] 2FA ook op **GitHub**, **Brevo** en **Cloudflare**.
 - [ ] Je wachtwoordmanager op je telefoon, met: Hetzner, het **sudo-wachtwoord van ine**, de passphrase van je telefoonsleutel.
 - [ ] SSH-app op je telefoon getest via mobiel internet (hoofdstuk 3).
+- [ ] **Foutmeldingen per mail** komen aan: op de server `php artisan site:test-alert`. Binnen een minuut krijg je "Foutje op …" in je Gmail (kijk ook even in Spam, en markeer hem als "geen spam").
 - [ ] Een gratis **uptime-monitor** die je mailt als de site plat ligt, bijvoorbeeld **UptimeRobot** (uptimerobot.com): monitor-type *HTTP(s)*, adres `https://inetjuhhh.nl/up`, controle elke 5 minuten. Dan weet je het vóór je lezers het merken.
 - [ ] Controleer in de Hetzner Console dat er **Backups** van de afgelopen dagen staan.
 

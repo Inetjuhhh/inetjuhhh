@@ -126,3 +126,15 @@ Schedule::command('media:describe', ['--collect'])
     ->everyFifteenMinutes()
     ->when(fn () => filled(\App\Models\Setting::get(\App\Console\Commands\DescribePhotos::PENDING)))
     ->withoutOverlapping();
+
+// A pretend error, to see that the error mail arrives (ErrorAlert; only does something on the live site)
+Artisan::command('site:test-alert', function () {
+    if (! app()->isProduction()) {
+        $this->warn('Dit werkt alleen op de server (APP_ENV=production): op je laptop zie je fouten meteen op je scherm.');
+
+        return;
+    }
+
+    \App\Support\ErrorAlert::send(new RuntimeException('Dit is een test van de foutmelding. Niets aan de hand!'));
+    $this->info('Verstuurd naar ' . implode(', ', config('blog.admin_emails')) . ' (of al eens in het afgelopen uur: dan wacht hij een uur).');
+})->purpose('Send a pretend error mail, to check that error alerts arrive');

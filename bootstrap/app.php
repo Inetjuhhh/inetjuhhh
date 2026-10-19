@@ -15,5 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prepend(\App\Http\Middleware\RedirectToMainAddress::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // On the live site: a mail to Ine about every error (at most once an hour each); the log keeps it too
+        $exceptions->report(function (Throwable $error) {
+            \App\Support\ErrorAlert::send($error);
+        });
     })->create();

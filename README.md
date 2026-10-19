@@ -73,6 +73,7 @@ php artisan test
 | `php artisan blogs:subjects` | Subjects (bubbles) per story from `config/subjects.php` |
 | `php artisan media:fingerprint` | Fingerprints for the duplicate-photo check |
 | `php artisan media:describe --dry-run` / `--limit=10` / `--batch` | Claude writes the photo descriptions (alt text) of photos without one; `--batch` does all of them at half the price, the scheduler collects the results. One photo: "Beschrijf met AI" in the media library |
+| `php artisan site:test-alert` | On the server: a pretend error, to check that error mails ("Foutje op …") arrive |
 | `php artisan site:backup` | A copy of the database in `storage/app/backups` (the scheduler makes one every night, kept 14 days) |
 | `php artisan blogs:check-planned` | Refreshes the menu and map when a planned blog goes online (the scheduler, every 5 minutes). Subscribers are mailed with the button **Mail abonnees** in the admin |
 | `php artisan wordpress:import` / `wordpress:import-about` / `wordpress:keep-places` | The WordPress move; not needed after going live |
