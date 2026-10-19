@@ -119,3 +119,30 @@ it('puts a coming trip with one stop on the map too, as a circle with its name',
 
     expect(SiteCache::plannedRoutes()->pluck('name')->all())->toBe(['Costa Rica 2027', 'Japan 2028']);
 });
+
+it('keeps a stop placed by hand on the little map, and does not look it up again', function () {
+    // The map in the form gives a pin placed by hand to the name next to it (found_for)
+    $trip = comingTrip([['name' => 'Ons huisje in de jungle', 'lat' => 9.123456, 'lng' => -83.654321, 'found_for' => 'Ons huisje in de jungle']]);
+
+    Http::assertNothingSent();
+    expect($trip->fresh()->route[0])->toMatchArray(['lat' => 9.123456, 'lng' => -83.654321]);
+});
+
+it('does not let a trip end before it starts, and says so in Dutch', function () {
+    $this->actingAs(App\Models\User::factory()->create());
+
+    Livewire\Livewire::test(App\Filament\Resources\TripResource\Pages\ManageTrips::class)
+        ->callAction('create', ['name' => 'Japan 2027', 'kind' => Trip::KIND_TRIP, 'starts_on' => '2027-08-10', 'ends_on' => '2027-08-01'])
+        ->assertHasActionErrors(['ends_on']);
+
+    expect(Trip::where('name', 'Japan 2027')->exists())->toBeFalse()
+        ->and(__('validation.after_or_equal', ['attribute' => 'tot', 'date' => 'van']))->toBe('Tot mag niet vóór van liggen.');
+});
+
+it('allows a trip of one day', function () {
+    $this->actingAs(App\Models\User::factory()->create());
+
+    Livewire\Livewire::test(App\Filament\Resources\TripResource\Pages\ManageTrips::class)
+        ->callAction('create', ['name' => 'Dagje Antwerpen', 'kind' => Trip::KIND_CITY, 'starts_on' => '2027-08-10', 'ends_on' => '2027-08-10'])
+        ->assertHasNoActionErrors();
+});

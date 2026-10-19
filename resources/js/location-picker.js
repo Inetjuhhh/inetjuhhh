@@ -26,7 +26,7 @@ const pinIcon = () => L.divIcon({
  * position(): the current [lat, lng] from the form, or null
  * onPick(lat, lng): called when the pin is placed or moved by hand
  */
-export function mountLocationPicker(element, { position, onPick }) {
+export function mountLocationPicker(element, { position, onPick, near = () => null, zoom = 10 }) {
     addStyles();
 
     const map = L.map(element, { minZoom: 1, maxZoom: 18, worldCopyJump: true });
@@ -70,13 +70,17 @@ export function mountLocationPicker(element, { position, onPick }) {
         place(current);
 
         if (isNew && ! map.getBounds().pad(-0.2).contains(current)) {
-            map.setView(current, Math.max(map.getZoom(), 9));
+            map.setView(current, Math.max(map.getZoom(), zoom - 1));
         }
     };
 
+    // Without a pin: start near a place that is known (the closest stop of a route), else the whole world
     const start = position();
+    const close = near();
     if (start && ! start.some(Number.isNaN)) {
-        map.setView(start, 10);
+        map.setView(start, zoom);
+    } else if (close && ! close.some(Number.isNaN)) {
+        map.setView(close, zoom - 1);
     } else {
         map.setView([25, 15], 2);
     }

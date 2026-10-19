@@ -283,11 +283,20 @@ class BlogResource extends Resource
                 DatePicker::make('starts_on')
                     ->label('Van')
                     ->native(false)
-                    ->displayFormat('d-m-Y'),
+                    ->displayFormat('d-m-Y')
+                    ->live()
+                    // Moved past the end date: the end date moves along, so it can never be before the start
+                    ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                        if ($state && filled($get('ends_on')) && $get('ends_on') < $state) {
+                            $set('ends_on', $state);
+                        }
+                    }),
                 DatePicker::make('ends_on')
                     ->label('Tot')
                     ->native(false)
                     ->displayFormat('d-m-Y')
+                    // In the calendar, the days before the start date can't be picked (the same day can: a day out)
+                    ->minDate(fn (Get $get) => $get('starts_on') ?: null)
                     ->afterOrEqual('starts_on'),
             ]),
             Textarea::make('description')

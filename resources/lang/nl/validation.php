@@ -4,6 +4,10 @@
 // A check that isn't listed here falls back to Laravel's English text.
 return [
     'accepted' => ':Attribute moet aangevinkt zijn.',
+    'after' => ':Attribute moet na :date liggen.',
+    'after_or_equal' => ':Attribute mag niet vóór :date liggen.',
+    'before' => ':Attribute moet vóór :date liggen.',
+    'before_or_equal' => ':Attribute mag niet na :date liggen.',
     'array' => ':Attribute moet een lijst zijn.',
     'boolean' => ':Attribute moet ja of nee zijn.',
     'confirmed' => 'De twee wachtwoorden zijn niet hetzelfde.',
@@ -39,6 +43,8 @@ return [
 
     'attributes' => [
         'email' => 'e-mailadres',
+        'ends_on' => 'de einddatum',
+        'starts_on' => 'de begindatum',
         'name' => 'naam',
         'password' => 'wachtwoord',
         'response' => 'reactie',

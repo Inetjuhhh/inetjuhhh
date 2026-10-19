@@ -30,11 +30,11 @@ class EditSiteSettings extends Page
 
     protected static ?int $navigationSort = 4;
 
-    protected static ?string $navigationLabel = 'Website';
+    protected static ?string $navigationLabel = 'Website Instellingen';
 
-    protected static ?string $title = 'Website';
+    protected static ?string $title = 'Website Instellingen';
 
-    protected static ?string $slug = 'website';
+    protected static ?string $slug = 'instellingen';
 
     /** @var array<string, mixed> */
     public ?array $data = [];
