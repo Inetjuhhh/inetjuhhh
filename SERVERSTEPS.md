@@ -34,8 +34,8 @@ The other file (`id_ed25519`, without `.pub`) is the private key: it never leave
 
 **At console.hetzner.com:** create a project "Inetjuhhh", then **Add Server**:
 - **Location:** Falkenstein or Nuremberg (Germany, EU: fine for the AVG/GDPR)
-- **Image:** Ubuntu 24.04
-- **Type:** shared vCPU, x86, the small one with **4 GB RAM** (CX22 or its successor, a few euros a month). Plenty for the blog.
+- **Image:** **Ubuntu 24.04** (not a newer one: these steps are written for 24.04, which gets security updates until 2029)
+- **Type:** shared vCPU, **x86** (Intel/AMD), **2 GB RAM or more**. First look under *Cost-Optimized* (often the cheapest, but not always available); otherwise *Regular Performance* **CPX12** (2 GB). The blog itself uses about 1–1.5 GB; with 2 GB, add the swap from step 3 for the short moment the styles are built. 1 GB is too little.
 - **Networking:** IPv4 and IPv6 on
 - **SSH key:** paste the line from `cat` above
 - **Firewalls:** create one called "web" with inbound rules **TCP 22** (SSH), **TCP 80** and **TCP 443** (the website), and **ICMP**. Everything else stays closed.
@@ -70,6 +70,13 @@ apt update && apt upgrade -y
 timedatectl set-timezone Europe/Amsterdam
 ```
 (The app itself works in UTC and shows Dutch times; this only makes the server's own logs easier to read.)
+
+**Swap** (with 2 GB of memory): a 2 GB file on the disk that Linux uses when memory is briefly full, for example while the styles are built during an update:
+```bash
+fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+echo '/swapfile none swap sw 0 0' >> /etc/fstab     # also after a restart
+free -h                          # the line "Swap" now shows 2.0Gi
+```
 
 **Your own user**, so you don't work as `root` (the all-powerful account):
 ```bash
@@ -173,8 +180,9 @@ composer install --no-dev --optimize-autoloader
 npm ci && npm run build
 cp .env.example .env
 php artisan key:generate
+php artisan curator:token
 ```
-`key:generate` makes the app's own secret key. It stays on this server; never copy it anywhere.
+`key:generate` makes the app's own secret key, and `curator:token` the key that signs the photo addresses (so nobody can make the server resize photos to any size they like). Both stay on this server; never copy them anywhere.
 
 **Settings:** `nano .env` (save with `Ctrl+O`, Enter; close with `Ctrl+X`). Change or add these lines:
 ```env
@@ -212,7 +220,10 @@ Plus the mail settings from **EMAILSTEPS.md step 4**. What they do:
 - `ADMIN_EMAILS`: only this address gets into `/admin`, and it gets the "new comment" mails.
 - The **Turnstile keys** are the real ones from your Cloudflare widget (PRODUCTIONSTEPS.md 3.1). `nieuw.inetjuhhh.nl` is covered by the hostname `inetjuhhh.nl`.
 
-`.env` is not in git and stays on the server only.
+`.env` is not in git and stays on the server only. Make it readable for `ine` only (PHP runs as `ine`, so the site keeps working):
+```bash
+chmod 600 .env
+```
 
 ## 7. Your content: database and photos
 
@@ -231,6 +242,7 @@ mkdir -p storage/app/public && tar -xf ~/inetjuhhh-photos.tar -C storage/app/pub
 php artisan storage:link
 php artisan migrate --force      # nothing to do now; keeps later updates in sync
 rm ~/inetjuhhh-database.sql.gz ~/inetjuhhh-photos.tar
+shred -u ~/dbpass.txt 2>/dev/null   # the temporary password file, if you made one
 ```
 `storage:link` makes `public/storage` point to the photos, so the browser can reach them. **Never** run `db:seed`, `migrate:fresh` or `wordpress:import` here: that would overwrite your real content.
 

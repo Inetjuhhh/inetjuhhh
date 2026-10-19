@@ -23,14 +23,14 @@ Time: about 45 minutes, plus waiting for DNS (minutes to a few hours) and possib
 ## 1. A Brevo account
 
 1. Sign up at **brevo.com** (the free plan: 300 mails a day) with inetjuhhh@gmail.com.
-2. Brevo asks a few questions about you and what you send. Answer honestly: a personal blog, mails to readers who signed up themselves, with double opt-in. New accounts are sometimes checked by Brevo before they may send; that can take up to a day.
-3. **Data processing agreement** (*verwerkersovereenkomst*, required under the AVG/GDPR because Brevo handles your readers' email addresses): Brevo's DPA is part of their terms. Download it under your account settings (search for "DPA") and keep it with your papers.
+2. Brevo **may** ask a few questions about you and what you send (at sign-up, or later when you add a sender or send the first mail; sometimes not at all). If it asks, answer honestly: a personal blog, mails to readers who signed up themselves, with double opt-in. Then open **Transactional** in the left menu: if there's a banner about activating or a review, follow it (Brevo sometimes checks new accounts, up to a day). No banner: you may send.
+3. **Data processing agreement** (*verwerkersovereenkomst*, required under the AVG/GDPR because Brevo handles your readers' email addresses): at Brevo it is part of the terms you accepted at sign-up, so there is nothing to sign. Download the "Data Processing Agreement" from the legal pages on brevo.com (links at the bottom of their website) and keep it with your papers.
 
 **The daily limit:** 300 mails a day. A new blog goes to every subscriber at once, so above ~280 subscribers some would miss it. Brevo's smallest paid plan has no daily limit; switch in time. *Admin → Abonnees* shows how many you have.
 
 ## 2. Your domain at Brevo
 
-Brevo needs to know that inetjuhhh.nl is yours. In Brevo: **Senders, Domains & Dedicated IPs → Domains → Add a domain** → `inetjuhhh.nl`. Choose to set the records **manually**.
+Brevo needs to know that inetjuhhh.nl is yours. In Brevo: the **⚙ gear** at the top right → **Senders, domains, IPs** → tab **Domains** → **Add a domain** → `inetjuhhh.nl`. Choose to set the records **manually** (Brevo may offer to connect to your domain host automatically; manual shows you exactly what is added).
 
 Brevo shows a few DNS records. Add them **exactly as shown** at your domain host. They look roughly like this:
 
@@ -42,16 +42,17 @@ Brevo shows a few DNS records. Add them **exactly as shown** at your domain host
 
 Good to know:
 - **SPF** (`v=spf1 …`): if Brevo shows one, you can only have **one** SPF record per domain. If one already exists (from the old WordPress host), add Brevo's `include:` to it instead of making a second one.
-- **DMARC reports:** Brevo may suggest `rua=mailto:…`. Leave that part out. Reports to a Gmail address are not delivered (Gmail would have to give permission for that), and you'd get technical XML files you don't need.
+- **DMARC reports:** Brevo may suggest `rua=mailto:rua@dmarc.brevo.com`. Copy that as it is: Brevo collects the reports for you. Don't put your Gmail address there: reports to an address on another domain only arrive when that domain gives permission, which Gmail doesn't.
+- **At TransIP** (where inetjuhhh.nl is): *Mijn TransIP → Domeinen → inetjuhhh.nl → DNS*. Type the name without your domain (`brevo1._domainkey`), and end a CNAME value with a **dot** (`…dkim.brevo.com.`), otherwise TransIP puts inetjuhhh.nl after it. The existing SPF record (`include:_spf.transip.email`) and MX record are for your TransIP mailbox: leave them.
 - **Old mail records** (MX) at your domain host: leave them alone. They're about receiving mail, which the blog doesn't do.
 
 Then click **Authenticate this domain** in Brevo. DNS can take a few hours; try again later if it isn't green yet.
 
 ## 3. Sender and SMTP key
 
-1. **Senders → Add a sender:** name `Inetjuhhh - Blogs`, address `blog@inetjuhhh.nl`. Because the domain is authenticated (step 2), the address doesn't have to exist. If Brevo still wants to send a confirmation mail to it, ask your domain host for a forwarding from `blog@inetjuhhh.nl` to inetjuhhh@gmail.com, confirm, and remove the forwarding afterwards if you like.
+1. **⚙ gear → Senders, domains, IPs → tab Senders → Add a sender:** name `Inetjuhhh - Blogs`, address `blog@inetjuhhh.nl`. Because the domain is authenticated (step 2), the address doesn't have to exist. If Brevo still wants to send a confirmation mail to it, ask your domain host for a forwarding from `blog@inetjuhhh.nl` to inetjuhhh@gmail.com, confirm, and remove the forwarding afterwards if you like.
 2. **SMTP & API → SMTP:** here you see the **SMTP server** (`smtp-relay.brevo.com`), **port** (587) and your **login** (something like `1234abc@smtp-brevo.com`). Click **Generate a new SMTP key**, name it `inetjuhhh server`, and copy it right away: Brevo shows it only once. This key is the password for step 4; treat it like one.
-3. **Tracking off** (privacy): Brevo can count opens and rewrite links to count clicks. Your readers didn't ask for that, and it makes links in the mail look odd. Look under *Transactional → Settings* (or *SMTP & API → Settings*) for open and click tracking and switch both off. Brevo moves its menus around; the search box in the dashboard finds "tracking".
+3. **Tracking anonymous** (privacy): Brevo counts opens and clicks. Your readers didn't ask for that. Go to **⚙ → Transactional emails → Tracking** and set *Anonymous email tracking?* to **Yes**, then **Save**: Brevo then only counts totals, not who opened or clicked what (a full "off" isn't offered there). Also check **⚙ → UTM parameters** and switch them off, so links in your mails stay clean.
 
 ## 4. Settings in `.env` on the server
 
