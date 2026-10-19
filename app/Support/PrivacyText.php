@@ -19,7 +19,7 @@ class PrivacyText
             self::ul([
                 'Je kunt alles lezen zonder dat ik iets van je bewaar. Geen tracking, geen advertenties, geen cookies om je te volgen.',
                 'Alleen als je zelf iets doet (je aanmelden voor mijn mailtjes, een reactie achterlaten of een hartje geven) bewaar ik wat daarvoor nodig is.',
-                'Ik verkoop of deel niets. Nooit. Ik zou niet eens weten aan wie 😄',
+                'Ik verkoop of deel niets. Ik zou niet eens weten aan wie 😄',
             ]),
 
             // SubscriberController + Subscriber: name, email, hashed IP; double opt-in; prune after 30 days
