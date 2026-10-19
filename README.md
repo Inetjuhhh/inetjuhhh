@@ -92,3 +92,6 @@ In my repository you can see what I'm working on. Feel free to add an issue if y
 
 ## 🤗 Contributing
 Want to contribute or have a suggestion? Feel free to contact me.
+
+## ©️ License
+All rights reserved. The code is public to view, not to reuse: see [LICENSE](LICENSE).
