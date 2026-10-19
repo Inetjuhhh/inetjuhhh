@@ -192,3 +192,24 @@ Let goed op dat hier `inetjuhhh_herstel` staat, met `_herstel` erachter.
 
 ### Eén reactie terughalen
 Hetzelfde, maar in stap 2 zoek je de reactie (`SELECT id, name, response FROM responses WHERE name LIKE '%Femke%';`), en in stap 3 gebruik je alleen de regel van `responses`, met `WHERE id = …` in plaats van `WHERE blog_id = …`.
+
+---
+
+## 7. Beschrijvingen bij je foto's (alt-tekst)
+
+Een beschrijving wordt voorgelezen aan mensen die de foto niet kunnen zien, en helpt Google. Je foto- en galerijblokken gebruiken hem meteen.
+
+**Eén foto:** Mediabibliotheek → open de foto → **Beschrijf met AI**. Claude kijkt naar de foto en de blog waar hij in staat, en zet een voorstel in het veld *Alt*. Pas het gerust aan (bijvoorbeeld met een naam: Claude noemt bewust niemand bij naam), en klik op **Opslaan**.
+
+**Alle foto's in één keer:** op de **server** (daar staan je echte foto's):
+```bash
+cd /var/www/inetjuhhh
+php artisan media:describe --dry-run       # hoeveel foto's, en een schatting van de tokens
+php artisan media:describe --limit=10      # eerst tien, één voor één: kijk of je de beschrijvingen goed vindt
+php artisan media:describe --batch         # de rest, als batch: de helft van de prijs
+```
+- Een batch verwerkt Anthropic op de achtergrond, meestal binnen een uur, uiterlijk binnen een dag. De planner haalt de beschrijvingen elk kwartier zelf op; je hoeft niets te doen.
+- Benieuwd? `php artisan media:describe --collect` laat zien hoeveel er al binnen zijn.
+- Foto's die al een beschrijving hebben (ook zelfgeschreven) worden nooit aangeraakt. Lukt een foto niet, dan gaat hij mee met de volgende `--batch`.
+- **De kosten** gaan van je **API-tegoed** op console.anthropic.com, niet van je Claude-abonnement. De fotobeschrijvingen gebruiken het kleinere, veel goedkopere model **Claude Haiku**; de tag-suggesties blijven op Opus. Reken de schatting van `--dry-run` om met de prijzen op anthropic.com/pricing (per miljoen tokens, met batch de helft), of meet het echt: draai `--limit=10` en kijk bij *Usage* in de console wat die tien kostten. Er gaat nooit iets vanzelf: alleen als jij op de knop klikt of het commando draait.
+- Ander model nodig? Zet in `.env` op de server `ANTHROPIC_ALT_MODEL=…`, en daarna `php artisan optimize`.

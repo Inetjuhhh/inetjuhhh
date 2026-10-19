@@ -30,7 +30,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // The page of one photo, with the button "Beschrijf met AI" (replaces Curator's own). Set just before
+        // the app boots: after Curator has loaded its own settings, and before the admin's routes are made.
+        $this->app->booting(function () {
+            config(['curator.resource.pages.edit' => \App\Filament\Curator\EditMedia::class]);
+        });
     }
 
     /**

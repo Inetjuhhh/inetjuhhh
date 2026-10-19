@@ -46,6 +46,8 @@ return [
     'anthropic' => [
         'key' => env('ANTHROPIC_API_KEY'),
         'model' => env('ANTHROPIC_MODEL', 'claude-opus-5-5'),
+        // Photo descriptions (AltTextWriter): a short, simple task, so the smaller and much cheaper model
+        'alt_model' => env('ANTHROPIC_ALT_MODEL', 'claude-haiku-5-5'),
     ],
 
 ];

@@ -120,3 +120,9 @@ Schedule::command('model:prune', ['--model' => [Subscriber::class]])->daily();
 // A copy of the database every night, kept 14 days (BackupDatabase). At 03:30, when nobody writes a blog;
 // if it fails, the error is in storage/logs
 Schedule::command('site:backup')->dailyAt('03:30')->withoutOverlapping();
+
+// Photo descriptions sent to Claude as batches (media:describe --batch): collected as soon as they're ready
+Schedule::command('media:describe', ['--collect'])
+    ->everyFifteenMinutes()
+    ->when(fn () => filled(\App\Models\Setting::get(\App\Console\Commands\DescribePhotos::PENDING)))
+    ->withoutOverlapping();
