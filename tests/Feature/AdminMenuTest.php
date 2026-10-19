@@ -12,8 +12,8 @@ it('splits the admin menu into writing, readers and the lists you set up once', 
         ->mapWithKeys(fn ($group) => [$group->getLabel() ?? '-' => collect($group->getItems())->map->getLabel()->values()->all()]);
 
     expect($menu->only(['Schrijven', 'Lezers', 'Beheer'])->all())->toBe([
-        'Schrijven' => ['Blogs', 'Reizen', 'Mediabibliotheek', 'Ik & wij', 'Privacy'],
+        'Schrijven' => ['Blogs', 'Reizen', 'Mediabibliotheek', 'Ik & wij'],
         'Lezers' => ['Reacties', 'Abonnees'],
-        'Beheer' => ['Categorieën', 'Tags', 'Landen', 'Website'],
+        'Beheer' => ['Categorieën', 'Tags', 'Landen', 'Website Instellingen', 'Privacy'],
     ]);
 });

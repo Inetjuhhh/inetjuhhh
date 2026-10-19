@@ -188,28 +188,33 @@ export function createTravelMap(element, markers, { mode = 'full', trip = null, 
 
     map.addLayer(cluster);
 
-    // Trips still to come: their planned route as a dashed line with open circles for the stops
+    // Trips still to come: their planned route as a quiet dashed line with open circles for the stops.
+    // Only its name ("Costa Rica 2027", no dates), small, when you hover over it once zoomed in a bit.
+    const NAME_FROM_ZOOM = 3;
+
     planned.forEach((plannedTrip) => {
         const stops = plannedTrip.stops.map((stop) => [stop.lat, stop.lng]);
-        const label = `✈️ ${plannedTrip.name}${plannedTrip.when ? ` · ${plannedTrip.when}` : ''}`;
-
         const line = L.polyline(stops, { className: 'planned-route', interactive: false }).addTo(map);
-        plannedTrip.stops.forEach((stop, i) => {
-            const circle = L.circleMarker([stop.lat, stop.lng], { radius: 6, className: 'planned-stop', interactive: !teaser }).addTo(map);
+        // An invisible, wider line on top: the dashed one is only 3 pixels, too thin to hover
+        const grip = L.polyline(stops, { className: 'planned-route-grip', weight: 16, opacity: 0, interactive: !teaser }).addTo(map);
+        const parts = [grip];
 
-            if (i > 0) {
-                circle.bindTooltip(`gepland: ${stop.name}`, { direction: 'top', className: 'planned-label' });
-                return;
-            }
+        plannedTrip.stops.forEach((stop) => {
+            parts.push(L.circleMarker([stop.lat, stop.lng], { radius: 5, className: 'planned-stop', interactive: !teaser }).addTo(map));
+        });
 
-            // The name of the trip always stays next to its first stop, so it is found on a world map too;
-            // on the big map a click on it zooms in on the route
-            // "auto": to the right of a stop on the left half of the map, to the left on the right half (Japan, …)
-            circle.bindTooltip(label, { permanent: true, direction: 'auto', offset: [8, 0], className: 'planned-label', interactive: !teaser });
-            if (!teaser) {
-                circle.on('click', () => map.fitBounds(line.getBounds(), { padding: [60, 60], maxZoom: 8 }));
-                circle.getTooltip().on('click', () => map.fitBounds(line.getBounds(), { padding: [60, 60], maxZoom: 8 }));
-            }
+        if (teaser) {
+            return;
+        }
+
+        parts.forEach((part) => {
+            part.bindTooltip(plannedTrip.name, { sticky: true, direction: 'top', offset: [0, -6], className: 'planned-label' });
+            // On the world map the name stays away; zoomed in, hovering shows it
+            part.on('tooltipopen', () => {
+                if (map.getZoom() < NAME_FROM_ZOOM) part.closeTooltip();
+            });
+            // A click zooms in on the whole route
+            part.on('click', () => map.fitBounds(line.getBounds(), { padding: [60, 60], maxZoom: 8 }));
         });
     });
 

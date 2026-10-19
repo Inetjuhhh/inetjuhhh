@@ -361,14 +361,19 @@
     stroke-dasharray: 3 3;
 }
 .leaflet-tooltip.planned-label {
-    padding: 0.3rem 0.65rem;
+    padding: 0.15rem 0.5rem;
     border: 1px dashed var(--color-sand);
-    border-radius: 0.75rem;
+    border-radius: 0.6rem;
     background: var(--color-night-900);
     color: var(--color-cream);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     box-shadow: var(--shadow-soft);
+}
+/* The dashed line of a planned trip: a pointer that says "click to zoom in on this route" */
+.leaflet-interactive.planned-route-grip,
+.leaflet-interactive.planned-stop {
+    cursor: zoom-in;
 }
 .leaflet-tooltip.planned-label span {
     color: var(--color-sand);

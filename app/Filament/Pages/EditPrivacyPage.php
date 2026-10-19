@@ -12,7 +12,7 @@ class EditPrivacyPage extends EditSitePage
 {
     protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedShieldCheck;
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Schrijven';
+    protected static string | \UnitEnum | null $navigationGroup = 'Beheer';
 
     protected static ?int $navigationSort = 5;
 
