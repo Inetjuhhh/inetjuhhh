@@ -53,6 +53,17 @@
         {{-- Stories in the current map view --}}
         <aside class="min-w-0 lg:col-span-1 lg:relative"
                x-data="{
+                   // Like the map: the wheel scrolls the list only once the mouse really moved over it (see wakeOnMove)
+                   awake: ! window.matchMedia('(hover: hover)').matches,
+                   moved: 0,
+                   wake(event) {
+                       this.moved += Math.abs(event.movementX) + Math.abs(event.movementY);
+                       if (this.moved >= 5) this.awake = true;
+                   },
+                   sleep() {
+                       this.moved = 0;
+                       if (window.matchMedia('(hover: hover)').matches) this.awake = false;
+                   },
                    moreAbove: false,
                    moreBelow: false,
                    checkScroll() {
@@ -84,10 +95,14 @@
                    },
                }"
                x-effect="visible.length; $nextTick(() => checkScroll())"
-               x-on:resize.window.debounce.100ms="checkScroll()">
+               x-on:resize.window.debounce.100ms="checkScroll()"
+               x-on:mousemove="awake || wake($event)"
+               x-on:mousedown="awake = true"
+               x-on:mouseleave="sleep()">
             {{-- Taken out of the flow, so the column is as tall as the map and trips, not as long as the list --}}
             <div x-ref="stories" x-on:scroll.throttle.50ms="checkScroll()"
-                 class="lg:absolute lg:inset-0 lg:overflow-y-auto lg:pe-2 [scrollbar-width:thin] [scrollbar-color:var(--color-night-500)_transparent]">
+                 x-bind:class="awake ? 'lg:overflow-y-auto' : 'lg:overflow-y-hidden'"
+                 class="lg:absolute lg:inset-0 lg:pe-2 [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:var(--color-night-500)_transparent]">
                 <p class="text-sm text-cream-muted">
                     <span class="font-semibold text-cream" x-text="visible.length"></span>
                     <span x-text="visible.length === 1 ? 'verhaal' : 'verhalen'"></span> in dit gebied

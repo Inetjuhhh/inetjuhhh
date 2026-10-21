@@ -143,6 +143,27 @@ function twoFingerHint(map) {
 }
 
 /**
+ * The scroll wheel zooms only once the mouse has really moved over the map, so landing on the page with the
+ * pointer already on it and scrolling down moves the page. Leaving the map puts it back to sleep.
+ */
+function wakeOnMove(map) {
+    const container = map.getContainer();
+    let moved = 0;
+
+    container.addEventListener('mousemove', (event) => {
+        if (map.scrollWheelZoom.enabled()) return;
+        // Chrome sends a mousemove without movement after the page scrolls under a still pointer: that one doesn't count
+        moved += Math.abs(event.movementX) + Math.abs(event.movementY);
+        if (moved >= 5) map.scrollWheelZoom.enable();
+    });
+    container.addEventListener('mousedown', () => map.scrollWheelZoom.enable());
+    container.addEventListener('mouseleave', () => {
+        moved = 0;
+        map.scrollWheelZoom.disable();
+    });
+}
+
+/**
  * Creates the map inside `element`.
  *
  * mode "full": the travel map page, with clustering and a list of stories in view.
@@ -161,7 +182,7 @@ export function createTravelMap(element, markers, { mode = 'full', trip = null, 
         maxBounds: L.latLngBounds([-85, -540], [85, 540]),
         maxBoundsViscosity: 1,
         worldCopyJump: true,
-        scrollWheelZoom: !teaser,
+        scrollWheelZoom: false,
         // On phones one finger keeps scrolling the page; two fingers move and zoom the map
         dragging: !L.Browser.mobile,
         zoomControl: !teaser,
@@ -169,7 +190,10 @@ export function createTravelMap(element, markers, { mode = 'full', trip = null, 
     });
 
     addBaseTiles(map);
-    if (!teaser) twoFingerHint(map);
+    if (!teaser) {
+        twoFingerHint(map);
+        wakeOnMove(map);
+    }
 
     const cluster = L.markerClusterGroup({
         showCoverageOnHover: false,
