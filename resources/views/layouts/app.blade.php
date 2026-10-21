@@ -45,6 +45,9 @@
     </head>
     <body class="font-sans antialiased bg-night-800 text-cream">
         <div class="min-h-screen flex flex-col">
+            @if(auth()->user()?->canAccessPanel(\Filament\Facades\Filament::getPanel('admin')))
+                @include('layouts.partials.admin-bar')
+            @endif
             @include('layouts.navigation')
 
             <!-- Page Heading -->

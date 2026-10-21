@@ -262,3 +262,15 @@ it('shows every block of a long story once, also from the 11th block on', functi
     }
     expect($page)->not->toContain('renderedblock');
 });
+
+it('opens the editor by clicking a blog in the list, and shows it on the site with the eye', function () {
+    $published = Blog::create([
+        'title' => 'Online verhaal', 'slug' => 'online-verhaal', 'excerpt' => 'Intro', 'status' => 'published',
+        'published_at' => now()->subDay(), 'placed_by_id' => $this->user->id, 'content' => doc(paragraph('Hallo')),
+    ]);
+
+    Livewire::test(ListBlogs::class)
+        ->assertSeeHtml('href="' . \App\Filament\Resources\BlogResource::getUrl('edit', ['record' => $published]) . '"')
+        ->assertTableActionHasUrl('view', route('blogs.show', $published), $published)
+        ->assertTableActionDoesNotExist('edit');
+});

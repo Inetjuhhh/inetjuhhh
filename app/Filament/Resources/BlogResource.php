@@ -21,7 +21,6 @@ use Awcodes\Curator\Components\Forms\CuratorPicker;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -461,6 +460,7 @@ class BlogResource extends Resource
                     ->visibleFrom('xl'),
             ])
             ->modifyQueryUsing(fn ($query) => $query->with(['countries', 'trip', 'featuredImage']))
+            ->recordUrl(fn (Blog $record) => self::getUrl('edit', ['record' => $record]))
             ->defaultSort('published_at', 'desc')
             ->filters([
                 SelectFilter::make('status')
@@ -487,7 +487,6 @@ class BlogResource extends Resource
                     ->iconButton()
                     ->tooltip('Bekijk op de site'),
                 self::mailSubscribersAction()->iconButton(),
-                EditAction::make()->iconButton()->tooltip('Bewerken'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
