@@ -68,7 +68,6 @@
                             <p class="mt-1 text-cream-muted max-w-md">Reisverhalen, familie en lifestyle. Life is short, so enjoy it!</p>
                         </div>
                     </div>
-                    {{-- On a phone folded away (the list is a screen long); from tablet width always open --}}
                     <div x-data="{ open: false }">
                         <p class="hidden sm:block text-xs uppercase tracking-widest text-accent font-semibold">Reisblogs</p>
                         <button type="button" x-on:click="open = ! open" x-bind:aria-expanded="open" aria-controls="footer-landen"

@@ -63,7 +63,6 @@
         </div>
 
         @if($isCompact())
-            {{-- Small, next to a field (the stops of a route): only the coordinates and a cross --}}
             <div class="mt-1 flex items-center justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
                 <span x-show="hasPin">📍 <span x-text="`${Number(lat).toFixed(3)}, ${Number(lng).toFixed(3)}`"></span></span>
                 <span x-show="! hasPin">{{ $getEmptyText() }}</span>

@@ -45,7 +45,6 @@
         </div>
     </div>
 
-    {{-- The trips after the first one: each with its own count --}}
     @if($later)
         <div class="mt-7 border-t border-night-600 pt-5">
             <p class="text-xs font-semibold uppercase tracking-widest text-cream-muted">Daarna</p>

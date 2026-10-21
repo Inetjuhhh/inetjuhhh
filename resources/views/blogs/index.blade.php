@@ -186,7 +186,6 @@
             {{ $blogs->onEachSide(1)->links('pagination.route') }}
         </div>
 
-        {{-- The homepage ends with the countdown to the next trip --}}
         @if(! isset($category) && ($comingTrips ?? []))
             @include('blogs.partials.coming-trip', ['trips' => $comingTrips, 'class' => 'mt-14'])
         @endif
