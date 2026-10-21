@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\InitialsAvatar;
+use App\Filament\Pages\Auth\Login;
 use App\Support\Avatar;
 use Filament\FontProviders\LocalFontProvider;
 use Filament\Pages\BasePage;
@@ -32,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(Login::class)
             ->passwordReset()
             ->profile(isSimple: false)
             ->favicon(fn () => Avatar::faviconUrl())
