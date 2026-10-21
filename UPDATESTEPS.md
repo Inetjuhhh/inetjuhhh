@@ -257,6 +257,28 @@ Je andere backups staan allemaal bij Hetzner. Gaat er iets mis met je Hetzner-ac
 
 Gaat het 's nachts ooit mis, dan krijg je een **foutmail** (hoofdstuk 2).
 
+### Is de backup in orde? (± 5 minuten)
+
+Niet nodig zolang er geen foutmail komt, maar handig na een grote wijziging of als je twijfelt:
+
+1. **Staan alle taken gepland?**
+   ```bash
+   cd /var/www/inetjuhhh && php artisan schedule:list
+   ```
+   Je ziet onder andere `site:backup` (03:30) en `site:offsite-backup` (04:00).
+2. **Loopt de klok die ze start?**
+   ```bash
+   crontab -l
+   ```
+   (Een kleine **L**, van *list*. Niet `-r`: dat wist alles.) Je ziet een regel met `* * * * *` en `schedule:run`.
+3. **Ging de afgelopen nacht goed?**
+   ```bash
+   grep "production.ERROR" storage/logs/laravel-$(date +%F).log | cut -c1-200
+   ```
+   Niets te zien = niets mis. In het R2-dashboard staat in de map `database` een bestand van vandaag.
+
+**Zie je toch een fout?** De regel *Scheduled command … failed with exit code [1]* zegt alleen dát het misging. Draai het commando dan zelf (`php artisan site:offsite-backup`): dan zie je in één zin waaróm.
+
 ### Terughalen
 
 **Foto's die op de server ontbreken:**
