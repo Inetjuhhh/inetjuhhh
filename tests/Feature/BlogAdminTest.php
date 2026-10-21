@@ -227,3 +227,38 @@ it('publishes a lifestyle story without a country', function () {
     expect($blog->isPublished())->toBeTrue()->and($blog->countries)->toBeEmpty();
     $this->get(route('blogs.show', $blog))->assertOk()->assertSee('Shovel vs. Ine');
 });
+
+it('shows the country and place of each blog in the list, and finds a blog by its place', function () {
+    $india = Country::create(['name' => 'India']);
+    $varanasi = Blog::create([
+        'title' => 'Aan de Ganges', 'slug' => 'aan-de-ganges', 'excerpt' => 'Intro', 'status' => 'published',
+        'published_at' => now()->subDay(), 'location_name' => 'Varanasi, India',
+        'placed_by_id' => $this->user->id, 'content' => doc(paragraph('Hallo')),
+    ]);
+    $varanasi->countries()->attach($india);
+    $other = Blog::create([
+        'title' => 'Thuis', 'slug' => 'thuis', 'excerpt' => 'Intro', 'status' => 'published',
+        'published_at' => now()->subDay(), 'placed_by_id' => $this->user->id, 'content' => doc(paragraph('Hallo')),
+    ]);
+
+    Livewire::test(ListBlogs::class)
+        ->assertSee('India – Varanasi')
+        ->searchTable('Varanasi')
+        ->assertCanSeeTableRecords([$varanasi])
+        ->assertCanNotSeeTableRecords([$other]);
+});
+
+it('shows every block of a long story once, also from the 11th block on', function () {
+    $blocks = array_map(fn (int $i) => block('tip', ['type' => 'tip', 'text' => "Tip nummer {$i} klaar"]), range(1, 12));
+    $blog = Blog::create([
+        'title' => 'Lang verhaal', 'slug' => 'lang-verhaal', 'excerpt' => 'Intro', 'status' => 'published',
+        'published_at' => now()->subDay(), 'placed_by_id' => $this->user->id, 'content' => doc(...$blocks),
+    ]);
+
+    $page = $this->get(route('blogs.show', $blog))->assertOk()->getContent();
+
+    foreach (range(1, 12) as $i) {
+        expect(substr_count($page, "Tip nummer {$i} klaar"))->toBe(1);
+    }
+    expect($page)->not->toContain('renderedblock');
+});

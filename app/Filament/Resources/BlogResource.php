@@ -408,18 +408,18 @@ class BlogResource extends Resource
                     ->weight('medium')
                     ->description(fn (Blog $record) => collect([
                         self::statusLabel($record),
-                        $record->countries->pluck('name')->join(', '),
+                        self::placeLabel($record),
                         $record->trip ? '🧭 ' . $record->trip->name : null,
                     ])->filter()->join(' · '))
                     ->hiddenFrom('sm'),
                 TextColumn::make('title')
                     ->label('Titel')
-                    ->searchable()
+                    ->searchable(['title', 'location_name'])
                     ->sortable()
                     ->visibleFrom('sm')
                     ->wrap()
                     ->description(fn (Blog $record) => collect([
-                        $record->countries->pluck('name')->join(', '),
+                        self::placeLabel($record),
                         $record->trip ? '🧭 ' . $record->trip->name : null,
                     ])->filter()->join(' · ')),
                 TextColumn::make('status')
@@ -565,6 +565,14 @@ class BlogResource extends Resource
         return $record->status === 'published' && ! $record->isPublished()
             ? 'Ingepland'
             : (self::STATUSES[$record->status] ?? $record->status);
+    }
+
+    // The same as on the story's photo on the site: "📍 India – Varanasi", then any other countries
+    private static function placeLabel(Blog $record): ?string
+    {
+        $places = collect($record->placeTags())->pluck('label')->filter()->join(', ');
+
+        return $places === '' ? null : '📍 ' . $places;
     }
 
     public static function getRelations(): array

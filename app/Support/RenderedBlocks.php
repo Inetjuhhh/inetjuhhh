@@ -41,7 +41,8 @@ class RenderedBlocks
 
     private function placeholder(int $index): string
     {
-        // Letters and digits only, so the sanitiser leaves it untouched
-        return "renderedblock{$this->token}n{$index}";
+        // Letters and digits only, so the sanitiser leaves it untouched. The closing "x" keeps block 1's
+        // placeholder from matching the start of block 10's
+        return "renderedblock{$this->token}n{$index}x";
     }
 }
