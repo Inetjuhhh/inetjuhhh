@@ -58,15 +58,15 @@
             {!! $blog->renderContent() !!}
         </article>
 
-        @isset($related)
-            @include('blogs.partials.related-neighbours', ['related' => $related])
-        @endisset
-
         @php $interactive = $blog->isPublished(); @endphp
 
         <div class="mt-16">
             @include('blogs.partials.like-button', ['blog' => $blog, 'liked' => $liked ?? false, 'disabled' => ! $interactive])
         </div>
+
+        @isset($related)
+            @include('blogs.partials.related-neighbours', ['related' => $related])
+        @endisset
 
         <div class="mt-16 pt-8 border-t border-night-600 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div>

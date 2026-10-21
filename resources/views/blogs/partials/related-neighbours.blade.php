@@ -1,4 +1,4 @@
-{{-- Previous and next story, from the same region when there is one. Right under the story,
+{{-- Previous and next story, from the same region when there is one. Right under the heart,
      so a reader following a trip doesn't have to scroll past the comments first. --}}
 @if($related->previous || $related->next)
     <section class="mt-14" aria-labelledby="lees-verder">
