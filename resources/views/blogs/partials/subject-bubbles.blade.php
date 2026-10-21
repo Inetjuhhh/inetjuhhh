@@ -18,7 +18,7 @@
         @endif
     </div>
 
-    <div x-ref="chart" class="mt-4 empty:hidden" aria-hidden="true"></div>
+    <div x-ref="chart" aria-hidden="true"></div>
 
     <ul x-ref="list" class="mt-4 flex flex-wrap gap-2" aria-label="Onderwerpen">
         @foreach($subjects as $item)

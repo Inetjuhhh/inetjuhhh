@@ -88,8 +88,11 @@ Alpine.data('tripMap', (markers = []) => ({
 Alpine.data('subjectBubbles', (subjects = []) => ({
     async init() {
         const { drawBubbles } = await import('./subject-bubbles');
+        // The screen decides, not the chart: next to the newest story the chart is narrow on a laptop too
+        const tablet = window.matchMedia('(min-width: 768px)');
         const draw = () => {
-            const roomy = this.$refs.chart.clientWidth >= 500;
+            const roomy = tablet.matches;
+            this.$refs.chart.classList.toggle('mt-4', roomy);
             this.$refs.list.classList.toggle('sr-only', roomy);
             this.$refs.chart.replaceChildren();
             if (roomy) drawBubbles(this.$refs.chart, subjects);

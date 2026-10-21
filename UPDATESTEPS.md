@@ -239,13 +239,13 @@ Je andere backups staan allemaal bij Hetzner. Gaat er iets mis met je Hetzner-ac
 4. Je krijgt drie dingen te zien. Kopieer ze meteen naar je wachtwoordmanager, want Cloudflare laat ze maar één keer zien:
    - **Access Key ID**
    - **Secret Access Key**
-   - **Endpoint** (iets als `https://1a2b3c….r2.cloudflarestorage.com`)
+   - **Endpoint**: voor een EU-bucket met `.eu.` erin: `https://1a2b3c….eu.r2.cloudflarestorage.com`. Zonder `.eu.` krijg je *Access Denied*, ook met een goede token.
 5. Op de server: `nano /var/www/inetjuhhh/.env` en voeg toe:
    ```env
    OFFSITE_ACCESS_KEY_ID=de-access-key-id
    OFFSITE_SECRET_ACCESS_KEY=de-secret-access-key
    OFFSITE_BUCKET=inetjuhhh-backup
-   OFFSITE_ENDPOINT=https://1a2b3c….r2.cloudflarestorage.com
+   OFFSITE_ENDPOINT=https://1a2b3c….eu.r2.cloudflarestorage.com
    OFFSITE_REGION=auto
    ```
    Daarna `php artisan optimize`.
