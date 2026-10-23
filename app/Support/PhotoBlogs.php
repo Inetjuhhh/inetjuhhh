@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Blog;
+use Awcodes\Curator\Models\Media;
 
 /**
  * Which blog each photo of the media library is in: as featured photo, or in a photo or gallery
@@ -26,6 +27,38 @@ class PhotoBlogs
         }
 
         return $index;
+    }
+
+    /**
+     * Stores which photos are in this blog (the blog_media table, for the media library's filters).
+     */
+    public static function sync(Blog $blog): void
+    {
+        $ids = collect([$blog->featured_image_id, ...static::idsInDoc($blog->content)])->filter()->unique();
+
+        // A photo deleted from the library can still be named in an older story
+        $existing = Media::whereIn('id', $ids)->pluck('id');
+
+        $blog->media()->sync($existing);
+    }
+
+    public static function syncAll(): void
+    {
+        Blog::query()->select(['id', 'featured_image_id', 'content'])->each(fn (Blog $blog) => static::sync($blog));
+    }
+
+    /**
+     * The photos in the photo and gallery blocks of a story or page.
+     *
+     * @return list<int>
+     */
+    public static function idsInDoc(?array $doc): array
+    {
+        return collect(static::idsIn($doc['content'] ?? []))
+            ->filter(fn ($id) => is_numeric($id))
+            ->map(fn ($id) => (int) $id)
+            ->values()
+            ->all();
     }
 
     /**

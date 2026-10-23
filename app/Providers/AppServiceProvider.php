@@ -30,10 +30,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // The page of one photo, with the button "Beschrijf met AI" (replaces Curator's own). Set just before
-        // the app boots: after Curator has loaded its own settings, and before the admin's routes are made.
+        // The page of one photo, with the button "Beschrijf met AI", and the library ordered by blog (both
+        // replace Curator's own). Set just before the app boots: after Curator has loaded its own settings,
+        // and before the admin's routes are made.
         $this->app->booting(function () {
             config(['curator.resource.pages.edit' => \App\Filament\Curator\EditMedia::class]);
+            config(['curator.resource.tables.table' => \App\Filament\Curator\MediaTable::class]);
         });
     }
 
@@ -84,6 +86,9 @@ class AppServiceProvider extends ServiceProvider
                 $media->fingerprint = PhotoFingerprint::forMedia($media);
             }
         });
+
+        // Curator's model is in the vendor folder, so its side of blog_media is added here
+        config('curator.model')::resolveRelationUsing('blogs', fn (Media $media) => $media->belongsToMany(\App\Models\Blog::class, 'blog_media', 'media_id', 'blog_id'));
 
         // Hearts: enough for a real reader clicking around, too few to push a counter up
         RateLimiter::for('likes', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));

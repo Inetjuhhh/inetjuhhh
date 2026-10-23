@@ -140,6 +140,22 @@ Console → je server → tab **Backups** → kies een dag → **Restore**. Dat 
 | **Browser waarschuwt voor het certificaat** | `sudo certbot renew`, daarna `sudo systemctl reload nginx` |
 | **Schijf vol** (`df -h` bijna 100%) | Meestal logbestanden: `sudo journalctl --vacuum-time=7d`, en kijk met `du -sh /var/www/inetjuhhh/storage/*` wat groot is |
 | **Je komt de admin niet in** | "Wachtwoord vergeten?" op de inlogpagina; en `ADMIN_EMAILS` in `.env` moet je inlogadres bevatten |
+| **Op je laptop reageert de admin niet** (zoeken, filters, menu doen niets) | Meestal passen de pakketten in `vendor/` niet meer bij `composer.lock`, bijvoorbeeld na een `composer update` die je niet hebt gecommit. Op je laptop: `composer install`. Dat zet alles terug naar `composer.lock` en kopieert Filament's JavaScript opnieuw |
+
+### `composer install` of `composer update`?
+
+| | Wat het doet | Wanneer |
+|---|---|---|
+| **`composer install`** | Installeert precies de versies uit `composer.lock`. Verandert niets aan je project. | Na een `git pull`, of als er iets raar doet. `deploy.sh` doet dit op de server ook. |
+| **`composer update`** | Haalt van alle pakketten de nieuwste versie op, en schrijft die in `composer.lock`. | Alleen bewust, als je wilt bijwerken. |
+
+Doe je een `composer update`, dan hoort daar meer bij:
+1. `php artisan test`: alles groen?
+2. Kijk in de admin of alles werkt.
+3. `git status`: commit **`composer.lock`**, en ook **`public/js/filament`** en **`public/css/filament`** als die veranderd zijn (Filament kopieert zijn JavaScript daar vanzelf naartoe).
+4. Push, en `./deploy.sh` op de server.
+
+Commit je `composer.lock` niet mee, dan draait je laptop een andere versie dan de server, en dat geeft vreemde fouten zoals hierboven.
 
 ---
 
@@ -298,3 +314,69 @@ Dit haalt alleen foto's terug die er **niet** meer zijn. Foto's die er nog wel z
    php artisan cache:clear && php artisan up
    ```
    (Het databasewachtwoord staat in je wachtwoordmanager. `down` laat bezoekers even een onderhoudspagina zien.)
+
+---
+
+## 9. Automatische updates, ook voor PHP (± 15 minuten, eenmalig)
+
+**Hoe het nu zit:** Ubuntu installeert zijn eigen beveiligingsupdates al vanzelf (*unattended-upgrades*). Maar PHP komt niet van Ubuntu: het komt van **Ondřej Surý** (de "PPA" `ppa:ondrej/php`), want Ubuntu 24.04 heeft zelf geen PHP 8.4. Updates van Ondřej worden **niet** automatisch geïnstalleerd. Daardoor moest je bij het PHP-lek van 21 oktober 2026 zelf wachten en updaten.
+
+**Wat we doen:** we zeggen tegen *unattended-upgrades* dat hij Ondřej's pakketten ook mag bijwerken. Zijn pakketten zijn al vertrouwd: bij het installeren (SERVERSTEPS stap 4) is zijn digitale handtekening toegevoegd, en `apt` controleert die bij elke download. Er mist alleen de toestemming om ze **zonder jou** te installeren.
+
+**Is dat veilig?** Ja:
+- Alleen **8.4.x** wordt bijgewerkt (bijvoorbeeld 8.4.26 → 8.4.27). Zulke updates repareren alleen fouten en lekken. PHP 8.5 is een apart pakket en komt nooit vanzelf.
+- Ondřej's pakketten worden door een groot deel van alle Ubuntu-servers met PHP gebruikt.
+- Gaat er toch iets mis, dan krijg je een mail van UptimeRobot (site plat) of een foutmail van de site.
+
+### Stap 1. Kijk of automatische updates aan staan
+```bash
+systemctl status unattended-upgrades --no-pager | head -3
+cat /etc/apt/apt.conf.d/20auto-upgrades
+```
+Je ziet **active (running)**, en twee regels die eindigen op `"1";`. Staat er `"0"` of mist het bestand: `sudo dpkg-reconfigure -plow unattended-upgrades` en kies **Yes**.
+
+### Stap 2. Zoek de naam van Ondřej's bron op
+```bash
+apt-cache policy | grep -o "o=LP-PPA-ondrej-php,a=[a-z]*" | sort -u
+```
+Je ziet `o=LP-PPA-ondrej-php,a=noble`. Het deel na `o=` is de naam die we in stap 3 gebruiken. Zie je niets? Stuur Claude de uitvoer van `apt-cache policy | grep -i ondrej`.
+
+### Stap 3. Geef toestemming (en kies wanneer de server mag herstarten)
+```bash
+sudo nano /etc/apt/apt.conf.d/52unattended-upgrades-ondrej
+```
+Plak dit erin:
+```
+// Also install updates from Ondřej Surý's PHP packages by themselves
+Unattended-Upgrade::Origins-Pattern {
+    "origin=LP-PPA-ondrej-php,codename=${distro_codename}";
+};
+
+// Restart the server by itself when an update needs it (a new Linux kernel), at 05:00:
+// after the backups of 03:30 and 04:00. The site is offline for about a minute then.
+Unattended-Upgrade::Automatic-Reboot "true";
+Unattended-Upgrade::Automatic-Reboot-Time "05:00";
+```
+Opslaan: Ctrl+O, Enter, Ctrl+X.
+
+We maken een **eigen bestand** in plaats van Ubuntu's `50unattended-upgrades` te veranderen. Zo blijft jouw aanpassing staan als Ubuntu dat bestand ooit vervangt.
+
+### Stap 4. Proefdraaien (verandert niets)
+```bash
+sudo unattended-upgrade --dry-run --debug 2>&1 | grep -iE "allowed origins|ondrej|php8.4" | head -20
+```
+Bij *Allowed origins* staat nu ook `origin=LP-PPA-ondrej-php`. Staat er een PHP-update klaar, dan zie je ook regels met `php8.4-…`.
+
+### Stap 5. Klaar, en wat er nu vanzelf gebeurt
+- **Elke dag** kijkt de server of er updates zijn (Ubuntu én Ondřej), en installeert ze.
+- **PHP herstart zichzelf** na een update, dus de website draait meteen op de nieuwe versie. De queue worker (mails) start uiterlijk binnen een uur opnieuw (hij herstart elk uur, zie SERVERSTEPS stap 9). Wil je dat meteen: `php artisan queue:restart`.
+- **Herstarten** gebeurt alleen als het moet, om 05:00.
+
+**Nakijken wat er geïnstalleerd is:**
+```bash
+tail -20 /var/log/unattended-upgrades/unattended-upgrades.log
+grep -A3 "php8.4" /var/log/apt/history.log | tail -20
+php -v
+```
+
+**Een update meteen draaien in plaats van wachten** (bijvoorbeeld bij een nieuw lek): `sudo unattended-upgrade -v`. Of met de hand, zoals altijd: `sudo apt update && sudo apt upgrade`.

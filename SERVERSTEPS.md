@@ -107,7 +107,7 @@ ufw allow 'Nginx Full' 2>/dev/null || ufw allow 80,443/tcp
 ufw --force enable
 ```
 
-Security updates install themselves (Ubuntu's *unattended-upgrades* is on by default). Check: `systemctl status unattended-upgrades` says *active*.
+Security updates install themselves (Ubuntu's *unattended-upgrades* is on by default). Check: `systemctl status unattended-upgrades` says *active*. This covers Ubuntu's own packages only: to let PHP from Ondřej's PPA (step 4) update itself too, follow UPDATESTEPS.md chapter 9 once PHP is installed.
 
 From here on, log in as **`ine`**: `ssh ine@<IP>`. Log out of root with `exit`.
 

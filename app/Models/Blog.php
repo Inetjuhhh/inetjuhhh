@@ -6,6 +6,7 @@ use App\Models\Concerns\RendersRichContent;
 use App\Support\BlogImages;
 use App\Support\BlogSearch;
 use App\Support\Geocoder;
+use App\Support\PhotoBlogs;
 use Awcodes\Curator\Models\Media as CuratorMedia;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -47,6 +48,12 @@ class Blog extends Model
         static::saving(function (Blog $blog) {
             if ($blog->isDirty('content') || $blog->search_text === null) {
                 $blog->search_text = BlogSearch::plainText($blog->content);
+            }
+        });
+
+        static::saved(function (Blog $blog) {
+            if ($blog->wasRecentlyCreated || $blog->wasChanged(['content', 'featured_image_id'])) {
+                PhotoBlogs::sync($blog);
             }
         });
     }
@@ -107,6 +114,12 @@ class Blog extends Model
     public function featuredImage()
     {
         return $this->belongsTo(CuratorMedia::class, 'featured_image_id');
+    }
+
+    /** Every photo in the blog: the featured one and those in its photo and gallery blocks (see PhotoBlogs::sync) */
+    public function media()
+    {
+        return $this->belongsToMany(CuratorMedia::class, 'blog_media', 'blog_id', 'media_id');
     }
 
     /**
