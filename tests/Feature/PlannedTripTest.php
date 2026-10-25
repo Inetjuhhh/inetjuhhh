@@ -89,9 +89,9 @@ it('shows the trips on a timeline, oldest first, with the coming one after "nu"'
     $this->get(route('blogs.category', 'reizen'))
         ->assertOk()
         ->assertSeeInOrder(['Mijn reizen', 'Spanje 2024', 'Italië 2026', '>nu<', 'Costa Rica 2027', 'nog 40 dagen'], false)
-        // On a phone the countdown takes the place of the timeline
-        ->assertSee('mb-10 sm:hidden', false)
-        ->assertSee('hidden sm:block', false);
+        // On a phone the timeline makes way for the countdown, which comes after the stories
+        ->assertSee('hidden sm:block', false)
+        ->assertSeeInOrder(['Verhaal Spanje 2024', 'mt-14 sm:hidden', 'tot we vertrekken'], false);
 });
 
 it('counts down to every coming trip: the next one big, the ones after it underneath', function () {

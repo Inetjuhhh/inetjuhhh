@@ -130,12 +130,10 @@
         @elseif($blogs->isEmpty())
             <p class="text-center text-cream-muted py-20">Hier zijn nog geen verhalen te lezen.</p>
         @else
-            {{-- On the Reizen page (first page, all subjects): the travel timeline; on a phone, where only a few
-                 trips fit on the line, the countdown to the next trip instead (when there is one) --}}
-            @if(isset($category) && $category->slug === 'reizen' && $blogs->onFirstPage() && ! ($subject ?? null) && ($timeline ?? collect())->isNotEmpty())
-                @if($comingTrips ?? [])
-                    @include('blogs.partials.coming-trip', ['trips' => $comingTrips, 'class' => 'mb-10 sm:hidden'])
-                @endif
+            @php $travelIntro = isset($category) && $category->slug === 'reizen' && $blogs->onFirstPage() && ! ($subject ?? null) && ($timeline ?? collect())->isNotEmpty(); @endphp
+            {{-- On the Reizen page (first page, all subjects): the travel timeline. On a phone only a few trips fit on
+                 the line, so there the countdown to the coming trips takes its place, under the stories --}}
+            @if($travelIntro)
                 @include('blogs.partials.trip-timeline', ['items' => $timeline, 'class' => ($comingTrips ?? []) ? 'hidden sm:block' : ''])
             @endif
             @if($newest)
@@ -188,6 +186,8 @@
 
         @if(! isset($category) && ($comingTrips ?? []))
             @include('blogs.partials.coming-trip', ['trips' => $comingTrips, 'class' => 'mt-14'])
+        @elseif(($travelIntro ?? false) && ($comingTrips ?? []))
+            @include('blogs.partials.coming-trip', ['trips' => $comingTrips, 'class' => 'mt-14 sm:hidden'])
         @endif
     </div>
 </x-app-layout>
