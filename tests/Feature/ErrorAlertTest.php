@@ -99,3 +99,42 @@ it('does not mail when a bot is stopped from changing a locked Livewire property
 
     Mail::assertNothingSent();
 });
+
+it('does not mail when the database was away for a moment during background work', function () {
+    asLiveSite();
+    Illuminate\Support\Sleep::fake();
+    $error = new Illuminate\Database\QueryException('mysql', 'select 1', [], new PDOException('SQLSTATE[HY000] [2002] Connection refused'));
+
+    report($error);
+
+    Mail::assertNothingSent();
+    Illuminate\Support\Sleep::assertSleptTimes(1);
+});
+
+it('still mails when a visitor gets an error page because the database is away', function () {
+    asLiveSite();
+    Illuminate\Support\Sleep::fake();
+    // Reported from within the page, not thrown: a thrown lost connection makes the test database reconnect (and empty itself)
+    Route::get('/geen-database', function () {
+        ErrorAlert::send(new Illuminate\Database\QueryException('mysql', 'select 1', [], new PDOException('SQLSTATE[HY000] [2002] Connection refused')));
+    });
+
+    $this->get('/geen-database')->assertOk();
+
+    Mail::assertSent(ErrorOccurred::class);
+    Illuminate\Support\Sleep::assertNeverSlept();
+});
+
+it('mails when the database stays away for over a minute', function () {
+    asLiveSite();
+    Illuminate\Support\Sleep::fake();
+    $default = config('database.default');
+    config(['database.connections.weg' => ['driver' => 'mysql', 'host' => '127.0.0.1', 'port' => 1, 'database' => 'weg', 'username' => 'root', 'password' => '']]);
+    config(['database.default' => 'weg']);
+
+    report(new Illuminate\Database\QueryException('mysql', 'select 1', [], new PDOException('SQLSTATE[HY000] [2002] Connection refused')));
+
+    config(['database.default' => $default]);
+    Mail::assertSent(ErrorOccurred::class);
+    Illuminate\Support\Sleep::assertSleptTimes(ErrorAlert::RETRIES);
+});

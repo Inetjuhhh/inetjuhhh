@@ -3,8 +3,11 @@
 namespace App\Support;
 
 use App\Mail\ErrorOccurred;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Sleep;
 use Throwable;
 
 /**
@@ -19,6 +22,9 @@ class ErrorAlert
 {
     public const PER_HOUR = 10;
 
+    /** How often to check (every 5 seconds) whether the database is back before mailing: one minute */
+    public const RETRIES = 12;
+
     public static function send(Throwable $error): void
     {
         if (! app()->isProduction() || blank(config('blog.admin_emails'))) {
@@ -27,6 +33,11 @@ class ErrorAlert
 
         // A bot that tampers with a Livewire request (e.g. on the login page) and is stopped: nothing broke, the log has it
         if ($error instanceof \Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException) {
+            return;
+        }
+
+        // MySQL restarting for a moment (the morning security updates): only mail when it stays away
+        if (static::isDatabaseHiccup($error)) {
             return;
         }
 
@@ -50,6 +61,36 @@ class ErrorAlert
         } catch (Throwable) {
             // The alert itself failing (mail server down) must never make things worse: the log has it
         }
+    }
+
+    /**
+     * The queue worker or the scheduler could not reach the database, but it is back within a minute.
+     * Only for background work: a visitor who got an error page is always worth a mail.
+     */
+    private static function isDatabaseHiccup(Throwable $error): bool
+    {
+        if (request()->route() || ! $error instanceof QueryException || ! str_contains($error->getMessage(), '[2002]')) {
+            return false;
+        }
+
+        foreach (range(1, static::RETRIES) as $try) {
+            Sleep::for(5)->seconds();
+
+            // A separate, fresh connection: the one that failed is left alone (the worker reconnects by itself)
+            config(['database.connections.error-alert-check' => config('database.connections.' . config('database.default'))]);
+
+            try {
+                DB::connection('error-alert-check')->getPdo();
+
+                return true;
+            } catch (Throwable) {
+                // Still away: try again, and mail after the last try
+            } finally {
+                DB::purge('error-alert-check');
+            }
+        }
+
+        return false;
     }
 
     private static function text(Throwable $error): string
