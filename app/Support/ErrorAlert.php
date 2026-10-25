@@ -25,6 +25,11 @@ class ErrorAlert
             return;
         }
 
+        // A bot that tampers with a Livewire request (e.g. on the login page) and is stopped: nothing broke, the log has it
+        if ($error instanceof \Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException) {
+            return;
+        }
+
         try {
             $store = Cache::store('file');
             $fingerprint = 'error-alert:' . sha1(get_class($error) . '|' . $error->getFile() . '|' . $error->getLine());

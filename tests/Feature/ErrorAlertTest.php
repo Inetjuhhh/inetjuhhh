@@ -91,3 +91,11 @@ it('never makes things worse when the mail itself fails', function () {
 
     expect(true)->toBeTrue(); // got here: no error out of the alert itself
 });
+
+it('does not mail when a bot is stopped from changing a locked Livewire property', function () {
+    asLiveSite();
+
+    report(new Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException('loadedDeferredSchemas'));
+
+    Mail::assertNothingSent();
+});
