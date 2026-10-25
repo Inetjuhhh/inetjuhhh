@@ -24,9 +24,35 @@ class AppLayout extends Component
         public ?string $publishedAt = null,
         // Pages that search engines should leave out of their results (a preview of a draft)
         public bool $noindex = false,
+        // Where the page sits on the site, for Google (Home › Reizen › this story): [name => address, …] after Home
+        public array $breadcrumbs = [],
     ) {
         $this->description ??= self::DESCRIPTION;
         $this->image ??= Avatar::url(512);
+    }
+
+    /**
+     * The path for Google as structured data (schema.org BreadcrumbList), starting at Home. Every step has
+     * its address, the last one too: Google calls a step without one invalid. Null on the home page itself.
+     */
+    public function breadcrumbData(): ?array
+    {
+        if ($this->breadcrumbs === []) {
+            return null;
+        }
+
+        $steps = ['Home' => route('blogs.index')] + $this->breadcrumbs;
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => array_map(fn (string $name, string $url, int $i) => [
+                '@type' => 'ListItem',
+                'position' => $i + 1,
+                'name' => $name,
+                'item' => $url,
+            ], array_keys($steps), $steps, range(0, count($steps) - 1)),
+        ];
     }
 
     public function render(): View

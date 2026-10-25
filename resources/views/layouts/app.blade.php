@@ -30,6 +30,9 @@
             <meta property="article:published_time" content="{{ $publishedAt }}">
         @endif
         <meta name="twitter:card" content="summary_large_image">
+        @if($breadcrumbData = $breadcrumbData())
+            <script type="application/ld+json">{!! json_encode($breadcrumbData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+        @endif
         <link rel="alternate" type="application/rss+xml" title="Inetjuhhh: nieuwe verhalen" href="{{ route('feed') }}">
 
         <!-- The avatar in the browser tab, and on a phone's home screen (chosen in the admin: Beheer → Website) -->

@@ -1,4 +1,4 @@
-<x-app-layout title="Reiskaart">
+<x-app-layout title="Reiskaart" :breadcrumbs="['Reiskaart' => route('blogs.map')]">
     <x-slot name="header">
         <p class="text-xs uppercase tracking-widest font-semibold text-accent">Reiskaart</p>
         <h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">Waar wil je met me naartoe?</h1>

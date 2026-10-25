@@ -1,4 +1,4 @@
-<x-app-layout :title="$page->title">
+<x-app-layout :title="$page->title" :breadcrumbs="[$page->title => request()->url()]">
     <x-slot name="header">
         <p class="text-xs uppercase tracking-widest font-semibold text-accent">{{ $eyebrow ?? 'Over deze blog' }}</p>
         <h1 class="mt-2 font-display text-4xl sm:text-5xl text-cream">{{ $page->title }}</h1>

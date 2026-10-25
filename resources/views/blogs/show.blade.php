@@ -1,5 +1,6 @@
 <x-app-layout :title="$blog->title" :description="$blog->shareDescription()" :image="$blog->shareImageUrl()"
-              type="article" :published-at="$blog->publishedDate()->toIso8601String()" :noindex="$isPreview ?? false">
+              type="article" :published-at="$blog->publishedDate()->toIso8601String()" :noindex="$isPreview ?? false"
+              :breadcrumbs="($blog->trip ? [$blog->trip->name => route('blogs.index', ['reis' => $blog->trip->slug])] : ($blog->categories->first() ? [$blog->categories->first()->name => route('blogs.category', $blog->categories->first())] : [])) + [$blog->title => route('blogs.show', $blog->slug)]">
     @if($isPreview ?? false)
         <div class="sticky top-[73px] z-30 bg-accent text-night-900 text-sm font-semibold text-center px-4 py-2">
             Voorbeeld — {{ $blog->isPublished() ? 'deze blog is gepubliceerd' : ($blog->status === 'published' ? 'ingepland voor ' . $blog->published_at->translatedFormat('d F Y H:i') : 'dit concept is nog niet zichtbaar voor bezoekers') }}

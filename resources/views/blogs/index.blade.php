@@ -18,7 +18,14 @@
 <x-app-layout :title="$search !== null ? 'Zoeken: ' . $search : ($trip?->name ?? (isset($country) ? $country->name : (isset($category) ? $category->name : null)))"
               :description="$trip?->description ? \Illuminate\Support\Str::limit($trip->description, 200) : null"
               :image="($tripCover = $trip?->coverMedia()) ? url(\App\Support\BlogImages::url($tripCover->path, 1200, 'jpg')) : null"
-              :noindex="$search !== null">
+              :noindex="$search !== null"
+              :breadcrumbs="match (true) {
+                  $search !== null => [],
+                  $trip !== null => [$trip->name => route('blogs.index', ['reis' => $trip->slug])],
+                  isset($country) => [$country->name => route('blogs.blogCountry', $country->id)],
+                  isset($category) => [$category->name => route('blogs.category', $category)],
+                  default => [],
+              }">
     <x-slot name="header">
         @if($search !== null)
             {{-- Search results, with the typo fix when that was needed --}}
