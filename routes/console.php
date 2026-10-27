@@ -144,3 +144,10 @@ Schedule::command('site:offsite-backup')
     ->dailyAt('04:00')
     ->when(fn () => \App\Console\Commands\OffsiteBackup::isConfigured())
     ->withoutOverlapping();
+
+// Security updates waiting on the server (SecurityCheck): only looks, Ine installs them herself.
+// A mail only when there's something to do. After the night's backups, before the day starts
+Schedule::command('site:security-check')
+    ->dailyAt('07:30')
+    ->environments(['production'])
+    ->withoutOverlapping();

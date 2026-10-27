@@ -317,66 +317,51 @@ Dit haalt alleen foto's terug die er **niet** meer zijn. Foto's die er nog wel z
 
 ---
 
-## 9. Automatische updates, ook voor PHP (± 15 minuten, eenmalig)
+## 9. Beveiligingsupdates: jij installeert, de site waarschuwt (± 10 minuten, eenmalig)
 
-**Hoe het nu zit:** Ubuntu installeert zijn eigen beveiligingsupdates al vanzelf (*unattended-upgrades*). Maar PHP komt niet van Ubuntu: het komt van **Ondřej Surý** (de "PPA" `ppa:ondrej/php`), want Ubuntu 24.04 heeft zelf geen PHP 8.4. Updates van Ondřej worden **niet** automatisch geïnstalleerd. Daardoor moest je bij het PHP-lek van 21 oktober 2026 zelf wachten en updaten.
+**Hoe het zit:** de server installeert **niets** vanzelf. Wel kijkt hij elke ochtend om **07:30** of er beveiligingsupdates klaarstaan (`php artisan site:security-check`). Is er iets, dan krijg je een mail **"Beveiligingsupdates voor inetjuhhh.nl"** met wat er klaarstaat en welk commando je moet draaien. Zolang het openstaat, komt die mail elke ochtend terug. Is er niets, dan hoor je niets.
 
-**Wat we doen:** we zeggen tegen *unattended-upgrades* dat hij Ondřej's pakketten ook mag bijwerken. Zijn pakketten zijn al vertrouwd: bij het installeren (SERVERSTEPS stap 4) is zijn digitale handtekening toegevoegd, en `apt` controleert die bij elke download. Er mist alleen de toestemming om ze **zonder jou** te installeren.
+Hij kijkt naar:
+- **Ubuntu-pakketten met een beveiligingsupdate**: nginx, MySQL, OpenSSL, de Linux-kernel, …
+- **PHP**: komt van Ondřej Surý (`ppa:ondrej/php`), die niet aangeeft welke updates "beveiliging" zijn. Daarom telt elke PHP-update mee.
+- **Of de server wil herstarten** na een eerdere update (bijvoorbeeld een nieuwe kernel).
+- **Laravel-pakketten met een bekend lek** (Laravel, Filament, Livewire, Curator, …), via `composer audit`.
 
-**Is dat veilig?** Ja:
-- Alleen **8.4.x** wordt bijgewerkt (bijvoorbeeld 8.4.26 → 8.4.27). Zulke updates repareren alleen fouten en lekken. PHP 8.5 is een apart pakket en komt nooit vanzelf.
-- Ondřej's pakketten worden door een groot deel van alle Ubuntu-servers met PHP gebruikt.
-- Gaat er toch iets mis, dan krijg je een mail van UptimeRobot (site plat) of een foutmail van de site.
-
-### Stap 1. Kijk of automatische updates aan staan
+### Stap 1. Zet het automatisch installeren uit, maar laat het opzoeken aan
 ```bash
-systemctl status unattended-upgrades --no-pager | head -3
-cat /etc/apt/apt.conf.d/20auto-upgrades
+sudo nano /etc/apt/apt.conf.d/20auto-upgrades
 ```
-Je ziet **active (running)**, en twee regels die eindigen op `"1";`. Staat er `"0"` of mist het bestand: `sudo dpkg-reconfigure -plow unattended-upgrades` en kies **Yes**.
+Zorg dat er precies dit staat:
+```
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "0";
+```
+Opslaan: Ctrl+O, Enter, Ctrl+X. De eerste regel laat de server elke dag de lijst met updates **opzoeken** (die heeft de ochtendcheck nodig), de tweede zorgt dat hij ze **niet installeert**.
 
-### Stap 2. Zoek de naam van Ondřej's bron op
+Had je eerder het bestand voor automatische PHP-updates en automatisch herstarten gemaakt? Haal het weg, dan is alles weer van jou:
 ```bash
-apt-cache policy | grep -o "o=LP-PPA-ondrej-php,a=[a-z]*" | sort -u
+sudo rm -f /etc/apt/apt.conf.d/52unattended-upgrades-ondrej
 ```
-Je ziet `o=LP-PPA-ondrej-php,a=noble`. Het deel na `o=` is de naam die we in stap 3 gebruiken. Zie je niets? Stuur Claude de uitvoer van `apt-cache policy | grep -i ondrej`.
 
-### Stap 3. Geef toestemming (en kies wanneer de server mag herstarten)
+### Stap 2. Proefdraaien (stuurt geen mail)
 ```bash
-sudo nano /etc/apt/apt.conf.d/52unattended-upgrades-ondrej
+cd /var/www/inetjuhhh && php artisan site:security-check --show
 ```
-Plak dit erin:
-```
-// Also install updates from Ondřej Surý's PHP packages by themselves
-Unattended-Upgrade::Origins-Pattern {
-    "origin=LP-PPA-ondrej-php,codename=${distro_codename}";
-};
+Je ziet wat er nu klaarstaat, of "Niets te doen". Zie je bij de Laravel-pakketten niets terwijl je dat wel verwacht: zoek in `storage/logs` naar "composer audit gaf geen antwoord".
 
-// Restart the server by itself when an update needs it (a new Linux kernel), at 05:00:
-// after the backups of 03:30 and 04:00. The site is offline for about a minute then.
-Unattended-Upgrade::Automatic-Reboot "true";
-Unattended-Upgrade::Automatic-Reboot-Time "05:00";
-```
-Opslaan: Ctrl+O, Enter, Ctrl+X.
+### Stap 3. De mail gekregen: installeren
+Wat er in de mail staat, bepaalt wat je doet:
 
-We maken een **eigen bestand** in plaats van Ubuntu's `50unattended-upgrades` te veranderen. Zo blijft jouw aanpassing staan als Ubuntu dat bestand ooit vervangt.
+| In de mail | Doen |
+|---|---|
+| Ubuntu-pakketten / PHP | `sudo apt update && sudo apt upgrade` (paarse schermen: Enter, de standaard houden) |
+| De server wil herstarten | `sudo reboot`: de site is ± 1 minuut weg, dus liefst 's avonds |
+| Laravel-pakketten | Op je laptop: `composer update`, testen, committen, pushen. Op de server: `./deploy.sh` |
 
-### Stap 4. Proefdraaien (verandert niets)
-```bash
-sudo unattended-upgrade --dry-run --debug 2>&1 | grep -iE "allowed origins|ondrej|php8.4" | head -20
-```
-Bij *Allowed origins* staat nu ook `origin=LP-PPA-ondrej-php`. Staat er een PHP-update klaar, dan zie je ook regels met `php8.4-…`.
-
-### Stap 5. Klaar, en wat er nu vanzelf gebeurt
-- **Elke dag** kijkt de server of er updates zijn (Ubuntu én Ondřej), en installeert ze.
-- **PHP herstart zichzelf** na een update, dus de website draait meteen op de nieuwe versie. De queue worker (mails) start uiterlijk binnen een uur opnieuw (hij herstart elk uur, zie SERVERSTEPS stap 9). Wil je dat meteen: `php artisan queue:restart`.
-- **Herstarten** gebeurt alleen als het moet, om 05:00.
+Na een PHP-update herstart PHP zichzelf. De queue worker (mails) pakt het uiterlijk binnen een uur op, of meteen met `php artisan queue:restart`.
 
 **Nakijken wat er geïnstalleerd is:**
 ```bash
-tail -20 /var/log/unattended-upgrades/unattended-upgrades.log
-grep -A3 "php8.4" /var/log/apt/history.log | tail -20
+grep -A3 "Start-Date" /var/log/apt/history.log | tail -20
 php -v
 ```
-
-**Een update meteen draaien in plaats van wachten** (bijvoorbeeld bij een nieuw lek): `sudo unattended-upgrade -v`. Of met de hand, zoals altijd: `sudo apt update && sudo apt upgrade`.
