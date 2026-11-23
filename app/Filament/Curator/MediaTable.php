@@ -8,7 +8,12 @@ use App\Models\Page;
 use App\Models\Trip;
 use App\Support\Avatar;
 use App\Support\PhotoBlogs;
+use App\Support\PhotoTrips;
 use Awcodes\Curator\Models\Media;
+use Filament\Actions\BulkAction;
+use Filament\Notifications\Notification;
+use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Collection;
 use Awcodes\Curator\Resources\Media\Tables\MediaTable as CuratorMediaTable;
 use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
@@ -28,14 +33,38 @@ class MediaTable extends CuratorMediaTable
     public static function configure(Table $table): Table
     {
         return parent::configure($table)
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['blogs' => fn ($blogs) => $blogs->with(['trip', 'countries'])->orderBy('published_at')]))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['trip', 'blogs' => fn ($blogs) => $blogs->with(['trip', 'countries'])->orderBy('published_at')]))
             ->searchUsing(fn (Builder $query, string $search) => static::search($query, $search))
+            // Select photos (or all of them, also on other pages) and link them to a trip in one go
+            ->pushToolbarActions([
+                BulkAction::make('linkTrip')
+                    ->label('Koppel aan reis')
+                    ->icon(Heroicon::OutlinedMap)
+                    ->color('gray')
+                    ->modalHeading('Koppel aan reis')
+                    ->modalSubmitActionLabel('Koppelen')
+                    ->schema([
+                        ListMedia::tripField()
+                            ->default(fn () => PhotoTrips::suggestion())
+                            ->helperText('Leeg: de koppeling gaat eraf, dan telt weer de reis van de blog waar de foto in staat.'),
+                    ])
+                    ->action(function (Collection $records, array $data): void {
+                        $count = PhotoTrips::link($records->modelKeys(), $data['trip_id'] ?? null);
+                        $trip = filled($data['trip_id'] ?? null) ? Trip::find($data['trip_id'])?->name : null;
+
+                        Notification::make()->success()
+                            ->title($count === 1 ? '1 foto' : "{$count} foto's")
+                            ->body($trip ? "Gekoppeld aan {$trip}." : 'Niet meer aan een reis gekoppeld.')
+                            ->send();
+                    })
+                    ->deselectRecordsAfterCompletion(),
+            ])
             ->filters([
                 SelectFilter::make('trip')
                     ->label('Reis')
-                    ->options(fn () => Trip::orderByDesc('starts_on')->pluck('name', 'id'))
+                    ->options(fn () => PhotoTrips::options())
                     ->searchable()
-                    ->query(fn (Builder $query, array $data) => $query->when($data['value'] ?? null, fn ($query, $trip) => $query->whereHas('blogs', fn ($blogs) => $blogs->where('trip_id', $trip)))),
+                    ->query(fn (Builder $query, array $data) => $query->when($data['value'] ?? null, fn ($query, $trip) => PhotoTrips::scope($query, $trip))),
                 SelectFilter::make('country')
                     ->label('Land')
                     ->options(fn () => Country::orderBy('name')->pluck('name', 'id'))
@@ -50,6 +79,8 @@ class MediaTable extends CuratorMediaTable
                     ->toggle()
                     ->query(fn (Builder $query) => $query->doesntHave('blogs')->whereKeyNot(array_keys(static::otherUses()))),
             ], layout: FiltersLayout::AboveContent)
+            // The photos used nowhere yet at the top, the newest first: those are the ones still to place
+            ->defaultSort(fn (Builder $query) => static::orderUnusedFirst($query)->orderByDesc('created_at'))
             ->filtersFormColumns(['md' => 2, 'xl' => 4])
             ->deferFilters(false)
             // No "all": 4000+ photos on one page ran PHP out of memory (500 on /admin/media). Enforced, so a
@@ -85,24 +116,52 @@ class MediaTable extends CuratorMediaTable
     /**
      * Where the photo is, from the first blog it is in: "📍 Italië – Toscane", "🧭 Italië 2026".
      *
-     * @return array{blog: string, place: ?string, trip: ?string, more: int}|null
+     * The trip is the one the photo is linked to, or else the blog's (see PhotoTrips); a photo
+     * that is only linked to a trip, not yet in a blog, has just the trip.
+     *
+     * @return array{blog: ?string, place: ?string, trip: ?string, more: int}|null
      */
     public static function placeOf(Media $media): ?array
     {
         $blog = $media->blogs->first();
+        $trip = PhotoTrips::tripOf($media);
 
-        if (! $blog) {
+        if (! $blog && ! $trip) {
             return null;
         }
 
-        $place = collect($blog->placeTags())->pluck('label')->first();
+        $place = $blog ? collect($blog->placeTags())->pluck('label')->first() : null;
 
         return [
-            'blog' => $blog->title,
+            'blog' => $blog?->title,
             'place' => $place ? '📍 ' . $place : null,
-            'trip' => $blog->trip ? '🧭 ' . $blog->trip->name : null,
-            'more' => $media->blogs->count() - 1,
+            'trip' => $trip ? '🧭 ' . $trip->name : null,
+            'more' => max(0, $media->blogs->count() - 1),
         ];
+    }
+
+    /**
+     * Photos used nowhere first (not in a blog, nor elsewhere: see otherUses), the same as the filter "Nergens gebruikt".
+     * Also used by the photo window in a blog (CuratorPanel).
+     */
+    public static function orderUnusedFirst(Builder $query): Builder
+    {
+        return $query->orderByRaw('case when ' . static::usedSql($query) . ' then 1 else 0 end');
+    }
+
+    /**
+     * SQL that is true for a photo used somewhere: in a blog, or elsewhere (see otherUses).
+     */
+    public static function usedSql(Builder $query): string
+    {
+        $id = $query->qualifyColumn('id');
+        $used = "exists (select 1 from blog_media where blog_media.media_id = {$id})";
+
+        if ($elsewhere = array_map('intval', array_keys(static::otherUses()))) {
+            $used .= " or {$id} in (" . implode(',', $elsewhere) . ')';
+        }
+
+        return "({$used})";
     }
 
     /**

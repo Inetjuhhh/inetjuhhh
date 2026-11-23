@@ -2,12 +2,18 @@
 
 namespace App\Livewire;
 
+use App\Filament\Curator\MediaTable;
 use App\Support\PhotoFingerprint;
+use App\Support\PhotoTrips;
 use Awcodes\Curator\Components\Modals\CuratorPanel as BaseCuratorPanel;
 use Awcodes\Curator\Models\Media;
+use Awcodes\Curator\Support\MediaScope;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Locked;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -48,11 +54,130 @@ class CuratorPanel extends BaseCuratorPanel
     public array $uploadQueue = [];
 
     /**
-     * Each photo that finishes uploading is compared with the library right away, so the click
-     * on "add" doesn't have to compare them all at once.
+     * The trip the panel starts on: the trip of the blog being edited, or the trip whose cover is
+     * being chosen (passed with the settings, see resources/views/vendor/curator/components/modals).
+     */
+    #[Locked]
+    public int | string | null $tripId = null;
+
+    public function mount(): void
+    {
+        parent::mount();
+
+        $this->form->fill(['trip_id' => $this->tripId]);
+    }
+
+    /**
+     * Above the upload field: the trip whose photos are shown, which new photos are linked to as well.
+     */
+    public function form(Schema $schema): Schema
+    {
+        $schema = parent::form($schema);
+
+        return $schema->components([
+            Select::make('trip_id')
+                ->label('Reis')
+                ->placeholder('Alle foto\'s')
+                ->options(fn () => PhotoTrips::options())
+                ->searchable()
+                ->live()
+                ->helperText('Toont de foto\'s van deze reis, en nieuwe foto\'s worden eraan gekoppeld.'),
+            ...$schema->getComponents(withHidden: true),
+        ]);
+    }
+
+    public function selectedTrip(): int | string | null
+    {
+        return array_key_exists('trip_id', $this->panelData ?? []) ? $this->panelData['trip_id'] : $this->tripId;
+    }
+
+    /**
+     * Curator's list of photos, of the chosen trip only.
+     */
+    public function getFiles(int $page = 0, bool $excludeSelected = false): array
+    {
+        $files = $this->tripQuery()
+            ->where(fn (Builder $query): Builder => filled($this->directory)
+                ? MediaScope::whereWithinDirectory($query, $this->directory)
+                : $query->whereNull('directory'))
+            ->tap(fn (Builder $query) => $this->orderPhotos($query))
+            ->orderBy('created_at', $this->defaultSort);
+
+        $paginator = $files->paginate($this->defaultLimit, page: $page);
+
+        $this->currentPage = $paginator->currentPage();
+        $this->mediaCount = $paginator->total();
+        $this->lastPage = $paginator->lastPage();
+
+        $this->getSubDirectories();
+        $this->getBreadCrumbs();
+
+        return collect($paginator->items())->map(fn ($item) => $item->toArray())->toArray();
+    }
+
+    /**
+     * Curator's search, within the chosen trip too.
+     */
+    public function updatedSearch(): void
+    {
+        $terms = $this->getSearchTerms();
+
+        if ($terms === []) {
+            $this->files = $this->getFiles();
+
+            return;
+        }
+
+        $this->files = $this->tripQuery()
+            ->where(function ($query) use ($terms): void {
+                foreach ($terms as $term) {
+                    $query->where(function ($query) use ($term): void {
+                        foreach (static::SEARCH_COLUMNS as $column) {
+                            $query->orWhereRaw($query->getGrammar()->wrap($column) . " like ? escape '~'", ['%' . $term . '%']);
+                        }
+                    });
+                }
+            })
+            ->tap(fn (Builder $query) => $this->orderPhotos($query))
+            ->orderBy('created_at', $this->defaultSort)
+            ->limit(50)
+            ->get()
+            ->toArray();
+
+        $this->currentPage = $this->lastPage;
+    }
+
+    protected function tripQuery(): Builder
+    {
+        $query = $this->getMediaScope()->query();
+
+        return filled($trip = $this->selectedTrip()) ? PhotoTrips::scope($query, $trip) : $query;
+    }
+
+    /**
+     * The order (the newest first within each part): the photos of the trip that are used nowhere yet,
+     * the rest of the trip, then all others. The trip is the chosen one, or with "all photos" still the
+     * blog's own trip. Without any trip: the photos used nowhere first.
+     */
+    protected function orderPhotos(Builder $query): Builder
+    {
+        $trip = $this->selectedTrip() ?: $this->tripId;
+
+        return filled($trip) ? PhotoTrips::orderTripFirst($query, $trip) : MediaTable::orderUnusedFirst($query);
+    }
+
+    /**
+     * Another trip chosen: its photos. And each photo that finishes uploading is compared with the
+     * library right away, so the click on "add" doesn't have to compare them all at once.
      */
     public function updatedPanelData(mixed $value = null, ?string $key = null): void
     {
+        if ($key === 'trip_id') {
+            $this->updatedSearch();
+
+            return;
+        }
+
         if ($this->uploadQueue !== [] || ($key !== null && ! str_starts_with($key, 'files_to_add'))) {
             return;
         }
@@ -175,7 +300,8 @@ class CuratorPanel extends BaseCuratorPanel
         $this->duplicateIds = [];
         $this->duplicates = null;
 
-        $this->form->fill();
+        // An empty upload field again, on the same trip
+        $this->form->fill(['trip_id' => $this->selectedTrip()]);
 
         $known = collect($this->files)->pluck('id')->all();
         $this->files = [
@@ -206,9 +332,23 @@ class CuratorPanel extends BaseCuratorPanel
     }
 
     /**
-     * New photos get a name of their own: "IMG_1234 (1)" when "IMG_1234" is already in the library.
+     * New photos get a name of their own: "IMG_1234 (1)" when "IMG_1234" is already in the library,
+     * and are linked to the chosen trip.
      */
     protected function createMediaFiles(): array
+    {
+        $trip = $this->selectedTrip();
+
+        $media = $this->createNamedMediaFiles();
+
+        if (filled($trip) && PhotoTrips::link(array_column($media, 'id'), $trip)) {
+            $media = array_map(fn (array $item): array => [...$item, 'trip_id' => (int) $trip], $media);
+        }
+
+        return $media;
+    }
+
+    protected function createNamedMediaFiles(): array
     {
         return array_map(function (array $item): array {
             $media = Media::find($item['id']);

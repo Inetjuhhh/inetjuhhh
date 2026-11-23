@@ -6,7 +6,7 @@
 @endphp
 
 <div {{ $attributes->merge($getExtraAttributes())->class(['curator-grid-column absolute inset-0 rounded-t-xl overflow-hidden']) }}
-     title="{{ $where ? $where['blog'] . ($where['more'] ? ' (en nog ' . $where['more'] . ')' : '') : $record->pretty_name }}">
+     title="{{ $where['blog'] ?? null ? $where['blog'] . ($where['more'] ? ' (en nog ' . $where['more'] . ')' : '') : $record->pretty_name }}">
     <div @class([
         'rounded-t-xl h-full overflow-hidden bg-gray-100 dark:bg-gray-950/50',
         'checkered' => $isSvg,
@@ -25,7 +25,11 @@
         />
 
         <div class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-2 pb-1.5 pt-10 text-xs text-white">
-            @if($where)
+            @if($where && ! $where['blog'])
+                {{-- Linked to a trip, not in a blog (yet) --}}
+                <p class="truncate font-medium">{{ $where['trip'] }}</p>
+                <p class="truncate text-white/80">{{ $record->pretty_name }}</p>
+            @elseif($where)
                 <p class="truncate font-medium">{{ $where['place'] ?? $where['blog'] }}</p>
                 <p class="flex justify-between gap-2 text-white/80">
                     <span class="truncate">{{ $where['trip'] ?? $where['blog'] }}</span>

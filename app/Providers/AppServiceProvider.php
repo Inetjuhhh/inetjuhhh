@@ -36,6 +36,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->booting(function () {
             config(['curator.resource.pages.edit' => \App\Filament\Curator\EditMedia::class]);
             config(['curator.resource.tables.table' => \App\Filament\Curator\MediaTable::class]);
+            // The library's bulk upload and the photo's page, both with the trip the photos belong to
+            config(['curator.resource.pages.index' => \App\Filament\Curator\ListMedia::class]);
+            config(['curator.resource.schemas.form' => \App\Filament\Curator\MediaForm::class]);
         });
     }
 
@@ -89,6 +92,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Curator's model is in the vendor folder, so its side of blog_media is added here
         config('curator.model')::resolveRelationUsing('blogs', fn (Media $media) => $media->belongsToMany(\App\Models\Blog::class, 'blog_media', 'media_id', 'blog_id'));
+
+        // ...and the trip a photo is linked to (see PhotoTrips)
+        config('curator.model')::resolveRelationUsing('trip', fn (Media $media) => $media->belongsTo(Trip::class, 'trip_id'));
 
         // Hearts: enough for a real reader clicking around, too few to push a counter up
         RateLimiter::for('likes', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));

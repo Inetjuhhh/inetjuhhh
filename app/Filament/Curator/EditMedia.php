@@ -7,6 +7,7 @@ use Awcodes\Curator\Resources\Media\Pages\EditMedia as CuratorEditMedia;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Model;
 use Throwable;
 
 /**
@@ -41,5 +42,18 @@ class EditMedia extends CuratorEditMedia
                 }),
             ...parent::getHeaderActions(),
         ];
+    }
+
+    /**
+     * The trip isn't one of Curator's own fields (it can't be filled like the others), so it is saved here.
+     */
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        if (array_key_exists('trip_id', $data)) {
+            $record->forceFill(['trip_id' => filled($data['trip_id']) ? (int) $data['trip_id'] : null]);
+            unset($data['trip_id']);
+        }
+
+        return parent::handleRecordUpdate($record, $data);
     }
 }
