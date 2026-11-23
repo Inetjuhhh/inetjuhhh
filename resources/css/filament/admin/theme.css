@@ -33,6 +33,119 @@
     }
 }
 
+/* The photo window on a phone (below 768px): instead of a sidebar under the photos that takes half the
+   screen, one compact row with the trip and an "Uploaden" button. Photos being uploaded and the buttons
+   to add them still show as usual. iPad and laptop keep the sidebar (CuratorPanel::form adds the classes). */
+.curator-upload-short {
+    display: none;
+}
+
+@media (max-width: 767px) {
+    /* No headings, and no strip of chosen photos: the bar at the bottom already has "Invoegen" */
+    .curator-panel-sidebar h4,
+    .curator-panel-sidebar [x-show="hasSelection()"] {
+        display: none !important;
+    }
+
+    /* The row only as tall as it needs to be; the photos get the rest of the screen */
+    .curator-panel-gallery {
+        flex: 1 1 0;
+        min-height: 0;
+        height: auto;
+    }
+
+    .curator-panel-sidebar,
+    .curator-panel-sidebar .flex-1.overflow-hidden,
+    .curator-panel-sidebar .flex.flex-col.h-full {
+        flex: none;
+        height: auto;
+    }
+
+    /* While a batch is uploading, the list scrolls within two thirds of the screen */
+    .curator-panel-sidebar {
+        max-height: 65%;
+    }
+
+    .curator-panel-sidebar .overflow-auto.px-4 {
+        @apply px-2.5 py-2;
+    }
+
+    /* Room for the black bar with "Invoegen", which lies over the bottom once photos are chosen */
+    .curator-panel:has(> .curator-panel-controls:not([style*="none"])) .curator-panel-sidebar {
+        padding-bottom: 3.5rem;
+    }
+
+    .curator-panel-sidebar .flex.items-center.px-4.pb-2:empty {
+        display: none;
+    }
+
+    .curator-panel-sidebar .flex.items-center.px-4.pb-2 {
+        @apply px-2.5 pt-2 pb-0;
+    }
+
+    /* Trip and upload side by side */
+    .curator-panel-sidebar .fi-sc.fi-grid {
+        @apply flex flex-wrap items-center gap-2;
+    }
+
+    .curator-panel-sidebar .fi-sc.fi-grid > :has(.curator-trip-field) {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    /* A fixed width: the upload field has none of its own and would shrink to a sliver */
+    .curator-panel-sidebar .fi-sc.fi-grid > :has(.curator-upload-field) {
+        flex: 0 0 8.5rem;
+    }
+
+    /* While photos are uploading, the list gets the whole width again */
+    .curator-panel-sidebar .fi-sc.fi-grid > :has(.curator-upload-field .filepond--item) {
+        flex-basis: 100%;
+    }
+
+    .curator-trip-field .fi-fo-field-label-col,
+    .curator-trip-field .fi-sc-text {
+        display: none;
+    }
+
+    /* The upload area as a small button */
+    .curator-upload-long {
+        display: none;
+    }
+
+    .curator-upload-short {
+        display: inline;
+    }
+
+    /* Curator gives the upload area 300px in the sidebar; here it takes the height it needs */
+    .curator-panel-sidebar .curator-upload-field .filepond--root {
+        @apply mb-0;
+        min-height: 0;
+    }
+
+    .curator-upload-field .filepond--drop-label {
+        min-height: 2.5rem;
+    }
+
+    .curator-upload-field .filepond--drop-label {
+        @apply rounded-lg bg-primary-50 dark:bg-primary-500/15;
+    }
+
+    .curator-upload-field .filepond--drop-label label {
+        @apply px-4 py-0 text-sm font-semibold;
+        color: var(--primary-600) !important;
+    }
+
+    .dark .curator-upload-field .filepond--drop-label label {
+        color: var(--primary-300) !important;
+    }
+
+    /* The frame around the upload area: not needed around a button */
+    .curator-upload-field .filepond--panel-root {
+        @apply border-0 bg-transparent;
+    }
+}
+
 /* A touch screen can't hover, so what the photo window shows on hover is always there: the menu of a
    photo (view, edit, delete), its name, and the cross that takes a chosen photo out of the selection */
 @media (hover: none) {

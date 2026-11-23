@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Filament\Curator\MediaTable;
 use App\Support\PhotoFingerprint;
 use App\Support\PhotoTrips;
+use Awcodes\Curator\Components\Forms\Uploader;
 use Awcodes\Curator\Components\Modals\CuratorPanel as BaseCuratorPanel;
 use Awcodes\Curator\Models\Media;
 use Awcodes\Curator\Support\MediaScope;
@@ -74,6 +75,18 @@ class CuratorPanel extends BaseCuratorPanel
     {
         $schema = parent::form($schema);
 
+        // On a phone the trip and the upload field share one compact row (see the admin theme.css),
+        // so the upload field has a short label for there as well
+        $upload = array_map(
+            fn ($component) => $component instanceof Uploader
+                ? $component
+                    ->placeholder('<span class="curator-upload-long">Sleep je foto\'s hierheen of <span class="filepond--label-action">kies ze</span></span>'
+                        . '<span class="curator-upload-short">Uploaden</span>')
+                    ->extraFieldWrapperAttributes(['class' => 'curator-upload-field'])
+                : $component,
+            $schema->getComponents(withHidden: true),
+        );
+
         return $schema->components([
             Select::make('trip_id')
                 ->label('Reis')
@@ -81,8 +94,9 @@ class CuratorPanel extends BaseCuratorPanel
                 ->options(fn () => PhotoTrips::options())
                 ->searchable()
                 ->live()
-                ->helperText('Toont de foto\'s van deze reis, en nieuwe foto\'s worden eraan gekoppeld.'),
-            ...$schema->getComponents(withHidden: true),
+                ->helperText('Toont de foto\'s van deze reis, en nieuwe foto\'s worden eraan gekoppeld.')
+                ->extraFieldWrapperAttributes(['class' => 'curator-trip-field']),
+            ...$upload,
         ]);
     }
 
