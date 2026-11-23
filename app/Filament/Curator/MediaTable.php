@@ -52,6 +52,10 @@ class MediaTable extends CuratorMediaTable
             ], layout: FiltersLayout::AboveContent)
             ->filtersFormColumns(['md' => 2, 'xl' => 4])
             ->deferFilters(false)
+            // No "all": 4000+ photos on one page ran PHP out of memory (500 on /admin/media). Enforced, so a
+            // session that still remembers "all" (Filament keeps the choice) falls back to 48 instead
+            ->paginationPageOptions([12, 24, 48, 96])
+            ->enforcePaginationPageOptions()
             ->defaultPaginationPageOption(48);
     }
 

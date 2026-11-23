@@ -95,3 +95,24 @@ it('says where a photo outside the blogs is used: a trip cover, a page or the av
         ->assertSee('Omslag van Costa Rica 2027')
         ->assertSee('Nergens gebruikt');
 });
+
+it('never shows the whole library on one page, also not when the session still remembers "all"', function () {
+    collect(range(1, 50))->each(fn (int $i) => mediaLibraryPhoto("foto-{$i}"));
+
+    $first = Livewire::test(ListMedia::class);
+    $key = $first->instance()->getTablePerPageSessionKey();
+    expect($first->instance()->getTable()->getPaginationPageOptions())->not->toContain('all');
+
+    // A choice of "all" from before this fix, kept by Filament in the session: a normal page instead, and forgotten
+    session()->put($key, 'all');
+    $page = Livewire::test(ListMedia::class);
+    expect($page->instance()->getTableRecordsPerPage())->toBeInt()->toBeLessThanOrEqual(96)
+        ->and(session()->has($key))->toBeFalse();
+
+    // ...so the next visit has the usual 48 again
+    expect(Livewire::test(ListMedia::class)->instance()->getTableRecordsPerPage())->toBe(48);
+
+    // Asking for it by hand doesn't work either
+    $page->set('tableRecordsPerPage', 'all');
+    expect($page->instance()->getTableRecordsPerPage())->toBeInt()->toBeLessThanOrEqual(96);
+});
