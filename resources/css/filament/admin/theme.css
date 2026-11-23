@@ -33,6 +33,12 @@
     }
 }
 
+/* The folders in the photo window (Uitgelicht, Wordpress) after the photos instead of before them:
+   the photos are what you come for, the folders are for looking something up */
+.curator-picker-grid > li[wire\:key^="dir-"] {
+    order: 1;
+}
+
 /* The photo window on a phone (below 768px): instead of a sidebar under the photos that takes half the
    screen, one compact row with the trip and an "Uploaden" button. Photos being uploaded and the buttons
    to add them still show as usual. iPad and laptop keep the sidebar (CuratorPanel::form adds the classes). */

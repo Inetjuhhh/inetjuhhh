@@ -224,3 +224,16 @@ it('shows the trip\'s unused photos first in a blog, then the rest of the trip, 
     expect(collect(tripPanel($this->italy)->set('panelData.trip_id', $this->japan->id)->get('files'))->pluck('name')->all())
         ->toBe(['andere-reis-nieuw']);
 });
+
+it('shows the photos in folders at the top level of the photo window too, and keeps to the trip inside a folder', function () {
+    $loose = tripPhoto('los', $this->italy);
+    $inFolder = tripPhoto('in-map', $this->italy);
+    $otherTripInFolder = tripPhoto('andere-reis-in-map', $this->japan);
+    Media::whereKey([$inFolder->id, $otherTripInFolder->id])->update(['directory' => 'wordpress/2026']);
+
+    // Top level: all photos of the trip, whichever folder they are in
+    expect(collect(tripPanel($this->italy)->get('files'))->pluck('name')->sort()->values()->all())->toBe(['in-map', 'los']);
+
+    // Inside the folder: only that folder, and still only the trip
+    expect(collect(tripPanel($this->italy)->call('handleDirectoryChange', 'wordpress/2026')->get('files'))->pluck('name')->all())->toBe(['in-map']);
+});

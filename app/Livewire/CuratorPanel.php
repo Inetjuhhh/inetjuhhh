@@ -106,14 +106,17 @@ class CuratorPanel extends BaseCuratorPanel
     }
 
     /**
-     * Curator's list of photos, of the chosen trip only.
+     * Curator's list of photos, of the chosen trip only. At the top level all photos, whichever folder
+     * they are in (Curator shows only the ones outside a folder there, while almost all are in the
+     * WordPress folders); the folders themselves come after the photos (see the admin theme.css).
      */
     public function getFiles(int $page = 0, bool $excludeSelected = false): array
     {
         $files = $this->tripQuery()
-            ->where(fn (Builder $query): Builder => filled($this->directory)
-                ? MediaScope::whereWithinDirectory($query, $this->directory)
-                : $query->whereNull('directory'))
+            // In brackets: Curator's folder condition has an "or", which must not undo the trip
+            ->when(filled($this->directory), fn (Builder $query): Builder => $query->where(
+                fn (Builder $query): Builder => MediaScope::whereWithinDirectory($query, $this->directory),
+            ))
             ->tap(fn (Builder $query) => $this->orderPhotos($query))
             ->orderBy('created_at', $this->defaultSort);
 
