@@ -117,3 +117,58 @@ it('adds a new photo without asking', function () {
 
     expect(Media::where('title', 'berg')->exists())->toBeTrue();
 });
+
+it('compares a photo with the library while it uploads', function () {
+    $existing = libraryCopy(fakePhoto(1), 'zee');
+
+    $panel = mediaPanel()
+        ->set('panelData.files_to_add', [UploadedFile::fake()->createWithContent('zee.jpg', fakePhoto(1, 800, 600))]);
+
+    expect(array_values($panel->get('duplicateIds')))->toBe([[$existing->id]]);
+
+    $panel->mountAction('addFiles')
+        ->assertMountedActionModalSee(['Deze foto staat al in je bibliotheek', 'zee (1)']);
+});
+
+it('adds many photos a few at a time, each batch in its own request', function () {
+    $photos = collect(range(1, CuratorPanel::BATCH_SIZE * 2 + 2))
+        ->map(fn (int $seed) => UploadedFile::fake()->createWithContent("foto-{$seed}.jpg", fakePhoto($seed + 10, 300, 200)))
+        ->all();
+
+    $panel = mediaPanel()->set('panelData.files_to_add', $photos)->callAction('addFiles');
+
+    // The first batch, and the browser is asked to carry on
+    expect(Media::count())->toBe(CuratorPanel::BATCH_SIZE)
+        ->and($panel->get('uploadQueue.keys'))->toHaveCount(CuratorPanel::BATCH_SIZE + 2);
+
+    $panel->call('addNextUploads');
+    expect(Media::count())->toBe(CuratorPanel::BATCH_SIZE * 2);
+
+    $panel->call('addNextUploads');
+    expect(Media::count())->toBe(CuratorPanel::BATCH_SIZE * 2 + 2)
+        ->and($panel->get('uploadQueue'))->toBe([])
+        ->and($panel->get('selected'))->toHaveCount(CuratorPanel::BATCH_SIZE * 2 + 2)
+        ->and(Media::pluck('title')->sort()->values()->all())->toBe(collect(range(1, 12))->map(fn ($i) => "foto-{$i}")->sort()->values()->all());
+
+    // Nothing left to do: another call adds nothing twice
+    $panel->call('addNextUploads');
+    expect(Media::count())->toBe(CuratorPanel::BATCH_SIZE * 2 + 2);
+});
+
+it('uses the existing photo and adds the rest in batches', function () {
+    $existing = libraryCopy(fakePhoto(1), 'zee');
+    $photos = [
+        UploadedFile::fake()->createWithContent('zee.jpg', fakePhoto(1, 800, 600)),
+        ...collect(range(1, CuratorPanel::BATCH_SIZE + 1))
+            ->map(fn (int $seed) => UploadedFile::fake()->createWithContent("foto-{$seed}.jpg", fakePhoto($seed + 10, 300, 200))),
+    ];
+
+    $panel = mediaPanel()->set('panelData.files_to_add', $photos)
+        ->callAction('addFiles', arguments: ['useExisting' => true])
+        ->call('addNextUploads');
+
+    expect(Media::count())->toBe(1 + CuratorPanel::BATCH_SIZE + 1)
+        ->and(Media::where('title', 'zee (1)')->exists())->toBeFalse()
+        ->and(collect($panel->get('selected'))->pluck('id'))->toContain($existing->id)
+        ->and($panel->get('selected'))->toHaveCount(CuratorPanel::BATCH_SIZE + 2);
+});
