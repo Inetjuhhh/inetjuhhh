@@ -17,6 +17,38 @@
     }
 }
 
+/* The photo window (Curator) on an iPad held upright (768–1023px): the sidebar with the trip and the
+   upload field next to the photos, as on a laptop, instead of below them where it needs scrolling to */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .curator-panel div:has(> .curator-panel-gallery) {
+        @apply flex-row;
+    }
+
+    .curator-panel-sidebar {
+        @apply h-full max-w-xs border-l shadow-none;
+    }
+
+    .curator-picker-grid {
+        @apply grid-cols-4;
+    }
+}
+
+/* A touch screen can't hover, so what the photo window shows on hover is always there: the menu of a
+   photo (view, edit, delete), its name, and the cross that takes a chosen photo out of the selection */
+@media (hover: none) {
+    .curator-panel-gallery .group > div.opacity-0 {
+        @apply opacity-100 pointer-events-auto;
+    }
+
+    .curator-panel-gallery .group > p.opacity-0 {
+        @apply opacity-100;
+    }
+
+    .curator-panel-sidebar .group button.opacity-0 {
+        @apply opacity-100 bg-danger-500/50;
+    }
+}
+
 /* Blog form on a phone: "Verhaal" and "Details" tabs instead of one very long page
    (resources/views/filament/blogs/pane-switch.blade.php). From lg up both columns show. */
 @media (max-width: 1023px) {
