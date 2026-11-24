@@ -61,6 +61,10 @@
 
         @php $interactive = $blog->isPublished(); @endphp
 
+        @if($interactive && ! ($isPreview ?? false))
+            @include('blogs.partials.read-counter', ['blog' => $blog])
+        @endif
+
         <div class="mt-16">
             @include('blogs.partials.like-button', ['blog' => $blog, 'liked' => $liked ?? false, 'disabled' => ! $interactive])
         </div>

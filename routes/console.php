@@ -151,3 +151,9 @@ Schedule::command('site:security-check')
     ->dailyAt('07:30')
     ->environments(['production'])
     ->withoutOverlapping();
+
+// The free location file for the reader statistics (ReaderLocation): DB-IP publishes a new one monthly
+Schedule::command('stats:update-locations')
+    ->monthlyOn(5, '05:00')
+    ->environments(['production'])
+    ->withoutOverlapping();

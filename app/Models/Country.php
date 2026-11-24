@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Country extends Model
 {
+    // For the statistics per continent; Midden-Amerika and the Caribbean count as Noord-Amerika
+    public const CONTINENTS = ['Europa', 'Azië', 'Afrika', 'Noord-Amerika', 'Zuid-Amerika', 'Oceanië'];
+
     protected $table = 'countries';
     protected $guarded = [];
     protected $casts = [

@@ -67,9 +67,7 @@ class BlogController extends Controller
 
         abort_unless($blog, 404);
 
-        // Counted only here, not for previews of drafts
-        ViewCounter::record($request, $blog);
-
+        // Not counted here: the page counts a read itself after 15 seconds (blogs/partials/read-counter)
         return $this->showBlog($request, $blog);
     }
 

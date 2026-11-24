@@ -13,6 +13,7 @@ use App\Filament\Resources\CountryResource\Pages;
 use App\Filament\Resources\CountryResource\RelationManagers;
 use App\Models\Country;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
@@ -43,6 +44,10 @@ class CountryResource extends Resource
                 TextInput::make('name')
                     ->label('Name')
                     ->required(),
+                Select::make('continent')
+                    ->label('Continent')
+                    ->options(array_combine(Country::CONTINENTS, Country::CONTINENTS))
+                    ->helperText('Voor de statistieken per continent. Midden-Amerika en het Caribisch gebied vallen onder Noord-Amerika.'),
                 TextInput::make('latitude')
                     ->label('Breedtegraad')
                     ->helperText('Wordt automatisch opgezocht. Blogs zonder eigen plek komen hier op de reiskaart.')
@@ -63,6 +68,9 @@ class CountryResource extends Resource
             ->columns([
                 TextColumn::make('name')
                     ->label('Name'),
+                TextColumn::make('continent')
+                    ->label('Continent')
+                    ->placeholder('Nog kiezen'),
             ])
             ->filters([
             ])

@@ -35,6 +35,10 @@ Route::get('/blogs/country/{country_id}', [BlogController::class, 'blogCountry']
 Route::get('/blogs/preview/{blog:id}', [BlogController::class, 'preview'])->middleware('signed')->name('blogs.preview');
 Route::get('/blogs/{slug}', [BlogController::class, 'show'])->name('blogs.show');
 
+// A blog read for 15 seconds (see ViewCounter)
+Route::post('/blogs/{slug}/gelezen', [\App\Http\Controllers\ReadController::class, 'store'])
+    ->middleware('throttle:60,1')->name('blogs.read');
+
 // Hearts and comments, without an account
 Route::post('/blogs/{blog:slug}/hartje', [LikeController::class, 'toggle'])
     ->middleware('throttle:likes')->name('blogs.like');

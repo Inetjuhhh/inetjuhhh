@@ -13,6 +13,8 @@ use App\Models\Subscriber;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use App\Support\ViewCounter;
+use Illuminate\Support\Carbon;
 
 /**
  * The numbers at the top of the dashboard: how much the blog is read, and what needs attention.
@@ -21,12 +23,13 @@ class BlogStats extends StatsOverviewWidget
 {
     protected static ?int $sort = 1;
 
-    protected int | array | null $columns = ['md' => 3, 'xl' => 5];
+    protected int | array | null $columns = ['md' => 3, 'xl' => 6];
 
     protected function getStats(): array
     {
         return [
             $this->views(),
+            $this->likeRate(),
             $this->blogs(),
             $this->waiting(),
             $this->subscribers(),
@@ -44,10 +47,15 @@ class BlogStats extends StatsOverviewWidget
 
         $now = $line->sum();
         $before = (int) BlogView::whereBetween('date', [today()->subDays(59), today()->subDays(30)])->sum('views');
-        $change = $before > 0 ? round(($now - $before) / $before * 100) : null;
+
+        // No comparison while the 30 days before still lie (partly) in the old counting, which counted far more
+        $since = ViewCounter::countingSince();
+        $fair = $since === null || $since <= today()->subDays(59)->toDateString();
+        $change = $fair && $before > 0 ? round(($now - $before) / $before * 100) : null;
 
         return Stat::make('Gelezen · 30 dagen', number_format($now, 0, ',', '.'))
             ->description(match (true) {
+                $change === null && $since !== null => 'Echte lezers, nieuwe telling sinds ' . Carbon::parse($since)->translatedFormat('j M'),
                 $change === null => 'Elke keer dat een lezer een verhaal opent',
                 $change >= 0 => "{$change}% meer dan de 30 dagen ervoor",
                 default => abs($change) . '% minder dan de 30 dagen ervoor',
@@ -55,6 +63,17 @@ class BlogStats extends StatsOverviewWidget
             ->descriptionIcon($change !== null && $change < 0 ? Heroicon::ArrowTrendingDown : Heroicon::ArrowTrendingUp)
             ->color($change !== null && $change < 0 ? 'gray' : 'success')
             ->chart($line->all());
+    }
+
+    // How much readers like what they read: hearts per 100 readers in the last 30 days
+    private function likeRate(): Stat
+    {
+        $reads = (int) BlogView::where('date', '>=', today()->subDays(29))->sum('views');
+        $likes = BlogLike::where('created_at', '>=', today()->subDays(29))->count();
+
+        return Stat::make('Likes per 100 lezers', $reads >= 20 ? number_format($likes / $reads * 100, 1, ',', '.') : '–')
+            ->description($reads >= 20 ? 'Laatste 30 dagen' : 'Zodra er 20 lezers zijn')
+            ->descriptionIcon(Heroicon::Heart);
     }
 
     private function blogs(): Stat

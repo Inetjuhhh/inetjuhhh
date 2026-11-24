@@ -10,7 +10,7 @@ use Filament\Widgets\ChartWidget;
  */
 class BlogsPerYear extends ChartWidget
 {
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 12;
 
     protected int | string | array $columnSpan = 'full';
 

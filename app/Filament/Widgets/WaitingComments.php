@@ -15,7 +15,7 @@ use Filament\Widgets\TableWidget;
  */
 class WaitingComments extends TableWidget
 {
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 11;
 
     protected static ?string $heading = 'Wacht op goedkeuring';
 

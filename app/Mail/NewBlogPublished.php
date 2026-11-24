@@ -53,7 +53,8 @@ class NewBlogPublished extends Mailable implements ShouldQueue
 
         return new Content(markdown: 'mail.subscribers.new-blog', with: [
             'blog' => $blog,
-            'url' => route('blogs.show', $blog),
+            // Marked, so the statistics can tell readers who came from the newsletter (see ReadSource)
+            'url' => route('blogs.show', [$blog, 'bron' => 'nieuwsbrief']),
             // JPEG: not every mail app shows WebP (Outlook on Windows doesn't)
             // A real photo only: the placeholder is an SVG, which most mail apps don't show
             'cover' => $blog->hasCover() ? url($blog->coverUrl(1200, 700, 'jpg')) : null,

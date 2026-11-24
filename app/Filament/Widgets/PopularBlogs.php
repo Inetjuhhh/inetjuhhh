@@ -2,51 +2,39 @@
 
 namespace App\Filament\Widgets;
 
-use App\Filament\Resources\BlogResource;
-use App\Models\Blog;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Filament\Widgets\TableWidget;
+use App\Filament\Widgets\Concerns\HasPeriod;
+use App\Support\Statistics;
+use Filament\Widgets\Widget;
 
 /**
- * The five stories read most in the last 30 days.
+ * The most popular stories: most read, most likes, or most likes per 100 readers (the stories that
+ * really touch people, also when fewer read them), over 30 days, a year or all time.
  */
-class PopularBlogs extends TableWidget
+class PopularBlogs extends Widget
 {
-    protected static ?int $sort = 3;
+    use HasPeriod;
 
-    protected static ?string $heading = 'Meest gelezen · 30 dagen';
+    public const ORDERS = ['reads' => 'Meest gelezen', 'likes' => 'Meeste likes', 'rate' => 'Likes per 100'];
 
-    public function table(Table $table): Table
+    protected static ?int $sort = 5;
+
+    protected int | string | array $columnSpan = 'full';
+
+    protected string $view = 'filament.widgets.popular-blogs';
+
+    public string $by = 'reads';
+
+    public function updatedBy(): void
     {
-        return $table
-            ->query(fn () => Blog::published()
-                ->withSum(['views as recent_views' => fn ($q) => $q->where('date', '>=', today()->subDays(29))], 'views')
-                ->withCount(['likes', 'comments'])
-                ->whereHas('views', fn ($q) => $q->where('date', '>=', today()->subDays(29)))
-                ->orderByDesc('recent_views')
-                ->limit(5))
-            ->paginated(false)
-            ->columns([
-                TextColumn::make('title')
-                    ->label('Verhaal')
-                    ->wrap()
-                    ->url(fn (Blog $record) => BlogResource::getUrl('edit', ['record' => $record])),
-                TextColumn::make('recent_views')
-                    ->label('Gelezen')
-                    ->numeric()
-                    ->alignEnd(),
-                TextColumn::make('likes_count')
-                    ->label('♥')
-                    ->alignEnd()
-                    ->visibleFrom('sm'),
-                TextColumn::make('comments_count')
-                    ->label('Reacties')
-                    ->alignEnd()
-                    ->visibleFrom('sm'),
-            ])
-            ->emptyStateHeading('Nog niets gelezen')
-            ->emptyStateDescription('Zodra lezers je verhalen openen, zie je hier welke het populairst zijn.')
-            ->emptyStateIcon('heroicon-o-book-open');
+        if (! array_key_exists($this->by, self::ORDERS)) {
+            $this->by = 'reads';
+        }
+    }
+
+    protected function getViewData(): array
+    {
+        return ['blogs' => Statistics::blogs($this->period, $this->by, limit: 5)
+            ->filter(fn ($blog) => $this->by !== 'rate' || $blog->rate !== null)
+            ->values()];
     }
 }

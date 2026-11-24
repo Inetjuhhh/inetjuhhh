@@ -3,10 +3,12 @@
 namespace App\Filament\Widgets;
 
 use App\Models\BlogView;
+use App\Support\ViewCounter;
 use Filament\Widgets\ChartWidget;
+use Illuminate\Support\Carbon;
 
 /**
- * How often the blog was read per day, over a week, a month or a quarter.
+ * How often the blog was read per day, over a week, a month or a quarter (per month: ReadsPerMonth).
  */
 class ViewsChart extends ChartWidget
 {
@@ -15,8 +17,6 @@ class ViewsChart extends ChartWidget
     protected int | string | array $columnSpan = 'full';
 
     protected ?string $heading = 'Gelezen per dag';
-
-    protected ?string $description = 'Hoe vaak lezers een verhaal openden (zoekmachines en jijzelf tellen niet mee)';
 
     protected ?string $maxHeight = '260px';
 
@@ -27,10 +27,23 @@ class ViewsChart extends ChartWidget
         return ['7' => '7 dagen', '30' => '30 dagen', '90' => '90 dagen'];
     }
 
+    // Since the new counting only real readers count; the numbers before it are higher than they were
+    public function getDescription(): ?string
+    {
+        $since = ViewCounter::countingSince();
+
+        return $since
+            ? 'Wie een verhaal 15 seconden leest (bots en jijzelf tellen niet mee). Nieuwe telling sinds ' . Carbon::parse($since)->translatedFormat('j F Y') . '; de cijfers daarvoor zijn hoger.'
+            : 'Hoe vaak lezers een verhaal openden (zoekmachines en jijzelf tellen niet mee)';
+    }
+
     protected function getData(): array
     {
-        $days = (int) $this->filter;
+        return $this->perDay((int) $this->filter);
+    }
 
+    private function perDay(int $days): array
+    {
         $perDay = BlogView::where('date', '>=', today()->subDays($days - 1))
             ->selectRaw('date, SUM(views) as total')->groupBy('date')->pluck('total', 'date')
             ->mapWithKeys(fn ($total, $date) => [substr((string) $date, 0, 10) => (int) $total]);

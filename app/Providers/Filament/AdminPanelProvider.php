@@ -84,6 +84,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                // This device's own reading of the blog doesn't count in the statistics
+                \App\Http\Middleware\MarkOwnerDevice::class,
             ]);
     }
 
