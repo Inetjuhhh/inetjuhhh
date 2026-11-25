@@ -46,6 +46,15 @@
                     </tbody>
                 </table>
             </div>
+            <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <span class="text-sm text-gray-500 dark:text-gray-400">{{ $blogs->count() }} van {{ $total }} blogs</span>
+                <div class="flex flex-wrap items-center gap-3">
+                    @if ($total > $blogs->count())
+                        <x-filament::button color="gray" size="sm" wire:click="showMore">Toon meer</x-filament::button>
+                    @endif
+                    <a href="{{ \App\Filament\Pages\Statistics::getUrl() }}" class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-400">Alle blogs →</a>
+                </div>
+            </div>
         @endif
     </x-filament::section>
 </x-filament-widgets::widget>

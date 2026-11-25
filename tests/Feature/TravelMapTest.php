@@ -119,3 +119,59 @@ it('keeps the pin when a renamed place cannot be found', function () {
 
     expect([$blog->fresh()->latitude, $blog->fresh()->longitude])->toBe([28.21, 83.98]);
 });
+
+// Nominatim's answers per search, the way it answers with addressdetails and namedetails
+function fakePlaces(): void
+{
+    $answers = [
+        'cefalu' => ['addresstype' => 'town', 'name' => 'Cefalù', 'address' => ['town' => 'Cefalù', 'country' => 'Italië'], 'namedetails' => ['name' => 'Cefalù']],
+        'london' => ['addresstype' => 'city', 'name' => 'Groot-Londen', 'address' => ['city' => 'Groot-Londen', 'country' => 'Verenigd Koninkrijk'], 'namedetails' => ['name:nl' => 'Groot-Londen']],
+        'chiang mai' => ['addresstype' => 'city', 'name' => 'เทศบาลนครเชียงใหม่', 'address' => ['city' => 'เทศบาลนครเชียงใหม่', 'country' => 'Thailand'], 'namedetails' => ['name:en' => 'Chiang Mai City Municipality']],
+        'peru' => ['addresstype' => 'country', 'name' => 'Peru', 'address' => ['country' => 'Peru'], 'namedetails' => []],
+    ];
+
+    Http::fake(function ($request) use ($answers) {
+        parse_str(parse_url($request->url(), PHP_URL_QUERY), $query);
+        $q = mb_strtolower($query['q']);
+        $key = collect(array_keys($answers))->first(fn ($name) => str_contains(\Illuminate\Support\Str::ascii($q), $name));
+
+        return Http::response($key ? [['lat' => '38.03', 'lon' => '14.02', ...$answers[$key]]] : []);
+    });
+}
+
+it('writes a place the same way every time, however it was typed', function (string $typed, ?string $tidy) {
+    fakePlaces();
+    Country::create(['name' => 'Groot-Brittannië']);
+
+    expect(\App\Support\Geocoder::placeName($typed))->toBe($tidy);
+})->with([
+    ['cefalu', 'Cefalù, Italië'],
+    ['Cefalu Sicilië', 'Cefalù, Italië'],
+    ['Italië, Cefalù', 'Cefalù, Italië'],
+    // Its own name, not the area OpenStreetMap finds; the country as the countries list has it
+    ['London', 'London, Groot-Brittannië'],
+    // Not the Thai name, nor the municipality
+    ['Chiang Mai', 'Chiang Mai, Thailand'],
+    ['Peru', 'Peru'],
+    ['Thuis aan de keukentafel', null],
+]);
+
+it('tidies the place in the blog form, so the blog shows country – place', function () {
+    fakePlaces();
+    $this->actingAs(User::factory()->create());
+    $blog = mapBlog(['status' => 'draft']);
+    $blog->countries()->attach(Country::create(['name' => 'Italië']));
+
+    Livewire::test(EditBlog::class, ['record' => $blog->id])
+        ->fillForm(['location_name' => 'cefalu'])
+        ->assertSchemaStateSet(['location_name' => 'Cefalù, Italië'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(collect($blog->fresh()->placeTags())->pluck('label')->all())->toBe(['Italië – Cefalù']);
+
+    // A place the map doesn't know stays as typed
+    Livewire::test(EditBlog::class, ['record' => $blog->id])
+        ->fillForm(['location_name' => 'Thuis aan de keukentafel'])
+        ->assertSchemaStateSet(['location_name' => 'Thuis aan de keukentafel']);
+});

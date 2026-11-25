@@ -219,18 +219,25 @@ class BlogResource extends Resource
                                     TextInput::make('location_name')
                                         ->label('Plek')
                                         ->placeholder('Bijv. Ghorepani, Nepal')
-                                        ->helperText('Na het typen zet de app een pin op die plek, als er nog geen pin staat.')
+                                        ->helperText('Typ de plaats, met of zonder land: de app schrijft hem als "Plaats, Land" (op de site: Land – Plaats) en zet een pin, als er nog geen pin staat.')
                                         ->maxLength(255)
                                         ->live(onBlur: true)
-                                        // A suggestion only: a pin that is already there (maybe placed by hand) stays put
-                                        ->afterStateUpdated(fn (Get $get, Set $set) => blank($get('latitude'))
-                                            ? self::suggestPin($get, $set)
-                                            : null)
+                                        // The same notation every time; a pin that is already there (maybe placed by hand) stays put
+                                        ->afterStateUpdated(function (Get $get, Set $set) {
+                                            self::tidyPlace($get, $set);
+
+                                            if (blank($get('latitude'))) {
+                                                self::suggestPin($get, $set);
+                                            }
+                                        })
                                         ->suffixAction(
                                             Action::make('suggestPin')
                                                 ->icon(Heroicon::OutlinedMagnifyingGlass)
                                                 ->tooltip('Zet de pin op deze plek')
-                                                ->action(fn (Get $get, Set $set) => self::suggestPin($get, $set)),
+                                                ->action(function (Get $get, Set $set) {
+                                                    self::tidyPlace($get, $set);
+                                                    self::suggestPin($get, $set);
+                                                }),
                                         ),
                                     LocationPicker::make('pin')
                                         ->label('Pin op de kaart'),
@@ -302,6 +309,20 @@ class BlogResource extends Resource
                 ->rows(3)
                 ->maxLength(500),
         ];
+    }
+
+    /**
+     * Writes the place typed in the form the same way every time, "Cefalù, Italië", so the blog
+     * shows "Italië – Cefalù" whatever was typed (see Geocoder::placeName). A place the map doesn't
+     * know stays as typed.
+     */
+    public static function tidyPlace(Get $get, Set $set): void
+    {
+        $place = trim((string) $get('location_name'));
+
+        if ($place !== '' && ($tidy = Geocoder::placeName($place)) && $tidy !== $place) {
+            $set('location_name', $tidy);
+        }
     }
 
     /**

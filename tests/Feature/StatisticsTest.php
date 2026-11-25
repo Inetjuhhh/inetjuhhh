@@ -150,3 +150,29 @@ it('shows 25 blogs at a time in the list', function () {
         ->call('showMore')->assertSee('33 van 33 blogs')->assertDontSee('Toon meer')
         ->set('search', 'extra')->assertSee('25 van 30 blogs');
 });
+
+it('shows more popular blogs on the dashboard on request', function () {
+    foreach (range(1, 12) as $i) {
+        statsReads(statsBlog("Extra blog {$i}"), $i);
+    }
+    // Never read in this period: not in the ranking
+    statsBlog('Niet gelezen');
+
+    Livewire::test(PopularBlogs::class)
+        ->assertSee('5 van 15 blogs')->assertSee('Toon meer')
+        ->call('showMore')->assertSee('15 van 15 blogs')->assertDontSee('Toon meer')->assertDontSee('Niet gelezen')
+        // Another order starts at the top five again
+        ->set('by', 'likes')->assertSet('shown', 5)->assertSee('2 van 2 blogs');
+});
+
+it('lists all countries and cities, the first ones open', function () {
+    foreach (['DE', 'FR', 'ES', 'PT', 'AT', 'CH', 'DK', 'SE', 'NO', 'FI'] as $code) {
+        DB::table('blog_view_stats')->insert(['blog_id' => $this->andes->id, 'date' => today()->toDateString(), 'country' => $code, 'city' => "Stad {$code}", 'source' => 'google', 'views' => 1]);
+    }
+    foreach (range(1, 9) as $i) {
+        DB::table('blog_view_stats')->insert(['blog_id' => $this->tuscany->id, 'date' => today()->toDateString(), 'country' => 'NL', 'city' => "Dorp {$i}", 'source' => 'google', 'views' => 1]);
+    }
+
+    Livewire::test(ReaderCountries::class)
+        ->assertSee(['van 12 landen', 'Toon meer landen', 'Stad FI', 'Toon meer plaatsen', 'Dorp 9']);
+});
